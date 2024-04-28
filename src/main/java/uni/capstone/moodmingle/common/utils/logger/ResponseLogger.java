@@ -1,6 +1,5 @@
 package uni.capstone.moodmingle.common.utils.logger;
 
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.experimental.UtilityClass;
@@ -9,6 +8,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import uni.capstone.moodmingle.config.jwt.JwtException;
 import uni.capstone.moodmingle.exception.ErrorResponse;
 
 import java.util.Collection;
@@ -25,7 +25,7 @@ public class ResponseLogger {
         StringBuilder logBuilder = new StringBuilder();
         logBuilder.append(getLoggingStructure());
         logBuilder.append("[Response Status] : ").append(getStatus(response)).append("\n");
-        logBuilder.append("[Request Headers] : ").append(parsingHeaders(response)).append("\n");
+        logBuilder.append("[Response Headers] : ").append(parsingHeaders(response)).append("\n");
         log.info(logBuilder.toString());
     }
 
@@ -40,15 +40,15 @@ public class ResponseLogger {
     }
 
     // Failed Response With JWT-Exception
-//    public void loggingWithJWTExceptionInfo(HttpServletRequest request, ResponseEntity<ErrorResponse> response, JwtException ex) {
-//        StringBuilder logBuilder = new StringBuilder();
-//        logBuilder.append(getExceptionHandlingLoggingStructure());
-//        logBuilder.append(getRequestURI(request)).append("\n");
-//        logBuilder.append("[JWT Exception Class] : ").append(JwtException.valueOf(ex.name())).append("\n");
-//        logBuilder.append("[JWT Exception Message] : ").append(ex.getMessage()).append("\n");
-//        logBuilder.append("[Response Body With Exception] : ").append("\n").append(response.getBody());
-//        log.warn(logBuilder.toString());
-//    }
+    public void loggingWithJWTExceptionInfo(HttpServletRequest request, ResponseEntity<ErrorResponse> response, JwtException ex) {
+        StringBuilder logBuilder = new StringBuilder();
+        logBuilder.append(getExceptionHandlingLoggingStructure());
+        logBuilder.append(getRequestURI(request)).append("\n");
+        logBuilder.append("[JWT Exception Class] : ").append(JwtException.valueOf(ex.name())).append("\n");
+        logBuilder.append("[JWT Exception Message] : ").append(ex.getMessage()).append("\n");
+        logBuilder.append("[Response Body With Exception] : ").append("\n").append(response.getBody());
+        log.warn(logBuilder.toString());
+    }
 
     // Logging Response Status
     private String getStatus(HttpServletResponse response) {

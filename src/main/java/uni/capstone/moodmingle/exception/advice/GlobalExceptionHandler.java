@@ -1,7 +1,6 @@
 package uni.capstone.moodmingle.exception.advice;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -20,7 +19,6 @@ import uni.capstone.moodmingle.exception.ErrorResponse;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
 
 import javax.naming.SizeLimitExceededException;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -82,16 +80,10 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<ErrorResponse> createErrorResponse(HttpServletRequest request, Exception e, ErrorCode errorCode) {
         // Create ExceptionResponse
-        ResponseEntity<ErrorResponse> response;
-        if (e.getClass().equals(MethodArgumentNotValidException.class)) {
-            response = ErrorResponse.toResponseEntity(ErrorCode.INVALID_REQUEST_PARAMETER,
-                    ((MethodArgumentNotValidException) e).getBindingResult().getFieldErrors().stream()
-                            .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining(" and ")));
-        } else {
-            response = ErrorResponse.toResponseEntity(errorCode);
-        }
+        ResponseEntity<ErrorResponse> response = ErrorResponse.toResponseEntity(errorCode);
 
         // Logging And Return
+        // TODO: 이 메서드를 prod 프로필에서는 시행하지 않도록 처리
         RequestLogger.logging(request);
         ResponseLogger.loggingFailedResponse(response, e);
         return response;
