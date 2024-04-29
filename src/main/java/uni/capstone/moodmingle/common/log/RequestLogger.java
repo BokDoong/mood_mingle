@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.common.utils.logger;
+package uni.capstone.moodmingle.common.log;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.experimental.UtilityClass;
@@ -16,9 +16,9 @@ public class RequestLogger {
 
     // Request
     public void logging(HttpServletRequest request) {
-
-        // Request Representative Infos
         StringBuilder logBuilder = new StringBuilder();
+
+        // Request's Representative Infos
         logBuilder.append(getLoggingStructure());
         logBuilder.append(getRequestURI(request)).append("\n");
         logBuilder.append("[Request Headers] : ").append(parsingHeaders(request)).append("\n");
@@ -30,6 +30,7 @@ public class RequestLogger {
             logBuilder.append("[Request Body] : This request includes Multipart Files").append("\n");
         }
 
+        // Logging
         log.info(logBuilder.toString());
     }
 

@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
-import uni.capstone.moodmingle.common.utils.logger.RequestLogger;
-import uni.capstone.moodmingle.common.utils.logger.ResponseLogger;
+import uni.capstone.moodmingle.common.log.RequestLogger;
+import uni.capstone.moodmingle.common.log.ResponseLogger;
 import uni.capstone.moodmingle.exception.BusinessException;
 import uni.capstone.moodmingle.exception.ErrorResponse;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
@@ -83,7 +83,7 @@ public class GlobalExceptionHandler {
         ResponseEntity<ErrorResponse> response = ErrorResponse.toResponseEntity(errorCode);
 
         // Logging And Return
-        // TODO: 이 메서드를 prod 프로필에서는 시행하지 않도록 처리
+        // TODO: Request Logging 메서드를 prod 프로필에서는 시행하지 않도록 처리
         RequestLogger.logging(request);
         ResponseLogger.loggingFailedResponse(response, e);
         return response;

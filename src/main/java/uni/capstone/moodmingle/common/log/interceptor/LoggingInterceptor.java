@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.common.interceptor;
+package uni.capstone.moodmingle.common.log.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-import uni.capstone.moodmingle.common.utils.logger.RequestLogger;
-import uni.capstone.moodmingle.common.utils.logger.ResponseLogger;
+import uni.capstone.moodmingle.common.log.RequestLogger;
+import uni.capstone.moodmingle.common.log.ResponseLogger;
 
 @Component
 @RequiredArgsConstructor
@@ -26,7 +26,7 @@ public class LoggingInterceptor implements HandlerInterceptor {
     }
 
     private void logSuccessfulResponse(HttpServletResponse response) {
-        ResponseLogger.loggingSuccessResponse(response);
+        ResponseLogger.loggingSuccessfulResponse(response);
     }
 }
 

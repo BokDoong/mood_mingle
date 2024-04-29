@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.common.filter;
+package uni.capstone.moodmingle.common.log.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
 
@@ -24,9 +25,13 @@ public class CachingRequestFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Request Wrapping
+        // Request&Response Wrapping
         ContentCachingRequestWrapper wrappingRequest = new ContentCachingRequestWrapper(request);
-        filterChain.doFilter(wrappingRequest, response);
+        ContentCachingResponseWrapper wrappingResponse = new ContentCachingResponseWrapper(response);
+        filterChain.doFilter(wrappingRequest, wrappingResponse);
+
+        // Client에 Wrapping된 Response 전달
+        wrappingResponse.copyBodyToResponse();
     }
 
     private boolean verifyMultipartFileIncluded(HttpServletRequest request) {

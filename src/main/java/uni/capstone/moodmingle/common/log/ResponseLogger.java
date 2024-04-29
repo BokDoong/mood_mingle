@@ -1,5 +1,6 @@
-package uni.capstone.moodmingle.common.utils.logger;
+package uni.capstone.moodmingle.common.log;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.experimental.UtilityClass;
@@ -8,9 +9,11 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.util.ContentCachingResponseWrapper;
 import uni.capstone.moodmingle.config.jwt.JwtException;
 import uni.capstone.moodmingle.exception.ErrorResponse;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,11 +24,18 @@ import java.util.stream.Collectors;
 public class ResponseLogger {
 
     // Successful Response
-    public void loggingSuccessResponse(HttpServletResponse response) {
+    public void loggingSuccessfulResponse(HttpServletResponse response) {
         StringBuilder logBuilder = new StringBuilder();
+
+        // Response's Representative Infos
         logBuilder.append(getLoggingStructure());
         logBuilder.append("[Response Status] : ").append(getStatus(response)).append("\n");
         logBuilder.append("[Response Headers] : ").append(parsingHeaders(response)).append("\n");
+
+        // Response's Body
+        logBuilder.append(parsingBody(response));
+
+        // Logging
         log.info(logBuilder.toString());
     }
 
@@ -50,14 +60,14 @@ public class ResponseLogger {
         log.warn(logBuilder.toString());
     }
 
-    // Logging Response Status
+    // Parsing Response Status
     private String getStatus(HttpServletResponse response) {
         HttpStatus responseStatus = HttpStatus.valueOf(response.getStatus());
         return responseStatus.value() + " - " +
                 responseStatus.getReasonPhrase();
     }
 
-    // Logging Response Headers
+    // Parsing Response Headers
     private Map<String, Object> parsingHeaders(HttpServletResponse response) {
         Map<String, Object> headerMap = new HashMap<>();
 
@@ -68,12 +78,31 @@ public class ResponseLogger {
         return headerMap;
     }
 
-    // Logging Exception Class Name
+    // Parsing Content of ResponseBody
+    private String parsingBody(HttpServletResponse response) {
+        final ContentCachingResponseWrapper cachingResponse = (ContentCachingResponseWrapper) response;
+
+        if (cachingResponse != null) {
+            byte[] buf = cachingResponse.getContentAsByteArray();
+            if (buf.length > 0) {
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    Object json = objectMapper.readValue(buf, Object.class);
+                    return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
+                } catch (IOException e) {
+                    return "Failed to parse response body";
+                }
+            }
+        }
+        return "EMPTY BODY ";
+    }
+
+    // Parsing Exception Class Name
     private String getExceptionName(Exception e) {
         return e.getClass().getSimpleName();
     }
 
-    // Logging Exception Message
+    // Parsing Exception Message
     private String parsingExceptionMessage(Exception e) {
         String message = e.getMessage();
         if (e.getClass().equals(MethodArgumentNotValidException.class)) {
@@ -86,20 +115,20 @@ public class ResponseLogger {
         return message;
     }
 
-    // Logging Requested URI
+    // Parsing Requested URI
     private String getRequestURI(HttpServletRequest request) {
         String httpMethod = "[HTTP Method] : " + request.getMethod();
         String requestURI = "[Request URI] : " + request.getRequestURI();
         return httpMethod + "\n" + requestURI;
     }
 
+    // Logs' Title
     public String getLoggingStructure() {
         return """
 
                 [Title] : Successful Responsing Information
                 """;
     }
-
     public String getExceptionHandlingLoggingStructure() {
         return """
 
