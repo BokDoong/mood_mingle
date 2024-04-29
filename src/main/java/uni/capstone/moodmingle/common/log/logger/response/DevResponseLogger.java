@@ -1,11 +1,12 @@
-package uni.capstone.moodmingle.common.log;
+package uni.capstone.moodmingle.common.log.logger.response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingResponseWrapper;
+import uni.capstone.moodmingle.common.log.logger.ResponseLogger;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -13,30 +14,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@UtilityClass
-public class ResponseLogger {
+@Component
+@Profile("dev | local")
+public class DevResponseLogger implements ResponseLogger {
 
-    // Logging Successful Response
-    public void logSuccessfulResponse(HttpServletResponse response) {
+    // Logging in Dev Profile
+    public void logResponse(HttpServletResponse response) {
         StringBuffer logBuffer = new StringBuffer();
 
         // Response's Representative Infos
-        logBuffer.append(getLoggingStructure());
+        logBuffer.append("\n\n").append("[Title] : Successful Responsing Information").append("\n");
         logBuffer.append("[Response Status] : ").append(parseResponseStatus(response)).append("\n");
         logBuffer.append("[Response Headers] : ").append(parseResponseHeaders(response)).append("\n");
 
         // Response's Body
         logBuffer.append(parseResponseBody(response));
 
-        // Logging
         log.info(logBuffer.toString());
-    }
-
-    // Parsing Response Status
-    private String parseResponseStatus(HttpServletResponse response) {
-        HttpStatus responseStatus = HttpStatus.valueOf(response.getStatus());
-        return responseStatus.value() + " - " +
-                responseStatus.getReasonPhrase();
     }
 
     // Parsing Response Headers
@@ -67,13 +61,5 @@ public class ResponseLogger {
             }
         }
         return "EMPTY BODY ";
-    }
-
-    // Logs' Title
-    public String getLoggingStructure() {
-        return """
-
-                [Title] : Successful Responsing Information
-                """;
     }
 }

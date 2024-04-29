@@ -14,7 +14,7 @@ import java.io.IOException;
 
 @Profile("dev | local")
 @Component
-public class CachingRequestFilter extends OncePerRequestFilter {
+public class RequestLogFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {

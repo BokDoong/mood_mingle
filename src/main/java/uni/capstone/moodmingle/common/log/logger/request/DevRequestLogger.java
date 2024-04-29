@@ -1,9 +1,11 @@
-package uni.capstone.moodmingle.common.log;
+package uni.capstone.moodmingle.common.log.logger.request;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
+import uni.capstone.moodmingle.common.log.logger.RequestLogger;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
@@ -11,15 +13,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@UtilityClass
-public class RequestLogger {
+@Component
+@Profile("dev | local")
+public class DevRequestLogger implements RequestLogger {
 
     // Logging in Dev Profile
-    public void logDevRequest(HttpServletRequest request) {
+    @Override
+    public void logRequest(HttpServletRequest request) {
         StringBuffer logBuffer = new StringBuffer();
 
         // Request's Representative Infos
-        logBuffer.append(getLoggingStructure());
+        logBuffer.append("\n\n").append("[Title] : Requested Information").append("\n");
         logBuffer.append(parseRequestURI(request)).append("\n");
         logBuffer.append("[Request Headers] : ").append(parseRequestHeaders(request)).append("\n");
 
@@ -30,32 +34,12 @@ public class RequestLogger {
             logBuffer.append("[Request Body] : This request includes Multipart Files").append("\n");
         }
 
-        // Logging & Flush
-        log.info(logBuffer.toString());
-    }
-
-    // Logging in Prod Profile
-    public void logProdRequest(HttpServletRequest request) {
-        StringBuffer logBuffer = new StringBuffer();
-
-        // Request's Representative Infos
-        logBuffer.append(getLoggingStructure());
-        logBuffer.append(parseRequestURI(request)).append("\n");
-
-        // Logging & Flush
         log.info(logBuffer.toString());
     }
 
     // Check Multipart Files Included
     private boolean verifyMultipartFileContained(HttpServletRequest request) {
         return (boolean) request.getAttribute("isMultipartFile");
-    }
-
-    // Parsing Requested URI
-    private String parseRequestURI(HttpServletRequest request) {
-        String httpMethod = "[HTTP Method] : " + request.getMethod();
-        String requestURI = "[Request URI] : " + request.getRequestURI();
-        return httpMethod + "\n" + requestURI;
     }
 
     // Parsing Requested Headers
@@ -84,13 +68,7 @@ public class RequestLogger {
                 }
             }
         }
+
         return "EMPTY BODY ";
-    }
-
-    public String getLoggingStructure() {
-        return """
-
-                [Title] : Requested Information
-                """;
     }
 }

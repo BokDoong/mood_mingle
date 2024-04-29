@@ -6,7 +6,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-public interface LoggingInterceptor extends HandlerInterceptor {
+public interface LogInterceptor extends HandlerInterceptor {
 
     @Override
     void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
@@ -14,4 +14,5 @@ public interface LoggingInterceptor extends HandlerInterceptor {
 
     @Override
     boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler);
+    
 }
