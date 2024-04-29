@@ -1,9 +1,11 @@
-package uni.capstone.moodmingle.common.utils.logger;
+package uni.capstone.moodmingle.common.log.logger.request;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
+import uni.capstone.moodmingle.common.log.logger.RequestLogger;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
@@ -11,26 +13,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@UtilityClass
-public class RequestLogger {
+@Component
+@Profile("dev | local")
+public class DevRequestLogger implements RequestLogger {
 
-    // Request
-    public void logging(HttpServletRequest request) {
+    // Logging in Dev Profile
+    @Override
+    public void logRequest(HttpServletRequest request) {
+        StringBuffer logBuffer = new StringBuffer();
 
-        // Request Representative Infos
-        StringBuilder logBuilder = new StringBuilder();
-        logBuilder.append(getLoggingStructure());
-        logBuilder.append(getRequestURI(request)).append("\n");
-        logBuilder.append("[Request Headers] : ").append(parsingHeaders(request)).append("\n");
+        // Request's Representative Infos
+        logBuffer.append("\n\n").append("[Title] : Requested Information").append("\n");
+        logBuffer.append(parseRequestURI(request)).append("\n");
+        logBuffer.append("[Request Headers] : ").append(parseRequestHeaders(request)).append("\n");
 
         // Request Body
         if (!verifyMultipartFileContained(request)) {
-            logBuilder.append("[Request Body] : ").append("\n").append(parsingBody(request));
+            logBuffer.append("[Request Body] : ").append("\n").append(parseRequestBody(request));
         } else {
-            logBuilder.append("[Request Body] : This request includes Multipart Files").append("\n");
+            logBuffer.append("[Request Body] : This request includes Multipart Files").append("\n");
         }
 
-        log.info(logBuilder.toString());
+        log.info(logBuffer.toString());
     }
 
     // Check Multipart Files Included
@@ -38,15 +42,8 @@ public class RequestLogger {
         return (boolean) request.getAttribute("isMultipartFile");
     }
 
-    // Logging Requested URI
-    private String getRequestURI(HttpServletRequest request) {
-        String httpMethod = "[HTTP Method] : " + request.getMethod();
-        String requestURI = "[Request URI] : " + request.getRequestURI();
-        return httpMethod + "\n" + requestURI;
-    }
-
-    // Logging Requested Headers
-    private Map<String, Object> parsingHeaders(HttpServletRequest request) {
+    // Parsing Requested Headers
+    private Map<String, Object> parseRequestHeaders(HttpServletRequest request) {
         Map<String, Object> headerMap = new HashMap<>();
 
         Enumeration<String> headers = request.getHeaderNames();
@@ -57,8 +54,8 @@ public class RequestLogger {
         return headerMap;
     }
 
-    // Logging Content of RequestBody
-    private String parsingBody(HttpServletRequest request) {
+    // Parsing Content of RequestBody
+    private String parseRequestBody(HttpServletRequest request) {
         final ContentCachingRequestWrapper cachingRequest = (ContentCachingRequestWrapper) request;
 
         if (request != null) {
@@ -71,13 +68,7 @@ public class RequestLogger {
                 }
             }
         }
+
         return "EMPTY BODY ";
-    }
-
-    public String getLoggingStructure() {
-        return """
-
-                [Title] : Requested Information
-                """;
     }
 }

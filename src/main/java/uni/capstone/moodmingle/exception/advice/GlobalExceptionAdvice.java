@@ -1,6 +1,7 @@
 package uni.capstone.moodmingle.exception.advice;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -12,8 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
-import uni.capstone.moodmingle.common.utils.logger.RequestLogger;
-import uni.capstone.moodmingle.common.utils.logger.ResponseLogger;
+import uni.capstone.moodmingle.common.log.logger.RequestLogger;
 import uni.capstone.moodmingle.exception.BusinessException;
 import uni.capstone.moodmingle.exception.ErrorResponse;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
@@ -21,7 +21,10 @@ import uni.capstone.moodmingle.exception.code.ErrorCode;
 import javax.naming.SizeLimitExceededException;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+@RequiredArgsConstructor
+public class GlobalExceptionAdvice {
+
+    private final RequestLogger requestLogger;
 
     // 비즈니스 예외 처리시 발생
     @ExceptionHandler(BusinessException.class)
@@ -82,10 +85,9 @@ public class GlobalExceptionHandler {
         // Create ExceptionResponse
         ResponseEntity<ErrorResponse> response = ErrorResponse.toResponseEntity(errorCode);
 
-        // Logging And Return
-        // TODO: 이 메서드를 prod 프로필에서는 시행하지 않도록 처리
-        RequestLogger.logging(request);
-        ResponseLogger.loggingFailedResponse(response, e);
+        // Logging And Return Exception
+        requestLogger.logRequest(request);
+        ExceptionResponseLogger.logResponse(response, e);
         return response;
     }
 }

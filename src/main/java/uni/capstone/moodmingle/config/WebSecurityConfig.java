@@ -18,6 +18,9 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
+        // CSRF 비활성화
+        http.csrf(AbstractHttpConfigurer::disable);
+
         // FormLogin, BasicHttp 비활성화
         http.formLogin(AbstractHttpConfigurer::disable);
         http.httpBasic(AbstractHttpConfigurer::disable);
