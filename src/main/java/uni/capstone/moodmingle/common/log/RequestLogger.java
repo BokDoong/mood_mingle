@@ -14,24 +14,36 @@ import java.util.Map;
 @UtilityClass
 public class RequestLogger {
 
-    // Request
-    public void logging(HttpServletRequest request) {
-        StringBuilder logBuilder = new StringBuilder();
+    // Logging in Dev Profile
+    public void logDevRequest(HttpServletRequest request) {
+        StringBuffer logBuffer = new StringBuffer();
 
         // Request's Representative Infos
-        logBuilder.append(getLoggingStructure());
-        logBuilder.append(getRequestURI(request)).append("\n");
-        logBuilder.append("[Request Headers] : ").append(parsingHeaders(request)).append("\n");
+        logBuffer.append(getLoggingStructure());
+        logBuffer.append(parseRequestURI(request)).append("\n");
+        logBuffer.append("[Request Headers] : ").append(parseRequestHeaders(request)).append("\n");
 
         // Request Body
         if (!verifyMultipartFileContained(request)) {
-            logBuilder.append("[Request Body] : ").append("\n").append(parsingBody(request));
+            logBuffer.append("[Request Body] : ").append("\n").append(parseRequestBody(request));
         } else {
-            logBuilder.append("[Request Body] : This request includes Multipart Files").append("\n");
+            logBuffer.append("[Request Body] : This request includes Multipart Files").append("\n");
         }
 
-        // Logging
-        log.info(logBuilder.toString());
+        // Logging & Flush
+        log.info(logBuffer.toString());
+    }
+
+    // Logging in Prod Profile
+    public void logProdRequest(HttpServletRequest request) {
+        StringBuffer logBuffer = new StringBuffer();
+
+        // Request's Representative Infos
+        logBuffer.append(getLoggingStructure());
+        logBuffer.append(parseRequestURI(request)).append("\n");
+
+        // Logging & Flush
+        log.info(logBuffer.toString());
     }
 
     // Check Multipart Files Included
@@ -39,15 +51,15 @@ public class RequestLogger {
         return (boolean) request.getAttribute("isMultipartFile");
     }
 
-    // Logging Requested URI
-    private String getRequestURI(HttpServletRequest request) {
+    // Parsing Requested URI
+    private String parseRequestURI(HttpServletRequest request) {
         String httpMethod = "[HTTP Method] : " + request.getMethod();
         String requestURI = "[Request URI] : " + request.getRequestURI();
         return httpMethod + "\n" + requestURI;
     }
 
-    // Logging Requested Headers
-    private Map<String, Object> parsingHeaders(HttpServletRequest request) {
+    // Parsing Requested Headers
+    private Map<String, Object> parseRequestHeaders(HttpServletRequest request) {
         Map<String, Object> headerMap = new HashMap<>();
 
         Enumeration<String> headers = request.getHeaderNames();
@@ -58,8 +70,8 @@ public class RequestLogger {
         return headerMap;
     }
 
-    // Logging Content of RequestBody
-    private String parsingBody(HttpServletRequest request) {
+    // Parsing Content of RequestBody
+    private String parseRequestBody(HttpServletRequest request) {
         final ContentCachingRequestWrapper cachingRequest = (ContentCachingRequestWrapper) request;
 
         if (request != null) {
