@@ -13,6 +13,7 @@ public enum CommonCode {
     SERVICE_UNAVAILABLE("C-005"),
     DATA_INTEGRITY("C-006"),
     INVALID_REFRESH_TOKEN("C-007"),
+    DATA_IO("C-008"),
     ;
 
     private final String code;

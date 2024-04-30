@@ -1,13 +1,17 @@
 package uni.capstone.moodmingle.common.log.logger.request;
 
+import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.ContentCachingRequestWrapper;
+import uni.capstone.moodmingle.common.log.advice.CachingBodyHttpServletWrapper;
 import uni.capstone.moodmingle.common.log.logger.RequestLogger;
+import uni.capstone.moodmingle.exception.BusinessException;
+import uni.capstone.moodmingle.exception.code.ErrorCode;
 
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +27,7 @@ public class DevRequestLogger implements RequestLogger {
         StringBuffer logBuffer = new StringBuffer();
 
         // Request's Representative Infos
-        logBuffer.append("\n\n").append("[Title] : Requested Information").append("\n");
+        logBuffer.append("\n").append("[Title] : Requested Information").append("\n");
         logBuffer.append(parseRequestURI(request)).append("\n");
         logBuffer.append("[Request Headers] : ").append(parseRequestHeaders(request)).append("\n");
 
@@ -56,16 +60,21 @@ public class DevRequestLogger implements RequestLogger {
 
     // Parsing Content of RequestBody
     private String parseRequestBody(HttpServletRequest request) {
-        final ContentCachingRequestWrapper cachingRequest = (ContentCachingRequestWrapper) request;
+        final CachingBodyHttpServletWrapper cachingRequest = (CachingBodyHttpServletWrapper) request;
 
         if (request != null) {
-            byte[] buf = cachingRequest.getContentAsByteArray();
-            if (buf.length > 0) {
-                try {
-                    return new String(buf, 0, buf.length, cachingRequest.getCharacterEncoding());
-                } catch (UnsupportedEncodingException e) {
-                    return " Unsupported Encoding ";
+            try {
+                ServletInputStream inputStream = cachingRequest.getInputStream();
+                byte[] bodyBytes = new byte[1024];
+                int bytesRead;
+                StringBuilder body = new StringBuilder();
+
+                while ((bytesRead = inputStream.read(bodyBytes)) != -1) {
+                    body.append(new String(bodyBytes, 0, bytesRead, StandardCharsets.UTF_8));
                 }
+                return body.toString();
+            } catch (IOException e) {
+                throw new BusinessException(ErrorCode.DATA_IO_UNAVAILABLE);
             }
         }
 

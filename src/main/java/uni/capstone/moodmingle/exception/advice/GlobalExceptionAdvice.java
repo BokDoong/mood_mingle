@@ -85,8 +85,7 @@ public class GlobalExceptionAdvice {
         // Create ExceptionResponse
         ResponseEntity<ErrorResponse> response = ErrorResponse.toResponseEntity(errorCode);
 
-        // Logging And Return Exception
-        requestLogger.logRequest(request);
+        // Logging And Return with Exception
         ExceptionResponseLogger.logResponse(response, e);
         return response;
     }

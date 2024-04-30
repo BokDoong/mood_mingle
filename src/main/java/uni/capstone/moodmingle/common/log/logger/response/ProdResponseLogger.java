@@ -16,7 +16,7 @@ public class ProdResponseLogger implements ResponseLogger {
         StringBuffer logBuffer = new StringBuffer();
 
         // Response's Representative Infos
-        logBuffer.append("\n\n").append("[Title] : Successful Responsing Information").append("\n");
+        logBuffer.append("\n").append("[Title] : Successful Responsing Information").append("\n");
         logBuffer.append("[Response Status] : ").append(parseResponseStatus(response)).append("\n");
 
         log.info(logBuffer.toString());
