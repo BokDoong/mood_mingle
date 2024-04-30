@@ -17,7 +17,7 @@ public class ProdRequestLogger implements RequestLogger {
         StringBuffer logBuffer = new StringBuffer();
 
         // Request's Representative Infos
-        logBuffer.append("\n\n").append("[Title] : Requested Information").append("\n");
+        logBuffer.append("\n").append("[Title] : Requested Information").append("\n");
         logBuffer.append(parseRequestURI(request)).append("\n");
 
         log.info(logBuffer.toString());
