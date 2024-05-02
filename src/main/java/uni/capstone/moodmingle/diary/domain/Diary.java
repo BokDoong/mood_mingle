@@ -38,13 +38,19 @@ public class Diary {
     private Reply reply;
 
     @Builder
-    public Diary(String title, LocalDateTime date, String content, String imageUrl, Emotion emotion, Weather weather) {
+    public Diary(String title, LocalDateTime date, String content, String imageUrl,
+                 Emotion emotion, Weather weather, Member member) {
+        this.member = member;
         this.title = title;
         this.date = date;
         this.content = content;
         this.imageUrl = imageUrl.isEmpty() ? "" : imageUrl;
         this.emotion = emotion;
         this.weather = weather;
+    }
+
+    public void putReply(Reply reply) {
+        this.reply = reply;
     }
 
     @Getter
@@ -76,11 +82,5 @@ public class Diary {
         ;
 
         private final String value;
-    }
-
-    @Getter
-    @RequiredArgsConstructor
-    public enum SnsType {
-        KAKAO, NAVER,
     }
 }

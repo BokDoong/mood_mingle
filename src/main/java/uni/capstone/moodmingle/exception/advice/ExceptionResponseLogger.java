@@ -6,16 +6,26 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import uni.capstone.moodmingle.config.jwt.JwtException;
+import uni.capstone.moodmingle.config.jwt.JwtExceptionInfo;
 import uni.capstone.moodmingle.exception.ErrorResponse;
 
 import java.util.stream.Collectors;
 
+/**
+ * Exception 발생했을 때, 커스텀 예외 정보를 담은 Logger
+ *
+ * @author ijin
+ */
 @Slf4j
 @UtilityClass
 public class ExceptionResponseLogger {
 
-    // Logging Response With Exception
+    /**
+     * 파싱 메서드를 이용하여 커스텀 예외 정보를 담은 Response 를 로깅
+     *
+     * @param response ErrorResponse 를 담은 ResponseEntity
+     * @param ex 예외 정보
+     */
     public void logResponse(ResponseEntity<ErrorResponse> response, Exception ex) {
         StringBuffer logBuffer = new StringBuffer();
 
@@ -29,14 +39,19 @@ public class ExceptionResponseLogger {
         log.warn(logBuffer.toString());
     }
 
-    // Logging Response With JWT-Exception
-    public void logResponseWithJWTException(HttpServletRequest request, ResponseEntity<ErrorResponse> response, JwtException ex) {
+    /**
+     * 파싱 메서드를 이용하여 커스텀 JWT 예외 정보를 담은 Response 를 로깅
+     *
+     * @param response ErrorResponse 를 담은 ResponseEntity
+     * @param ex 예외 정보
+     */
+    public void logResponseWithJWTException(HttpServletRequest request, ResponseEntity<ErrorResponse> response, JwtExceptionInfo ex) {
         StringBuffer logBuffer = new StringBuffer();
 
         // Response's JWT Exception Info
         logBuffer.append(getLoggingStructure());
         logBuffer.append(parseRequestURI(request)).append("\n");
-        logBuffer.append("[JWT Exception Class] : ").append(JwtException.valueOf(ex.name())).append("\n");
+        logBuffer.append("[JWT Exception Class] : ").append(JwtExceptionInfo.valueOf(ex.name())).append("\n");
         logBuffer.append("[JWT Exception Message] : ").append(ex.getMessage()).append("\n");
         logBuffer.append("[Response Body With Exception] : ").append("\n").append(parseResponseBody(response));
 

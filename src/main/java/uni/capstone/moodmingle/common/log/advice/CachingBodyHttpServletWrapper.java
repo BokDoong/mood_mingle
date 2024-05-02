@@ -9,34 +9,66 @@ import org.springframework.util.StreamUtils;
 
 import java.io.*;
 
+/**
+ * local, dev 프로파일에서 RequestBody 로깅을 위해 캐싱 목적으로 HttpServletRequestWrapper 를 상속한 클래스
+ * InputStream 을 이용하여 cachedBody 에 Body 를 복사(캐싱)하여 저장
+ *
+ * @author ijin
+ */
 public class CachingBodyHttpServletWrapper extends HttpServletRequestWrapper {
 
+    /**
+     * CachedBodyServletInputStream 생성을 위해 RequestBody 를 담을 변수
+     */
     private byte[] cachedBody;
 
+    /**
+     * getInputStream()을 이용하여 RequestBody 를 복사(캐싱)하는 생성자
+     *
+     * @param request HTTP Request Body
+     */
     public CachingBodyHttpServletWrapper(HttpServletRequest request) throws IOException {
         super(request);
         InputStream requestInputStream = request.getInputStream();
         this.cachedBody = StreamUtils.copyToByteArray(requestInputStream);
     }
 
+    /**
+     * 다른 클래스에서 RequestBody 를 담은 CachedBodyServletInputStream 객체를 반환
+     *
+     * @return CachedBodyServletInputStream 객체
+     */
     @Override
     public ServletInputStream getInputStream() throws IOException {
         return new CachedBodyServletInputStream(this.cachedBody);
     }
 
+    /**
+     * ByteArrayInputStream 으로 RequestBody 를 반환
+     *
+     * @return 인코딩된 RequestBody 를 담은 BufferReader 객체 반환
+     */
     @Override
     public BufferedReader getReader() throws IOException {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(this.cachedBody);
         return new BufferedReader(new InputStreamReader(byteArrayInputStream, "UTF-8"));
     }
 
-    /*
-    Inner Class
+    /**
+     * RequestBody 를 담아 다른 곳에서 사용할 클래스
      */
     public class CachedBodyServletInputStream extends ServletInputStream {
 
+        /**
+         * RequestBody 를 담을 변수
+         */
         private InputStream cachedBodyInputStream;
 
+        /**
+         * RequestBody 를 받는 생성자
+         *
+         * @param cachedBody 상위 클래스에서 받을 RequestBody 가 담긴 변수
+         */
         public CachedBodyServletInputStream(byte[] cachedBody) {
             this.cachedBodyInputStream = new ByteArrayInputStream(cachedBody);
         }

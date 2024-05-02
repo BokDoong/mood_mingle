@@ -8,6 +8,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Spring Security 설정하는 Config 클래스
+ *
+ * @author ijin
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -15,6 +20,13 @@ public class WebSecurityConfig {
 
     private static final String[] AUTH_BLACKLIST = {};
 
+    /**
+     * Security 설정
+     *
+     * @param http HTTP
+     * @return
+     * @throws Exception
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 

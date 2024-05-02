@@ -13,27 +13,35 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * local, dev 환경에서 Response 를 로깅하는 ResponseLogger 구현체
+ *
+ * @author ijin
+ */
 @Slf4j
 @Component
 @Profile("dev | local")
 public class DevResponseLogger implements ResponseLogger {
 
-    // Logging in Dev Profile
+    /**
+     * Response 를 다른 커스텀 파싱 메서드를 이용하여 로깅
+     *
+     * @param response HTTP Response
+     */
     public void logResponse(HttpServletResponse response) {
         StringBuffer logBuffer = new StringBuffer();
 
-        // Response's Representative Infos
+        // Response's Representative Infos 파싱
         logBuffer.append("\n").append("[Title] : Successful Responsing Information").append("\n");
         logBuffer.append("[Response Status] : ").append(parseResponseStatus(response)).append("\n");
         logBuffer.append("[Response Headers] : ").append(parseResponseHeaders(response)).append("\n");
 
-        // Response's Body
+        // Response's Body 파싱
         logBuffer.append(parseResponseBody(response));
 
         log.info(logBuffer.toString());
     }
 
-    // Parsing Response Headers
     private Map<String, Object> parseResponseHeaders(HttpServletResponse response) {
         Map<String, Object> headerMap = new HashMap<>();
 
@@ -44,7 +52,6 @@ public class DevResponseLogger implements ResponseLogger {
         return headerMap;
     }
 
-    // Parsing Content of ResponseBody
     private String parseResponseBody(HttpServletResponse response) {
         final ContentCachingResponseWrapper cachingResponse = (ContentCachingResponseWrapper) response;
 
