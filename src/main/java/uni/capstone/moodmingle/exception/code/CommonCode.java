@@ -3,6 +3,11 @@ package uni.capstone.moodmingle.exception.code;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 전역에서 공통으로 발생할 수 있는 커스텀 Exception 에러 코드
+ *
+ * @author ijin
+ */
 @Getter
 @RequiredArgsConstructor
 public enum CommonCode {

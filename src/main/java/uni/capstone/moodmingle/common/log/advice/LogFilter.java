@@ -11,13 +11,27 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
 
+/**
+ * local, dev 프로파일에서 CachingBodyHttpServletWrapper, ContentCachingResponseWrapper 를 이용하여
+ * RequestBody, ResponseBody 를 로깅하기 위해 캐싱을 설정하는 SpringFilter
+ *
+ * @author ijin
+ */
 @Profile("dev | local")
 @Component
 public class LogFilter extends OncePerRequestFilter {
+    /**
+     * Body 캐싱하여 요청은 다음 Filter 혹은 DispatcherServlet 에, 응답은 Client 에 전달
+     *
+     * @param request HTTP Request
+     * @param response HTTP Response
+     * @param filterChain HTTP FilterChain
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
         // Multipart Type 이면 Skip
         if (verifyMultipartFileIncluded(request)) {
             filterChain.doFilter(request, response);
