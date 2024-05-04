@@ -28,6 +28,10 @@ public enum ErrorCode {
     SERVICE_UNAVAILABLE(CommonCode.SERVICE_UNAVAILABLE.getCode(), HttpStatus.SERVICE_UNAVAILABLE, "서비스에 문제가 발생한 경우"),
     REFRESH_TOKEN_NOT_FOUND(CommonCode.INVALID_REFRESH_TOKEN.getCode(), NOT_FOUND, "유효하지 않은 리프레쉬 토큰일 경우"),
     DATA_IO_UNAVAILABLE(CommonCode.DATA_IO.getCode(), PAYLOAD_TOO_LARGE, "데이터를 읽거나 쓸 수 없는 경우"),
+
+    // Member
+    MEMBER_NOT_FOUND(MemberCode.NOT_FOUND.getCode(), NOT_FOUND, "존재하지 않는 회원"),
+    MEMBER_ALREADY_EXISTED(MemberCode.ALREADY_EXISTED.getCode(), CONFLICT, "이미 존재하는 회원인 경우"),
     ;
 
     /**

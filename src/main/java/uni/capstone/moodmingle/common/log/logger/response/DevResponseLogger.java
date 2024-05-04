@@ -53,7 +53,7 @@ public class DevResponseLogger implements ResponseLogger {
     }
 
     private String parseResponseBody(HttpServletResponse response) {
-        final ContentCachingResponseWrapper cachingResponse = (ContentCachingResponseWrapper) response;
+        final ContentCachingResponseWrapper cachingResponse = new  ContentCachingResponseWrapper(response);
 
         if (cachingResponse != null) {
             byte[] buf = cachingResponse.getContentAsByteArray();
