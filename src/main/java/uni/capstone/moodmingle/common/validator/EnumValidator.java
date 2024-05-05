@@ -2,7 +2,6 @@ package uni.capstone.moodmingle.common.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Client 로부터 받는 Enum 을 검증하는 Validator

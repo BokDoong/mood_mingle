@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.config;
+package uni.capstone.moodmingle.config.openai;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

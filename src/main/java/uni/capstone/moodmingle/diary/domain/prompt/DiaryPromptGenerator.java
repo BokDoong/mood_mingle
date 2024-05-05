@@ -11,7 +11,15 @@ import java.time.LocalDate;
  */
 @Service
 public class DiaryPromptGenerator {
-
+    /**
+     * 일기 프롬프트 가공
+     *
+     * @param name 사용자명
+     * @param title 제목
+     * @param content 내용
+     * @param dateTime 날짜
+     * @return
+     */
     public String generateDiaryPrompt(String name, String title, String content, LocalDate dateTime) {
         StringBuffer diaryBuffer = new StringBuffer();
         diaryBuffer.append("""
