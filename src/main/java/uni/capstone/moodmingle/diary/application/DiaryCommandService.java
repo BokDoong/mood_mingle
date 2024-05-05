@@ -8,6 +8,7 @@ import uni.capstone.moodmingle.diary.application.dto.DiaryCommandMapper;
 import uni.capstone.moodmingle.diary.application.dto.request.DiaryCreateCommand;
 import uni.capstone.moodmingle.diary.domain.Diary;
 import uni.capstone.moodmingle.diary.domain.DiaryRepository;
+import uni.capstone.moodmingle.diary.domain.FileStore;
 import uni.capstone.moodmingle.diary.domain.Reply;
 import uni.capstone.moodmingle.diary.domain.prompt.DiaryPromptGenerator;
 import uni.capstone.moodmingle.diary.domain.prompt.ReplyPromptGenerator;
@@ -31,6 +32,8 @@ public class DiaryCommandService {
     private final MemberRepository memberRepository;
     private final DiaryRepository diaryRepository;
     private final ReplyManageService replyManageService;
+    private final FileStore fileStore;
+
     private final DiaryPromptGenerator diaryPromptGenerator;
     private final ReplyPromptGenerator replyPromptGenerator;
 
@@ -43,16 +46,19 @@ public class DiaryCommandService {
     public void replyDiaryWithLetter(DiaryCreateCommand diaryCreateCommand) {
         // 멤버 찾기
         Member member = findMember(diaryCreateCommand);
+
         // 일기 생성(Diary)
         Diary diary = createDiary(diaryCreateCommand, member);
-        // 이미지 업로드 -> Diary 에 추가
+        validateAndUploadImage(diaryCreateCommand, diary);
 
-        // 일기&답변 PromptMessage 데이터 가공
+        // 일기+답변 PromptMessage 데이터 가공
         String diaryPrompt = processDiaryPrompt(diaryCreateCommand, member);
         String replyPrompt = processLetterReplyPrompt();
+
         // ManageService 에 요청
         String replyContent = replyManageService.replyByLetter(diaryPrompt, replyPrompt);
         Reply reply = createReply(replyContent, Type.LETTER);
+
         // 일기 저장
         saveDiaryAndReply(member, diary, reply);
     }
@@ -77,6 +83,21 @@ public class DiaryCommandService {
         // 이미지 업로드 및 객체에 추가
         // 충고 답변 생성(LLM 에 요청) 및 추가
         // 일기+답변 저장
+    }
+
+    private void validateAndUploadImage(DiaryCreateCommand diaryCreateCommand, Diary diary) {
+        if (!validateImageIncluded(diaryCreateCommand)) {
+            String imageUrl = uploadImageToDB(diaryCreateCommand);
+            diary.putImage(imageUrl);
+        }
+    }
+
+    private String uploadImageToDB(DiaryCreateCommand diaryCreateCommand) {
+        return fileStore.upload(diaryCreateCommand.image());
+    }
+
+    private boolean validateImageIncluded(DiaryCreateCommand diaryCreateCommand) {
+        return diaryCreateCommand.image().isEmpty();
     }
 
     private void saveDiaryAndReply(Member member, Diary diary, Reply reply) {

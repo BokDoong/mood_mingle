@@ -54,6 +54,12 @@ dependencies {
 
 	// AWS CloudWatch appender
 	implementation "ca.pjer:logback-awslogs-appender:1.6.0"
+
+	// AWS S3
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+	// JAVA Casting Warn Solution
+	implementation 'javax.xml.bind:jaxb-api:2.3.0'
 }
 
 tasks.named('test') {

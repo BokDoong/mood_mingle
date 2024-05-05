@@ -17,7 +17,7 @@ import java.time.LocalDate;
 public class Diary {
 
     /**
-     * 제목, 날짜, 내용, 이미지 URL, 감정, 날씨
+     * 제목, 날짜, 내용, 이미지 값객체, 감정, 날씨
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +29,8 @@ public class Diary {
     private LocalDate date;
     @Column(name = "content")
     private String content;
-    @Column(name = "image_url")
-    private String imageUrl;
+    @Embedded
+    private Image image;
     @Enumerated(EnumType.STRING)
     @Column(name = "emotion")
     private Emotion emotion;
@@ -63,6 +63,7 @@ public class Diary {
         this.content = content;
         this.emotion = emotion;
         this.weather = weather;
+        this.image = new Image();
     }
 
     /**
@@ -75,12 +76,14 @@ public class Diary {
     }
 
     /**
-     * 이미지 URL 추가
+     * 이미지 URL 추가 -> Image 객체 생성
      *
      * @param imageUrl File DB 에 저장하고 받은 이미지 URL
      */
     public void putImage(String imageUrl) {
-
+        this.image = Image.builder()
+                .imageUrl(imageUrl)
+                .build();
     }
 
     /**
