@@ -8,7 +8,7 @@ import uni.capstone.moodmingle.exception.code.ErrorCode;
  *
  * @author ijin
  */
-public class NotFoundException extends BusinessException{
+public class NotFoundException extends BusinessException {
     /**
      * 기본 생성자
      *
