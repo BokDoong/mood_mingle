@@ -19,6 +19,8 @@ public enum CommonCode {
     DATA_INTEGRITY("C-006"),
     INVALID_REFRESH_TOKEN("C-007"),
     DATA_IO("C-008"),
+    LLM_NETWORK("C-009"),
+    ASYNC_TASKING("C-010")
     ;
 
     private final String code;
