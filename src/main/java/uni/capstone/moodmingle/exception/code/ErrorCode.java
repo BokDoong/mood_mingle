@@ -46,6 +46,7 @@ public enum ErrorCode {
 
     // Diary
     DIARY_NOT_FOUND(DiaryCode.NOT_FOUND.getCode(), NOT_FOUND, "존재하지 않는 일기"),
+    DIARY_ALREADY_EXIST(DiaryCode.ALREADY_EXIST.getCode(), CONFLICT, "이미 해당 날짜에 일기가 존재하는 경우"),
     ;
 
     /**

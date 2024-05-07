@@ -9,6 +9,7 @@ import uni.capstone.moodmingle.diary.application.dto.request.DiaryCreateCommand;
 import uni.capstone.moodmingle.diary.domain.Diary;
 import uni.capstone.moodmingle.diary.domain.DiaryRepository;
 import uni.capstone.moodmingle.diary.domain.FileStore;
+import uni.capstone.moodmingle.exception.BusinessException;
 import uni.capstone.moodmingle.exception.NotFoundException;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
 import uni.capstone.moodmingle.member.domain.Member;
@@ -116,7 +117,14 @@ public class DiaryCommandService {
     }
 
     private Diary createDiary(DiaryCreateCommand command, Member member) {
+        checkDiaryAlreadyExist(command, member);
         return mapper.toEntity(command, member);
+    }
+
+    private void checkDiaryAlreadyExist(DiaryCreateCommand command, Member member) {
+        if (diaryRepository.checkDiaryAlreadyExist(member.getId(), command.date())) {
+            throw new BusinessException(ErrorCode.DIARY_ALREADY_EXIST);
+        }
     }
 
     private Member findMember(Long memberId) {

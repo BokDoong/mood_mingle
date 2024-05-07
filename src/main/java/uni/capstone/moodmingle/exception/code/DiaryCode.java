@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum DiaryCode {
     NOT_FOUND("D-001"),
+    ALREADY_EXIST("D-002"),
     ;
 
     private final String code;
