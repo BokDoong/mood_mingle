@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import uni.capstone.moodmingle.diary.application.dto.request.ReplyCreateCommand;
+import uni.capstone.moodmingle.diary.application.facade.PromptProcessingFacade;
 import uni.capstone.moodmingle.diary.infra.dto.Message;
 
 import java.util.List;

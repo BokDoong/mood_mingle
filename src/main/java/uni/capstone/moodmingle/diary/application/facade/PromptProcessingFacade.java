@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.diary.application;
+package uni.capstone.moodmingle.diary.application.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

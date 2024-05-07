@@ -44,14 +44,13 @@ public class DiaryCommandService {
         // 멤버 찾기
         Member member = findMember(command.memberId());
 
-        // 일기 생성(Diary) 및 이미지 업로드
+        // 일기 생성 및 이미지 업로드 -> 저장
         Diary diary = createDiary(command, member);
         uploadImageIfExisted(command, diary);
-        // ManageService 에 비동기 답변 요청
-        createLetterResponse(command, member, diary);
-
-        // 일기 저장
         saveDiary(member, diary);
+
+        // 답변 요청
+        createLetterResponse(command, member, diary);
     }
 
     /**
@@ -73,14 +72,13 @@ public class DiaryCommandService {
         // 멤버 찾기
         Member member = findMember(command.memberId());
 
-        // 일기 생성(Diary) 및 이미지 업로드
+        // 일기 생성 및 이미지 업로드 -> 저장
         Diary diary = createDiary(command, member);
         uploadImageIfExisted(command, diary);
-        // ManageService 에 비동기 답변 요청
-        createSympathyResponse(command, member, diary);
-
-        // 일기 저장
         saveDiary(member, diary);
+
+        // 답변 요청
+        createSympathyResponse(command, member, diary);
     }
 
     private void createSympathyResponse(DiaryCreateCommand command, Member member, Diary diary) {
