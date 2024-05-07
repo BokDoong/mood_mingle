@@ -8,6 +8,8 @@ import uni.capstone.moodmingle.diary.application.LLMClient;
 import uni.capstone.moodmingle.diary.infra.dto.GPTRequest;
 import uni.capstone.moodmingle.diary.infra.dto.GPTResponse;
 import uni.capstone.moodmingle.diary.infra.dto.Message;
+import uni.capstone.moodmingle.exception.BusinessException;
+import uni.capstone.moodmingle.exception.code.ErrorCode;
 
 import java.util.List;
 
@@ -25,6 +27,8 @@ public class ReplyGPTClient implements LLMClient {
      */
     @Value("${openai.api.letter-model}")
     private String letterAPIKey;
+    @Value("${openai.api.sympathy-model}")
+    private String sympathyAPIKey;
     @Value("${openai.api.url}")
     private String apiURL;
 
@@ -42,8 +46,28 @@ public class ReplyGPTClient implements LLMClient {
     @Override
     public String requestLetter(List<Message> messages) {
         GPTRequest request = new GPTRequest(letterAPIKey, messages);
-        GPTResponse response = restTemplate.postForObject(apiURL, request, GPTResponse.class);
-        return response.getChoices().get(0).getMessage().getContent();
+        return requestToGptApi(request);
+    }
+
+    /**
+     * GPT 에게 공감 답변 요청
+     *
+     * @param messages 프롬프트 메세지
+     * @return GPT 응답 메세지
+     */
+    @Override
+    public String requestSympathyPhrase(List<Message> messages) {
+        GPTRequest request = new GPTRequest(sympathyAPIKey, messages);
+        return requestToGptApi(request);
+    }
+
+    private String requestToGptApi(GPTRequest request) {
+        try {
+            GPTResponse response = restTemplate.postForObject(apiURL, request, GPTResponse.class);
+            return response.getChoices().get(0).getMessage().getContent();
+        } catch (Error error) {
+            throw new BusinessException(ErrorCode.FAILED_LLM_NETWORKING);
+        }
     }
 }
 

@@ -3,7 +3,6 @@ package uni.capstone.moodmingle.diary.presentation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,21 +27,18 @@ public class DiaryController {
      * 일기 생성(1) - 위로편지 답장
      */
     @PostMapping("/api/v1/diary/letter")
-    public void replyLetter(@RequestPart("dto") @Valid DiaryCreateDto dto, @RequestPart(value = "image", required = false) MultipartFile image) {
+    public void replyLetter(@RequestPart("dto") @Valid DiaryCreateDto dto,
+                            @RequestPart(value = "image", required = false) MultipartFile image) {
         diaryCommandService.replyDiaryWithLetter(toCreateCommand(dto, image));
-    }
-
-    @PostMapping("/test")
-    public DiaryCreateDto replyLetter(@RequestBody @Valid DiaryCreateDto dto) {
-        return dto;
     }
 
     /**
      * 일기 생성(2) - 공감 답장
      */
     @PostMapping("/api/v1/diary/sympathy")
-    public void replySympathy(@RequestPart @Valid DiaryCreateDto dto, @RequestPart(required = false) MultipartFile image) {
-
+    public void replySympathy(@RequestPart("dto") @Valid DiaryCreateDto dto,
+                              @RequestPart(value = "image", required = false) MultipartFile image) {
+        diaryCommandService.replyDiaryWithSympathy(toCreateCommand(dto, image));
     }
 
     /**

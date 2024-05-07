@@ -1,10 +1,13 @@
 package uni.capstone.moodmingle.diary.application.dto;
 
+import java.time.LocalDate;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 import uni.capstone.moodmingle.diary.application.dto.request.DiaryCreateCommand;
+import uni.capstone.moodmingle.diary.application.dto.request.ReplyCreateCommand;
 import uni.capstone.moodmingle.diary.domain.Diary;
 import uni.capstone.moodmingle.diary.domain.Diary.DiaryBuilder;
+import uni.capstone.moodmingle.diary.domain.Diary.Emotion;
 import uni.capstone.moodmingle.diary.domain.Reply;
 import uni.capstone.moodmingle.diary.domain.Reply.ReplyBuilder;
 import uni.capstone.moodmingle.diary.domain.Reply.Type;
@@ -12,7 +15,7 @@ import uni.capstone.moodmingle.member.domain.Member;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-05-05T16:10:07+0900",
+    date = "2024-05-07T15:18:23+0900",
     comments = "version: 1.4.2.Final, compiler: javac, environment: Java 17.0.5 (JetBrains s.r.o.)"
 )
 @Component
@@ -56,5 +59,33 @@ public class DiaryCommandMapperImpl implements DiaryCommandMapper {
         }
 
         return reply.build();
+    }
+
+    @Override
+    public ReplyCreateCommand toCommand(DiaryCreateCommand diaryCreateCommand, String name) {
+        if ( diaryCreateCommand == null && name == null ) {
+            return null;
+        }
+
+        Long memberId = null;
+        String title = null;
+        String content = null;
+        LocalDate date = null;
+        Emotion emotion = null;
+        if ( diaryCreateCommand != null ) {
+            memberId = diaryCreateCommand.memberId();
+            title = diaryCreateCommand.title();
+            content = diaryCreateCommand.content();
+            date = diaryCreateCommand.date();
+            emotion = diaryCreateCommand.emotion();
+        }
+        String memberName = null;
+        if ( name != null ) {
+            memberName = name;
+        }
+
+        ReplyCreateCommand replyCreateCommand = new ReplyCreateCommand( memberId, memberName, title, content, date, emotion );
+
+        return replyCreateCommand;
     }
 }
