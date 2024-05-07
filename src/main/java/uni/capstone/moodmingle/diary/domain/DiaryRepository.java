@@ -1,5 +1,6 @@
 package uni.capstone.moodmingle.diary.domain;
 
+import uni.capstone.moodmingle.diary.application.dto.response.DiaryDetailInfo;
 import uni.capstone.moodmingle.diary.application.dto.response.DiaryInfo;
 
 import java.time.LocalDate;
@@ -50,4 +51,13 @@ public interface DiaryRepository {
      * @return  DiaryInfos
      */
     List<DiaryInfo> findMonthlyDiaryInfos(Long memberId, LocalDate date);
+
+    /**
+     * 일기 상세 조회
+     *
+     * @param memberId
+     * @param diaryId
+     * @return DiaryDetailInfo
+     */
+    Optional<DiaryDetailInfo> findDiaryDetailInfo(Long memberId, Long diaryId);
 }

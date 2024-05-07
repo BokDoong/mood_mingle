@@ -84,16 +84,16 @@ public class DiaryCommandService {
 
     private void createSympathyResponse(DiaryCreateCommand command, Member member, Diary diary) {
         CompletableFuture<String> llmAsyncTask = replyManageService.replyBySympathyPhrase(mapper.toCommand(command, member.getName()));
-        llmAsyncTask.thenAccept(replyContent -> saveReply(diary, replyContent));
+        llmAsyncTask.thenAccept(replyContent -> saveReply(diary, replyContent, Type.SYMPATHY));
     }
 
     private void createLetterResponse(DiaryCreateCommand command, Member member, Diary diary) {
         CompletableFuture<String> llmAsyncTask = replyManageService.replyByLetter(mapper.toCommand(command, member.getName()));
-        llmAsyncTask.thenAccept(replyContent -> saveReply(diary, replyContent));
+        llmAsyncTask.thenAccept(replyContent -> saveReply(diary, replyContent, Type.LETTER));
     }
 
-    private void saveReply(Diary diary, String replyContent) {
-        replyCommandService.createAndSaveReply(diary.getId(), replyContent, Type.LETTER);
+    private void saveReply(Diary diary, String replyContent, Type type) {
+        replyCommandService.createAndSaveReply(diary.getId(), replyContent, type);
     }
 
     private void uploadImageIfExisted(DiaryCreateCommand diaryCreateCommand, Diary diary) {

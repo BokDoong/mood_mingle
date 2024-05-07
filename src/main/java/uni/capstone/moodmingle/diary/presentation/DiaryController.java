@@ -7,8 +7,10 @@ import org.springframework.web.multipart.MultipartFile;
 import uni.capstone.moodmingle.diary.application.DiaryCommandService;
 import uni.capstone.moodmingle.diary.application.DiaryQueryService;
 import uni.capstone.moodmingle.diary.application.dto.request.DiaryCreateCommand;
+import uni.capstone.moodmingle.diary.application.dto.response.DiaryDetailInfo;
 import uni.capstone.moodmingle.diary.application.dto.response.DiaryInfo;
 import uni.capstone.moodmingle.diary.presentation.dto.DiaryDtoMapper;
+import uni.capstone.moodmingle.diary.presentation.dto.request.DairyDetailQueryDto;
 import uni.capstone.moodmingle.diary.presentation.dto.request.DiaryCreateDto;
 import uni.capstone.moodmingle.diary.presentation.dto.request.MonthlyDiariesQueryDto;
 
@@ -64,7 +66,10 @@ public class DiaryController {
     /**
      * 일기 상세조회
      */
-
+    @GetMapping("/api/v1/diary/detail")
+    public DiaryDetailInfo getDiaryDetailInfo(@RequestBody @Valid DairyDetailQueryDto dto) {
+        return diaryQueryService.findDiaryDetailInfo(dto.getMemberId(), dto.getDiaryId());
+    }
 
     /**
      * 일기 수정
