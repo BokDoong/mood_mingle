@@ -2,14 +2,17 @@ package uni.capstone.moodmingle.diary.presentation;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import uni.capstone.moodmingle.diary.application.DiaryCommandService;
+import uni.capstone.moodmingle.diary.application.DiaryQueryService;
 import uni.capstone.moodmingle.diary.application.dto.request.DiaryCreateCommand;
+import uni.capstone.moodmingle.diary.application.dto.response.DiaryInfo;
 import uni.capstone.moodmingle.diary.presentation.dto.DiaryDtoMapper;
 import uni.capstone.moodmingle.diary.presentation.dto.request.DiaryCreateDto;
+import uni.capstone.moodmingle.diary.presentation.dto.request.MonthlyDiariesQueryDto;
+
+import java.util.List;
 
 /**
  * 일기 도메인 컨트롤러
@@ -22,6 +25,7 @@ public class DiaryController {
 
     private final DiaryDtoMapper mapper;
     private final DiaryCommandService diaryCommandService;
+    private final DiaryQueryService diaryQueryService;
 
     /**
      * 일기 생성(1) - 위로편지 답장
@@ -52,7 +56,10 @@ public class DiaryController {
     /**
      * 월별 일기 조회
      */
-
+    @GetMapping("/api/v1/diary")
+    public List<DiaryInfo> getMonthlyDiaryInfos(@RequestBody @Valid MonthlyDiariesQueryDto dto) {
+        return diaryQueryService.findMonthlyDiaryInfos(dto.getMemberId(), dto.toLocalDate());
+    }
 
     /**
      * 일기 상세조회
