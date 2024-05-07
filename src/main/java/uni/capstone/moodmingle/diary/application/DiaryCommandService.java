@@ -9,13 +9,12 @@ import uni.capstone.moodmingle.diary.application.dto.request.DiaryCreateCommand;
 import uni.capstone.moodmingle.diary.domain.Diary;
 import uni.capstone.moodmingle.diary.domain.DiaryRepository;
 import uni.capstone.moodmingle.diary.domain.FileStore;
-import uni.capstone.moodmingle.diary.domain.Reply;
-import uni.capstone.moodmingle.diary.domain.prompt.DiaryPromptGenerator;
-import uni.capstone.moodmingle.diary.domain.prompt.ReplyPromptGenerator;
 import uni.capstone.moodmingle.exception.NotFoundException;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
 import uni.capstone.moodmingle.member.domain.Member;
 import uni.capstone.moodmingle.member.domain.MemberRepository;
+
+import java.util.concurrent.CompletableFuture;
 
 import static uni.capstone.moodmingle.diary.domain.Reply.*;
 
@@ -32,41 +31,33 @@ public class DiaryCommandService {
     private final MemberRepository memberRepository;
     private final DiaryRepository diaryRepository;
     private final ReplyManageService replyManageService;
-    private final FileStore fileStore;
-
-    private final DiaryPromptGenerator diaryPromptGenerator;
-    private final ReplyPromptGenerator replyPromptGenerator;
+    private final ReplyCommandService replyCommandService;
 
     private final DiaryCommandMapper mapper;
+    private final FileStore fileStore;
 
     /**
      * 위로 답변 생성 및 일기+답변 저장
      */
     @Transactional
-    public void replyDiaryWithLetter(DiaryCreateCommand diaryCreateCommand) {
+    public void replyDiaryWithLetter(DiaryCreateCommand command) {
         // 멤버 찾기
-        Member member = findMember(diaryCreateCommand);
+        Member member = findMember(command.memberId());
 
-        // 일기 생성(Diary)
-        Diary diary = createDiary(diaryCreateCommand, member);
-        validateAndUploadImage(diaryCreateCommand, diary);
-
-        // 일기+답변 PromptMessage 데이터 가공
-        String diaryPrompt = processDiaryPrompt(diaryCreateCommand, member);
-        String replyPrompt = processLetterReplyPrompt();
-
-        // ManageService 에 요청
-        String replyContent = replyManageService.replyByLetter(diaryPrompt, replyPrompt);
-        Reply reply = createReply(replyContent, Type.LETTER);
+        // 일기 생성(Diary) 및 이미지 업로드
+        Diary diary = createDiary(command, member);
+        uploadImageIfExisted(command, diary);
+        // ManageService 에 비동기 답변 요청
+        createLetterResponse(command, member, diary);
 
         // 일기 저장
-        saveDiaryAndReply(member, diary, reply);
+        saveDiary(member, diary);
     }
 
     /**
      * 충고 답변 생성 및 일기+답변 저장
      */
-    public void replyDiaryWithAdvice(DiaryCreateCommand diaryCreateCommand) {
+    public void replyDiaryWithAdvice(DiaryCreateCommand command) {
         // 멤버 찾기
         // 일기 생성(Diary)
         // 이미지 업로드 및 객체에 추가
@@ -77,15 +68,36 @@ public class DiaryCommandService {
     /**
      * 공감 답변 생성 및 일기+답변 저장
      */
-    public void replyDiaryWithSympathy(DiaryCreateCommand diaryCreateCommand) {
+    @Transactional
+    public void replyDiaryWithSympathy(DiaryCreateCommand command) {
         // 멤버 찾기
-        // 일기 생성(Diary)
-        // 이미지 업로드 및 객체에 추가
-        // 충고 답변 생성(LLM 에 요청) 및 추가
-        // 일기+답변 저장
+        Member member = findMember(command.memberId());
+
+        // 일기 생성(Diary) 및 이미지 업로드
+        Diary diary = createDiary(command, member);
+        uploadImageIfExisted(command, diary);
+        // ManageService 에 비동기 답변 요청
+        createSympathyResponse(command, member, diary);
+
+        // 일기 저장
+        saveDiary(member, diary);
     }
 
-    private void validateAndUploadImage(DiaryCreateCommand diaryCreateCommand, Diary diary) {
+    private void createSympathyResponse(DiaryCreateCommand command, Member member, Diary diary) {
+        CompletableFuture<String> llmAsyncTask = replyManageService.replyBySympathyPhrase(mapper.toCommand(command, member.getName()));
+        llmAsyncTask.thenAccept(replyContent -> saveReply(diary, replyContent));
+    }
+
+    private void createLetterResponse(DiaryCreateCommand command, Member member, Diary diary) {
+        CompletableFuture<String> llmAsyncTask = replyManageService.replyByLetter(mapper.toCommand(command, member.getName()));
+        llmAsyncTask.thenAccept(replyContent -> saveReply(diary, replyContent));
+    }
+
+    private void saveReply(Diary diary, String replyContent) {
+        replyCommandService.createAndSaveReply(diary.getId(), replyContent, Type.LETTER);
+    }
+
+    private void uploadImageIfExisted(DiaryCreateCommand diaryCreateCommand, Diary diary) {
         if (!validateImageIncluded(diaryCreateCommand)) {
             String imageUrl = uploadImageToDB(diaryCreateCommand);
             diary.putImage(imageUrl);
@@ -100,34 +112,17 @@ public class DiaryCommandService {
         return diaryCreateCommand.image().isEmpty();
     }
 
-    private void saveDiaryAndReply(Member member, Diary diary, Reply reply) {
-        diary.putReply(reply);
+    private void saveDiary(Member member, Diary diary) {
         member.addDiary(diary);
-        diaryRepository.save(diary);
-    }
-
-    private Reply createReply(String replyContent, Type type) {
-        return mapper.toEntity(replyContent, type);
-    }
-
-    private String processDiaryPrompt(DiaryCreateCommand diaryCreateCommand, Member member) {
-        return diaryPromptGenerator.generateDiaryPrompt(member.getName(), diaryCreateCommand.title(), diaryCreateCommand.content(), diaryCreateCommand.date());
+        diaryRepository.saveDiary(diary);
     }
 
     private Diary createDiary(DiaryCreateCommand command, Member member) {
         return mapper.toEntity(command, member);
     }
 
-    private String processSympathyReplyPrompt(DiaryCreateCommand diaryCreateCommand) {
-        return replyPromptGenerator.generateSympathyReplyPrompt(diaryCreateCommand.emotion());
-    }
-
-    private String processLetterReplyPrompt() {
-        return replyPromptGenerator.generateLetterPrompt();
-    }
-
-    private Member findMember(DiaryCreateCommand diaryCreateCommand) {
-        return memberRepository.findById(diaryCreateCommand.memberId())
-                .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
+    private Member findMember(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND, memberId));
     }
 }

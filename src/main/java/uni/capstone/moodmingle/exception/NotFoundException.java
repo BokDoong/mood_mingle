@@ -4,7 +4,6 @@ import uni.capstone.moodmingle.exception.code.ErrorCode;
 
 /**
  * BusinessException 를 상속하고, 엔티티를 찾지 못했을 때 던져지는 커스텀 예외 클래스
- * 예외 정보의 가독성을 높이고, id 값으로 예외 메세지를 구성하기 위함
  *
  * @author ijin
  */

@@ -15,4 +15,12 @@ public interface LLMClient {
      * @return LLM Response
      */
     String requestLetter(List<Message> messages);
+
+    /**
+     * 공감 답변 요청
+     *
+     * @param messages Request Prompt Messages
+     * @return LLM Response
+     */
+    String requestSympathyPhrase(List<Message> messages);
 }

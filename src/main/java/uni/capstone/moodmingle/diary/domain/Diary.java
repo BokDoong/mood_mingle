@@ -47,7 +47,7 @@ public class Diary {
     @JoinColumn(name = "user_id")
     private Member member;
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "reply_id")
     private Reply reply;
 
     /**

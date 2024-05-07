@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import uni.capstone.moodmingle.diary.application.dto.request.DiaryCreateCommand;
+import uni.capstone.moodmingle.diary.application.dto.request.ReplyCreateCommand;
 import uni.capstone.moodmingle.diary.domain.Diary;
 import uni.capstone.moodmingle.diary.domain.Reply;
 import uni.capstone.moodmingle.member.domain.Member;
@@ -38,5 +39,15 @@ public interface DiaryCommandMapper {
      */
     @Mapping(target = "content", source = "replyContent")
     Reply toEntity(String replyContent, Type type);
+
+    /**
+     * DiaryCreateCommand & 멤버 이름 -> Reply 도메인에서 LLM 에 요청, 엔티티 생성을 위한 CommandDTO
+     *
+     * @param diaryCreateCommand Client 로부터 받는 DiaryCreateCommand 객체
+     * @param name 멤버 이름
+     * @return ReplyCreateCommand 객체
+     */
+    @Mapping(target = "memberName", source = "name")
+    ReplyCreateCommand toCommand(DiaryCreateCommand diaryCreateCommand, String name);
 
 }
