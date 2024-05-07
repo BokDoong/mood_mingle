@@ -45,7 +45,7 @@ public class Reply {
     @RequiredArgsConstructor
     public enum Type {
         LETTER("편지"),
-        FRIENDLINESS("친근함"),
+        SYMPATHY("친근함"),
         ADVICE("충고"),
         ;
 
