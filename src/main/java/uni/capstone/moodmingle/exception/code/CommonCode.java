@@ -20,7 +20,8 @@ public enum CommonCode {
     INVALID_REFRESH_TOKEN("C-007"),
     DATA_IO("C-008"),
     LLM_NETWORK("C-009"),
-    ASYNC_TASKING("C-010")
+    ASYNC_TASKING("C-010"),
+    MISSING_REQUEST_DATA("C-011"),
     ;
 
     private final String code;

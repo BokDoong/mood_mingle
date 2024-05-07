@@ -73,9 +73,15 @@ public class GlobalExceptionAdvice {
     }
 
     // 이미지 크기 초과시 발생
-    @ExceptionHandler({MaxUploadSizeExceededException.class, SizeLimitExceededException.class, MissingServletRequestPartException.class, MultipartException.class})
+    @ExceptionHandler({MaxUploadSizeExceededException.class, SizeLimitExceededException.class, MultipartException.class})
     protected ResponseEntity<ErrorResponse> imageFileSizeExceedException(Exception e) {
         return createErrorResponse(e, ErrorCode.FILE_SIZE);
+    }
+
+    // RequestPart 요청에서 빠진 파라미터가 있을 때
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    protected ResponseEntity<ErrorResponse> missingServletRequestPartException(Exception e) {
+        return createErrorResponse(e, ErrorCode.MiSSING_REQUESTED_DATA);
     }
 
     // 나머지 에러 여기서 핸들링

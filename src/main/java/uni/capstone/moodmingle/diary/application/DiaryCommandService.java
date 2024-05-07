@@ -9,6 +9,7 @@ import uni.capstone.moodmingle.diary.application.dto.request.DiaryCreateCommand;
 import uni.capstone.moodmingle.diary.domain.Diary;
 import uni.capstone.moodmingle.diary.domain.DiaryRepository;
 import uni.capstone.moodmingle.diary.domain.FileStore;
+import uni.capstone.moodmingle.exception.BusinessException;
 import uni.capstone.moodmingle.exception.NotFoundException;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
 import uni.capstone.moodmingle.member.domain.Member;
@@ -44,14 +45,13 @@ public class DiaryCommandService {
         // 멤버 찾기
         Member member = findMember(command.memberId());
 
-        // 일기 생성(Diary) 및 이미지 업로드
+        // 일기 생성 및 이미지 업로드 -> 저장
         Diary diary = createDiary(command, member);
         uploadImageIfExisted(command, diary);
-        // ManageService 에 비동기 답변 요청
-        createLetterResponse(command, member, diary);
-
-        // 일기 저장
         saveDiary(member, diary);
+
+        // 답변 요청
+        createLetterResponse(command, member, diary);
     }
 
     /**
@@ -73,28 +73,27 @@ public class DiaryCommandService {
         // 멤버 찾기
         Member member = findMember(command.memberId());
 
-        // 일기 생성(Diary) 및 이미지 업로드
+        // 일기 생성 및 이미지 업로드 -> 저장
         Diary diary = createDiary(command, member);
         uploadImageIfExisted(command, diary);
-        // ManageService 에 비동기 답변 요청
-        createSympathyResponse(command, member, diary);
-
-        // 일기 저장
         saveDiary(member, diary);
+
+        // 답변 요청
+        createSympathyResponse(command, member, diary);
     }
 
     private void createSympathyResponse(DiaryCreateCommand command, Member member, Diary diary) {
         CompletableFuture<String> llmAsyncTask = replyManageService.replyBySympathyPhrase(mapper.toCommand(command, member.getName()));
-        llmAsyncTask.thenAccept(replyContent -> saveReply(diary, replyContent));
+        llmAsyncTask.thenAccept(replyContent -> saveReply(diary, replyContent, Type.SYMPATHY));
     }
 
     private void createLetterResponse(DiaryCreateCommand command, Member member, Diary diary) {
         CompletableFuture<String> llmAsyncTask = replyManageService.replyByLetter(mapper.toCommand(command, member.getName()));
-        llmAsyncTask.thenAccept(replyContent -> saveReply(diary, replyContent));
+        llmAsyncTask.thenAccept(replyContent -> saveReply(diary, replyContent, Type.LETTER));
     }
 
-    private void saveReply(Diary diary, String replyContent) {
-        replyCommandService.createAndSaveReply(diary.getId(), replyContent, Type.LETTER);
+    private void saveReply(Diary diary, String replyContent, Type type) {
+        replyCommandService.createAndSaveReply(diary.getId(), replyContent, type);
     }
 
     private void uploadImageIfExisted(DiaryCreateCommand diaryCreateCommand, Diary diary) {
@@ -118,7 +117,14 @@ public class DiaryCommandService {
     }
 
     private Diary createDiary(DiaryCreateCommand command, Member member) {
+        checkDiaryAlreadyExist(command, member);
         return mapper.toEntity(command, member);
+    }
+
+    private void checkDiaryAlreadyExist(DiaryCreateCommand command, Member member) {
+        if (diaryRepository.checkDiaryAlreadyExist(member.getId(), command.date())) {
+            throw new BusinessException(ErrorCode.DIARY_ALREADY_EXIST);
+        }
     }
 
     private Member findMember(Long memberId) {

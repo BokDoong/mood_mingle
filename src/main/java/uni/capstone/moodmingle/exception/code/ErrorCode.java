@@ -30,6 +30,7 @@ public enum ErrorCode {
     DATA_IO_UNAVAILABLE(CommonCode.DATA_IO.getCode(), PAYLOAD_TOO_LARGE, "데이터를 읽거나 쓸 수 없는 경우"),
     FAILED_LLM_NETWORKING(CommonCode.LLM_NETWORK.getCode(), NOT_IMPLEMENTED, "LLM 과의 통신이 실패한 경우"),
     FAILED_ASYNC_TASKING(CommonCode.ASYNC_TASKING.getCode(), NOT_IMPLEMENTED, "비동기 처리 작업을 실패한 경우"),
+    MiSSING_REQUESTED_DATA(CommonCode.MISSING_REQUEST_DATA.getCode(), BAD_REQUEST, "누락된 요청 데이가 있을 때"),
 
     // File I/O
     INPUT_FILE_EMPTY(FileCode.EMPTY.getCode(), BAD_REQUEST, "입력된 파일이 비어있는 경우"),
@@ -46,6 +47,7 @@ public enum ErrorCode {
 
     // Diary
     DIARY_NOT_FOUND(DiaryCode.NOT_FOUND.getCode(), NOT_FOUND, "존재하지 않는 일기"),
+    DIARY_ALREADY_EXIST(DiaryCode.ALREADY_EXIST.getCode(), CONFLICT, "이미 해당 날짜에 일기가 존재하는 경우"),
     ;
 
     /**
