@@ -1,73 +1,101 @@
 package uni.capstone.moodmingle.diary.infra;
 
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 import uni.capstone.moodmingle.diary.application.LLMClient;
-import uni.capstone.moodmingle.diary.infra.dto.GPTRequest;
-import uni.capstone.moodmingle.diary.infra.dto.GPTResponse;
-import uni.capstone.moodmingle.diary.infra.dto.Message;
+import uni.capstone.moodmingle.diary.infra.dto.GptResponseInfo;
+import uni.capstone.moodmingle.diary.infra.dto.GptMessage;
 import uni.capstone.moodmingle.exception.BusinessException;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * GPT 와 통신하여 답변을 받아오는 클래스
+ * 비동기 작업을 위해 WebClient 를 이용해서 GPT 와 통신하는 어댑터
  *
  * @author ijin
  */
+@Slf4j
 @Component
-@RequiredArgsConstructor
 public class ReplyGPTClient implements LLMClient {
 
     /**
-     * API Key, OpenAI URL
+     * API Key&Url&EndPoint, 각 기능별 Model
      */
-    @Value("${openai.api.letter-model}")
-    private String letterAPIKey;
-    @Value("${openai.api.sympathy-model}")
-    private String sympathyAPIKey;
+    @Value("${openai.api.key}")
+    private String openAiKey;
     @Value("${openai.api.url}")
-    private String apiURL;
+    private String openAiRequestUrl;
+    @Value("${openai.api.end-point}")
+    private String openAiEndPoint;
+    @Value("${openai.api.letter-model}")
+    private String letterAPIModel;
+    @Value("${openai.api.sympathy-model}")
+    private String sympathyAPIModel;
 
     /**
-     * OpenAI 와 주고받게 되는 RestTemplateModel
-     */
-    private final RestTemplate restTemplate;
-
-    /**
-     * GPT 에게 위로 편지 답변 요청
+     * 위로 편지 요청
      *
-     * @param messages 프롬프트 메세지
-     * @return GPT 응답 메세지
+     * @param prompts Request Prompt Messages
+     * @return GPT 에서 받은 위로 편지
      */
     @Override
-    public String requestLetter(List<Message> messages) {
-        GPTRequest request = new GPTRequest(letterAPIKey, messages);
-        return requestToGptApi(request);
+    public String requestLetter(List<GptMessage> prompts) {
+        return requestToGptApi(letterAPIModel, prompts);
     }
 
     /**
-     * GPT 에게 공감 답변 요청
+     * 공감 답변 요청
      *
-     * @param messages 프롬프트 메세지
-     * @return GPT 응답 메세지
+     * @param prompts Request Prompt Messages
+     * @return GPT 에서 받은 공감 답변
      */
     @Override
-    public String requestSympathyPhrase(List<Message> messages) {
-        GPTRequest request = new GPTRequest(sympathyAPIKey, messages);
-        return requestToGptApi(request);
+    public String requestSympathyPhrase(List<GptMessage> prompts) {
+        return requestToGptApi(sympathyAPIModel, prompts);
     }
 
-    private String requestToGptApi(GPTRequest request) {
-        try {
-            GPTResponse response = restTemplate.postForObject(apiURL, request, GPTResponse.class);
-            return response.getChoices().get(0).getMessage().getContent();
-        } catch (Error error) {
-            throw new BusinessException(ErrorCode.FAILED_LLM_NETWORKING);
-        }
+    /**
+     * 실제로 GPT 와 통신하여 요청하는 메서드
+     *
+     * @param model 사용할 GPT Model
+     * @param messages Prompt Messages
+     * @return GPT 응답
+     */
+    private String requestToGptApi(String model, List<GptMessage> messages) {
+
+        Map<String, Object> bodyMap = new HashMap<>();
+        bodyMap.put("model", model);
+        bodyMap.put("stream", false);
+        bodyMap.put("messages", messages);
+
+        WebClient webClient =
+                WebClient
+                        .builder()
+                        .baseUrl(openAiEndPoint)
+                        .build();
+
+        GptResponseInfo responseInfo = webClient
+                .post()
+                .uri(openAiRequestUrl)
+                .header("Authorization", "Bearer " + openAiKey)
+                .header("Content-Type", "application/json;charset=utf-8")
+                .bodyValue(bodyMap)
+                .retrieve()
+                .bodyToMono(GptResponseInfo.class)
+                .retry(3)   // 실패해도 3번은 시도할 수 있게 설정
+                .block();
+
+        return parseGptResponseMessage(responseInfo);
+    }
+
+    private String parseGptResponseMessage(GptResponseInfo responseInfo) {
+        return responseInfo.getChoices().get(0).getMessage().getContent();
     }
 }
-

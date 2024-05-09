@@ -1,7 +1,7 @@
 package uni.capstone.moodmingle.diary.application.dto;
 
 import lombok.experimental.UtilityClass;
-import uni.capstone.moodmingle.diary.infra.dto.Message;
+import uni.capstone.moodmingle.diary.infra.dto.GptMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +21,10 @@ public class PromptProcessingHelper {
      * @param replyPrompt system Role 에 넣을 답변 프롬프
      * @return 가공된 PromptMessage 객체 리스트
      */
-    public List<Message> processPrompt(String diaryPrompt, String replyPrompt) {
-        List<Message> messages = new ArrayList<>();
-        messages.add(new Message("system", replyPrompt));
-        messages.add(new Message("user", diaryPrompt));
+    public List<GptMessage> processPrompt(String diaryPrompt, String replyPrompt) {
+        List<GptMessage> messages = new ArrayList<>();
+        messages.add(new GptMessage("system", replyPrompt));
+        messages.add(new GptMessage("user", diaryPrompt));
 
         return messages;
     }

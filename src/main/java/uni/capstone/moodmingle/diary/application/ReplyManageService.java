@@ -1,11 +1,12 @@
 package uni.capstone.moodmingle.diary.application;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import uni.capstone.moodmingle.diary.application.dto.request.ReplyCreateCommand;
 import uni.capstone.moodmingle.diary.application.facade.PromptProcessingFacade;
-import uni.capstone.moodmingle.diary.infra.dto.Message;
+import uni.capstone.moodmingle.diary.infra.dto.GptMessage;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author ijin
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReplyManageService {
@@ -31,9 +33,10 @@ public class ReplyManageService {
     @Async("AsyncExecutor")
     public CompletableFuture<String> replyByLetter(ReplyCreateCommand command) {
         // LLM Request Message 가공
-        List<Message> prompts = processingFacade.processLetterReplyPrompt(command);
+        List<GptMessage> prompts = processingFacade.processLetterReplyPrompt(command);
         // LLMClient 에 요청
-        return CompletableFuture.completedFuture(client.requestLetter(prompts));
+        CompletableFuture<String> answer = CompletableFuture.completedFuture(client.requestLetter(prompts));
+        return answer;
     }
 
     /**
@@ -45,7 +48,7 @@ public class ReplyManageService {
     @Async("AsyncExecutor")
     public CompletableFuture<String> replyBySympathyPhrase(ReplyCreateCommand command) {
         // LLM Request Message 가공
-        List<Message> prompts = processingFacade.processSympathyReplyPrompt(command);
+        List<GptMessage> prompts = processingFacade.processSympathyReplyPrompt(command);
         // LLMClient 에 요청
         return CompletableFuture.completedFuture(client.requestSympathyPhrase(prompts));
     }

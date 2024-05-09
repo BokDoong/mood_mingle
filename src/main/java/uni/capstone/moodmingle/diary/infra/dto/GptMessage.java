@@ -13,7 +13,7 @@ import java.io.Serializable;
  */
 @Data
 @NoArgsConstructor
-public class Message implements Serializable {
+public class GptMessage implements Serializable {
     /**
      * GPT Role, Request&Response Content
      */
@@ -27,7 +27,7 @@ public class Message implements Serializable {
      * @param content GPT Request&Response Content
      */
     @Builder
-    public Message(String role, String content) {
+    public GptMessage(String role, String content) {
         this.role = role;
         this.content = content;
     }

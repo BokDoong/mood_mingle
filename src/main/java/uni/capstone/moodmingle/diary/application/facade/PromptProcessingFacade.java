@@ -6,7 +6,7 @@ import uni.capstone.moodmingle.diary.application.dto.PromptProcessingHelper;
 import uni.capstone.moodmingle.diary.application.dto.request.ReplyCreateCommand;
 import uni.capstone.moodmingle.diary.domain.prompt.DiaryPromptGenerator;
 import uni.capstone.moodmingle.diary.domain.prompt.ReplyPromptGenerator;
-import uni.capstone.moodmingle.diary.infra.dto.Message;
+import uni.capstone.moodmingle.diary.infra.dto.GptMessage;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class PromptProcessingFacade {
      * @param command Reply 생성 CommandDTO
      * @return 가공된 Prompt Message
      */
-    public List<Message> processLetterReplyPrompt(ReplyCreateCommand command) {
+    public List<GptMessage> processLetterReplyPrompt(ReplyCreateCommand command) {
         // 일기+답변 -> PromptMessage 가공
         String diaryPrompt = generateDiaryPrompt(command);
         String replyPrompt = generateLetterPrompt();
@@ -41,7 +41,7 @@ public class PromptProcessingFacade {
      * @param command Reply 생성 CommandDTO
      * @return 가공된 Prompt Message
      */
-    public List<Message> processSympathyReplyPrompt(ReplyCreateCommand command) {
+    public List<GptMessage> processSympathyReplyPrompt(ReplyCreateCommand command) {
         // 일기+답변 -> PromptMessage 가공
         String diaryPrompt = generateDiaryPrompt(command);
         String replyPrompt = generateSympathyReplyPrompt(command);
