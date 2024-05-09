@@ -1,5 +1,6 @@
 package uni.capstone.moodmingle.diary.application;
 
+import uni.capstone.moodmingle.diary.domain.Reply;
 import uni.capstone.moodmingle.diary.infra.dto.GptMessage;
 
 import java.util.List;
@@ -14,15 +15,17 @@ public interface LLMClient {
      * 위로편지 요청
      *
      * @param prompts Request Prompt Messages
+     * @param diaryId
      * @return LLM Response
      */
-    String requestLetter(List<GptMessage> prompts);
+    void requestLetter(List<GptMessage> prompts, Long diaryId);
 
     /**
      * 공감 답변 요청
      *
-     * @param prompts Request Prompt Messages
+     * @param prompts  Request Prompt Messages
+     * @param diaryId
      * @return LLM Response
      */
-    String requestSympathyPhrase(List<GptMessage> prompts);
+    void requestSympathyPhrase(List<GptMessage> prompts, Long diaryId);
 }

@@ -49,5 +49,4 @@ public interface DiaryCommandMapper {
      */
     @Mapping(target = "memberName", source = "name")
     ReplyCreateCommand toCommand(DiaryCreateCommand diaryCreateCommand, String name);
-
 }

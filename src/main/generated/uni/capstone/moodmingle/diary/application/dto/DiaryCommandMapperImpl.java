@@ -15,7 +15,7 @@ import uni.capstone.moodmingle.member.domain.Member;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-05-09T09:10:12+0900",
+    date = "2024-05-09T14:50:25+0900",
     comments = "version: 1.4.2.Final, compiler: javac, environment: Java 17.0.5 (JetBrains s.r.o.)"
 )
 @Component
@@ -67,13 +67,11 @@ public class DiaryCommandMapperImpl implements DiaryCommandMapper {
             return null;
         }
 
-        Long memberId = null;
         String title = null;
         String content = null;
         LocalDate date = null;
         Emotion emotion = null;
         if ( diaryCreateCommand != null ) {
-            memberId = diaryCreateCommand.memberId();
             title = diaryCreateCommand.title();
             content = diaryCreateCommand.content();
             date = diaryCreateCommand.date();
@@ -84,7 +82,7 @@ public class DiaryCommandMapperImpl implements DiaryCommandMapper {
             memberName = name;
         }
 
-        ReplyCreateCommand replyCreateCommand = new ReplyCreateCommand( memberId, memberName, title, content, date, emotion );
+        ReplyCreateCommand replyCreateCommand = new ReplyCreateCommand( memberName, title, content, date, emotion );
 
         return replyCreateCommand;
     }

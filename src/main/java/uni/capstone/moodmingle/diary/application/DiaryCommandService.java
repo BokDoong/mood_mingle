@@ -32,7 +32,6 @@ public class DiaryCommandService {
     private final MemberRepository memberRepository;
     private final DiaryRepository diaryRepository;
     private final ReplyManageService replyManageService;
-    private final ReplyCommandService replyCommandService;
 
     private final DiaryCommandMapper mapper;
     private final FileStore fileStore;
@@ -83,17 +82,11 @@ public class DiaryCommandService {
     }
 
     private void createSympathyResponse(DiaryCreateCommand command, Member member, Diary diary) {
-        CompletableFuture<String> llmAsyncTask = replyManageService.replyBySympathyPhrase(mapper.toCommand(command, member.getName()));
-        llmAsyncTask.thenAccept(replyContent -> saveReply(diary, replyContent, Type.SYMPATHY));
+        replyManageService.replyBySympathyPhrase(mapper.toCommand(command, member.getName()), diary.getId());
     }
 
     private void createLetterResponse(DiaryCreateCommand command, Member member, Diary diary) {
-        CompletableFuture<String> llmAsyncTask = replyManageService.replyByLetter(mapper.toCommand(command, member.getName()));
-        llmAsyncTask.thenAccept(replyContent -> saveReply(diary, replyContent, Type.LETTER));
-    }
-
-    private void saveReply(Diary diary, String replyContent, Type type) {
-        replyCommandService.createAndSaveReply(diary.getId(), replyContent, type);
+        replyManageService.replyByLetter(mapper.toCommand(command, member.getName()), diary.getId());
     }
 
     private void uploadImageIfExisted(DiaryCreateCommand diaryCreateCommand, Diary diary) {

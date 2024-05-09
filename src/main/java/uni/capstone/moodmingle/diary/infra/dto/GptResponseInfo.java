@@ -3,12 +3,13 @@ package uni.capstone.moodmingle.diary.infra.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import reactor.core.publisher.Mono;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
- * GPT 로부터 받는 답변을 담을 DTO 클래스
+ * GPT 로부터의 응답 정보를 담을 DTO 클래스
  *
  * @author ijin
  */

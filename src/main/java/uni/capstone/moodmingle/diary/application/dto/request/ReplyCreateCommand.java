@@ -9,6 +9,6 @@ import java.time.LocalDate;
  *
  * @author ijin
  */
-public record ReplyCreateCommand(Long memberId, String memberName, String title, String content,
+public record ReplyCreateCommand(String memberName, String title, String content,
                                  LocalDate date, Diary.Emotion emotion) {
 }
