@@ -10,11 +10,24 @@ import java.util.List;
 
 import static uni.capstone.moodmingle.diary.domain.Diary.*;
 
+/**
+ * Emotion 인스턴스 데이터를 통계 및 계산하는 도메인 서비스
+ *
+ * @author ijin
+ */
 @Service
 public class EmotionCalculator implements ApplicationListener<ContextRefreshedEvent> {
 
+    /**
+     * makeStatisticsOfEmotions() 를 계산하기 위해 복사를 하기 위한 해쉬맵
+     */
     private static HashMap<String, Integer> emotionsMap = new HashMap<>(10);
 
+    /**
+     * 서버가 실행되면 emotionsMap 안에 Emotion Value 를 넣어 초기화
+     *
+     * @param event the event to respond to
+     */
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         Arrays.stream(Emotion.values())
