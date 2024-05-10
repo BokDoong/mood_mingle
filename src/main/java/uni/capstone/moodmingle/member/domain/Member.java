@@ -30,8 +30,6 @@ public class Member {
     private String email;
     @Column(name = "password")
     private String password;
-    @Column(name = "is_locked")
-    private boolean isLocked;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Diary> diaries = new ArrayList<>();
@@ -41,7 +39,6 @@ public class Member {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.isLocked = false;
     }
 
     public void addDiary(Diary diary) {

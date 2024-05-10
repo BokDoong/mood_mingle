@@ -9,14 +9,12 @@ import uni.capstone.moodmingle.diary.application.facade.PromptProcessingFacade;
 import uni.capstone.moodmingle.diary.infra.dto.GptMessage;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * LLM 과 통신하는 어댑터에 프롬프트를 전달하여 답변 받아오는 애플리케이션 서비스
  *
  * @author ijin
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReplyManageService {

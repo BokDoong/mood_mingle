@@ -1,6 +1,5 @@
 package uni.capstone.moodmingle.diary.application;
 
-import uni.capstone.moodmingle.diary.domain.Reply;
 import uni.capstone.moodmingle.diary.infra.dto.GptMessage;
 
 import java.util.List;

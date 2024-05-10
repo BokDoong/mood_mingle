@@ -15,16 +15,11 @@ import uni.capstone.moodmingle.exception.code.ErrorCode;
 import uni.capstone.moodmingle.member.domain.Member;
 import uni.capstone.moodmingle.member.domain.MemberRepository;
 
-import java.util.concurrent.CompletableFuture;
-
-import static uni.capstone.moodmingle.diary.domain.Reply.*;
-
 /**
  * Diary 도메인에서 CRUD 를 진행하는 애플리케이션 서비스
  *
  * @author ijin
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DiaryCommandService {

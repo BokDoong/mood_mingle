@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static uni.capstone.moodmingle.diary.domain.Diary.*;
+
 /**
  * Diary Repository
  */
@@ -60,4 +62,13 @@ public interface DiaryRepository {
      * @return DiaryDetailInfo
      */
     Optional<DiaryDetailInfo> findDiaryDetailInfo(Long memberId, Long diaryId);
+
+    /**
+     *
+     *
+     * @param memberId
+     * @param date
+     * @return
+     */
+    List<Emotion> findMonthlyEmotionsInfo(Long memberId, LocalDate date);
 }

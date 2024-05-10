@@ -14,6 +14,7 @@ import uni.capstone.moodmingle.diary.presentation.dto.request.DairyDetailQueryDt
 import uni.capstone.moodmingle.diary.presentation.dto.request.DiaryCreateDto;
 import uni.capstone.moodmingle.diary.presentation.dto.request.MonthlyDiariesQueryDto;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -77,9 +78,12 @@ public class DiaryController {
 
 
     /**
-     * 일기 삭제
+     * 월별 감정통계 조회
      */
-
+    @GetMapping("/api/v1/diary/monthly-emotion")
+    public HashMap<String, Integer> getMonthlyEmotionsInfo(@RequestBody @Valid MonthlyDiariesQueryDto dto) {
+        return diaryQueryService.MonthlyEmotionsInfo(dto.getMemberId(), dto.toLocalDate());
+    }
 
     private DiaryCreateCommand toCreateCommand(DiaryCreateDto dto, MultipartFile image) {
         return mapper.toCommand(dto, image);

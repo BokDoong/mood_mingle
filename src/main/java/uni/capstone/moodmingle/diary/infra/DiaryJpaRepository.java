@@ -13,6 +13,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static uni.capstone.moodmingle.diary.domain.Diary.*;
+
 /**
  * DB 와 JPA 로 접근하는 일기 리포지토리 구현체
  *
@@ -119,5 +121,23 @@ public class DiaryJpaRepository implements DiaryRepository {
                 .setParameter("memberId", memberId)
                 .setParameter("diaryId", diaryId)
                 .getSingleResult());
+    }
+
+    @Override
+    public List<Emotion> findMonthlyEmotionsInfo(Long memberId, LocalDate date) {
+        LocalDate startDate = date.withDayOfMonth(1); // 해당 월의 시작일
+        LocalDate endDate = date.withDayOfMonth(date.lengthOfMonth()); // 해당 월의 마지막 날
+
+        return em.createQuery(
+                        "select d.emotion" +
+                                " from Diary d" +
+                                " join d.member m" +
+                                " where m.id = :memberId" +
+                                " and d.date >= :startDate and d.date <= :endDate" +
+                                " order by d.date asc", Emotion.class)
+                .setParameter("memberId", memberId)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .getResultList();
     }
 }
