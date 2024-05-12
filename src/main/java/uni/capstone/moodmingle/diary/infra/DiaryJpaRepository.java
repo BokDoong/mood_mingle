@@ -1,6 +1,7 @@
 package uni.capstone.moodmingle.diary.infra;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import uni.capstone.moodmingle.diary.application.dto.response.DiaryDetailInfo;
@@ -8,6 +9,8 @@ import uni.capstone.moodmingle.diary.application.dto.response.DiaryInfo;
 import uni.capstone.moodmingle.diary.domain.Diary;
 import uni.capstone.moodmingle.diary.domain.DiaryRepository;
 import uni.capstone.moodmingle.diary.domain.Reply;
+import uni.capstone.moodmingle.exception.NotFoundException;
+import uni.capstone.moodmingle.exception.code.ErrorCode;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -111,7 +114,7 @@ public class DiaryJpaRepository implements DiaryRepository {
      */
     @Override
     public Optional<DiaryDetailInfo> findDiaryDetailInfo(Long memberId, Long diaryId) {
-        return Optional.ofNullable(em.createQuery(
+        List<DiaryDetailInfo> detailInfos = em.createQuery(
                         "select new uni.capstone.moodmingle.diary.application.dto.response.DiaryDetailInfo" +
                                 "(d.id, d.title, d.content, d.date, d.emotion, d.weather, d.image.imageUrl, r.content, r.type)" +
                                 " from Diary d" +
@@ -120,7 +123,8 @@ public class DiaryJpaRepository implements DiaryRepository {
                                 " where m.id = :memberId and d.id = :diaryId", DiaryDetailInfo.class)
                 .setParameter("memberId", memberId)
                 .setParameter("diaryId", diaryId)
-                .getSingleResult());
+                .getResultList();
+        return detailInfos.stream().findAny();
     }
 
     @Override
