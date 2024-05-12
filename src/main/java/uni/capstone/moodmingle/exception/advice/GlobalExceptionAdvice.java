@@ -2,6 +2,7 @@ package uni.capstone.moodmingle.exception.advice;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -19,6 +20,7 @@ import uni.capstone.moodmingle.exception.ErrorResponse;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
 
 import javax.naming.SizeLimitExceededException;
+import java.util.stream.Collectors;
 
 /**
  * Spring 전역에서의 예외처리를 위한 Advice 클래스.
@@ -27,7 +29,6 @@ import javax.naming.SizeLimitExceededException;
  * @author ijin
  */
 @RestControllerAdvice
-@RequiredArgsConstructor
 public class GlobalExceptionAdvice {
 
     // 비즈니스 예외 처리시 발생
@@ -97,9 +98,17 @@ public class GlobalExceptionAdvice {
         return createErrorResponse(e, ErrorCode.SERVICE_UNAVAILABLE);
     }
 
+    // Create ExceptionResponse
     private ResponseEntity<ErrorResponse> createErrorResponse(Exception e, ErrorCode errorCode) {
-        // Create ExceptionResponse
-        ResponseEntity<ErrorResponse> response = ErrorResponse.toResponseEntity(errorCode);
+        ResponseEntity<ErrorResponse> response;
+        if (e.getClass().equals(MethodArgumentNotValidException.class)) {
+            // MethodArgumentNotValidException 인 경우, 어떤 파라미터가 유효하지 못한지 ErrorResponse 에 정보 추가
+            response = ErrorResponse.toResponseEntity(ErrorCode.INVALID_REQUEST_PARAMETER,
+                    ((MethodArgumentNotValidException) e).getBindingResult().getFieldErrors().stream()
+                            .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining(" and ")));
+        } else {
+            response = ErrorResponse.toResponseEntity(errorCode);
+        }
 
         // Logging And Return with Exception
         ExceptionResponseLogger.logResponse(response, e);
