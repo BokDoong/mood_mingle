@@ -22,6 +22,7 @@ public enum CommonCode {
     LLM_NETWORK("C-009"),
     ASYNC_TASKING("C-010"),
     MISSING_REQUEST_DATA("C-011"),
+    NONE_REQUEST_URI("C-012"),
     ;
 
     private final String code;

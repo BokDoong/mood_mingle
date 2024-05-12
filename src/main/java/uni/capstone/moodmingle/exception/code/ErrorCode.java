@@ -30,7 +30,8 @@ public enum ErrorCode {
     DATA_IO_UNAVAILABLE(CommonCode.DATA_IO.getCode(), PAYLOAD_TOO_LARGE, "데이터를 읽거나 쓸 수 없는 경우"),
     FAILED_LLM_NETWORKING(CommonCode.LLM_NETWORK.getCode(), NOT_IMPLEMENTED, "LLM 과의 통신이 실패한 경우"),
     FAILED_ASYNC_TASKING(CommonCode.ASYNC_TASKING.getCode(), NOT_IMPLEMENTED, "비동기 처리 작업을 실패한 경우"),
-    MiSSING_REQUESTED_DATA(CommonCode.MISSING_REQUEST_DATA.getCode(), BAD_REQUEST, "누락된 요청 데이가 있을 때"),
+    MISSING_REQUESTED_DATA(CommonCode.MISSING_REQUEST_DATA.getCode(), BAD_REQUEST, "파일이 포함된 요청에서 빠진 파라미터가 있을 때"),
+    NONE_REQUESTED_URI(CommonCode.NONE_REQUEST_URI.getCode(), BAD_REQUEST, "요청한 URI 가 잘못된 경우"),
 
     // File I/O
     INPUT_FILE_EMPTY(FileCode.EMPTY.getCode(), BAD_REQUEST, "입력된 파일이 비어있는 경우"),

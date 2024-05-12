@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import uni.capstone.moodmingle.exception.BusinessException;
 import uni.capstone.moodmingle.exception.ErrorResponse;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
@@ -81,7 +82,13 @@ public class GlobalExceptionAdvice {
     // RequestPart 요청에서 빠진 파라미터가 있을 때
     @ExceptionHandler(MissingServletRequestPartException.class)
     protected ResponseEntity<ErrorResponse> missingServletRequestPartException(Exception e) {
-        return createErrorResponse(e, ErrorCode.MiSSING_REQUESTED_DATA);
+        return createErrorResponse(e, ErrorCode.MISSING_REQUESTED_DATA);
+    }
+
+    // 설계되지 않은 URI 로 요청한 경우
+    @ExceptionHandler(NoResourceFoundException.class)
+    protected ResponseEntity<ErrorResponse> noResourceFoundException(Exception e) {
+        return createErrorResponse(e, ErrorCode.NONE_REQUESTED_URI);
     }
 
     // 나머지 에러 여기서 핸들링
