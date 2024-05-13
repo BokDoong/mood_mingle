@@ -1,7 +1,5 @@
 package uni.capstone.moodmingle.exception.advice;
 
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -39,8 +37,8 @@ public class GlobalExceptionAdvice {
 
     // javax.validation.Valid or @Validated 으로 binding error 발생시 발생
     // HttpMessageConverter 에서 등록한 HttpMessageConverter binding 못할경우 발생
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<ErrorResponse> methodArgumentValidation(MethodArgumentNotValidException e) {
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    protected ResponseEntity<ErrorResponse> methodArgumentValidation(Exception e) {
         return createErrorResponse(e, ErrorCode.INVALID_REQUEST_PARAMETER);
     }
 
@@ -82,13 +80,13 @@ public class GlobalExceptionAdvice {
 
     // RequestPart 요청에서 빠진 파라미터가 있을 때
     @ExceptionHandler(MissingServletRequestPartException.class)
-    protected ResponseEntity<ErrorResponse> missingServletRequestPartException(Exception e) {
+    protected ResponseEntity<ErrorResponse> missingServletRequestPartException(MissingServletRequestPartException e) {
         return createErrorResponse(e, ErrorCode.MISSING_REQUESTED_DATA);
     }
 
     // 설계되지 않은 URI 로 요청한 경우
     @ExceptionHandler(NoResourceFoundException.class)
-    protected ResponseEntity<ErrorResponse> noResourceFoundException(Exception e) {
+    protected ResponseEntity<ErrorResponse> noResourceFoundException(NoResourceFoundException e) {
         return createErrorResponse(e, ErrorCode.NONE_REQUESTED_URI);
     }
 

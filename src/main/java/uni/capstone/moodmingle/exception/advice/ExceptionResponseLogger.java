@@ -1,15 +1,11 @@
 package uni.capstone.moodmingle.exception.advice;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
+import net.minidev.json.JSONObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import uni.capstone.moodmingle.config.jwt.JwtExceptionInfo;
+import uni.capstone.moodmingle.config.jwt.JwtException;
 import uni.capstone.moodmingle.exception.ErrorResponse;
-
-import java.util.stream.Collectors;
 
 /**
  * Exception 발생했을 때, 커스텀 예외 정보를 담은 Logger
@@ -42,18 +38,16 @@ public class ExceptionResponseLogger {
     /**
      * 파싱 메서드를 이용하여 커스텀 JWT 예외 정보를 담은 Response 를 로깅
      *
-     * @param response ErrorResponse 를 담은 ResponseEntity
+     * @param jwtExceptionInfo JWT Exception 정보를 담은 Json Object
      * @param ex 예외 정보
      */
-    public void logResponseWithJWTException(HttpServletRequest request, ResponseEntity<ErrorResponse> response, JwtExceptionInfo ex) {
+    public void logResponse(JwtException ex, JSONObject jwtExceptionInfo) {
         StringBuffer logBuffer = new StringBuffer();
 
         // Response's JWT Exception Info
         logBuffer.append(getLoggingStructure());
-        logBuffer.append(parseRequestURI(request)).append("\n");
-        logBuffer.append("[JWT Exception Class] : ").append(JwtExceptionInfo.valueOf(ex.name())).append("\n");
-        logBuffer.append("[JWT Exception Message] : ").append(ex.getMessage()).append("\n");
-        logBuffer.append("[Response Body With Exception] : ").append("\n").append(parseResponseBody(response));
+        logBuffer.append("[JWT Exception Class] : ").append(JwtException.valueOf(ex.name())).append("\n");
+        logBuffer.append("[Response Body With JWT Exception] : ").append("\n").append(processJwtException(jwtExceptionInfo));
 
         // Logging & Flush
         log.warn(logBuffer.toString());
@@ -66,22 +60,7 @@ public class ExceptionResponseLogger {
 
     // Parsing Exception Message
     private String parseExceptionMessage(Exception e) {
-        String message = e.getMessage();
-        if (e.getClass().equals(MethodArgumentNotValidException.class)) {
-            message = ((MethodArgumentNotValidException) e).getBindingResult().getFieldErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining(" and "));
-        }
-        if (message == null) {
-            message = "EMPTY MESSAGE";
-        }
-        return message;
-    }
-
-    // Parsing Requested URI
-    private String parseRequestURI(HttpServletRequest request) {
-        String httpMethod = "[HTTP Method] : " + request.getMethod();
-        String requestURI = "[Request URI] : " + request.getRequestURI();
-        return httpMethod + "\n" + requestURI;
+        return e.getMessage();
     }
 
     // Parsing Response Body
@@ -95,5 +74,14 @@ public class ExceptionResponseLogger {
 
                 [Title] : Handling Exception Information
                 """;
+    }
+
+    // Processing JwtException with Json Format
+    private String processJwtException(JSONObject jwtExceptionInfo) {
+        return jwtExceptionInfo
+                .toString()
+                .replace(",", ",\n    ")
+                .replace("{", "{\n    ")
+                .replace("}", "\n}");
     }
 }
