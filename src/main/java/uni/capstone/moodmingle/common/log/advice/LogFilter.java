@@ -10,6 +10,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * local, dev 프로파일에서 CachingBodyHttpServletWrapper, ContentCachingResponseWrapper 를 이용하여
@@ -20,6 +21,9 @@ import java.io.IOException;
 @Profile("dev | local")
 @Component
 public class LogFilter extends OncePerRequestFilter {
+
+    private static final String[] SWAGGER_REQUEST_URLS = {"/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**"};
+
     /**
      * Body 캐싱하여 요청은 다음 Filter 혹은 DispatcherServlet 에, 응답은 Client 에 전달
      *
@@ -33,7 +37,7 @@ public class LogFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         // Multipart Type 이면 Skip
-        if (verifyMultipartFileIncluded(request)) {
+        if (verifyMultipartFileIncluded(request) && verifySwaggerRequest(request)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -48,6 +52,12 @@ public class LogFilter extends OncePerRequestFilter {
 
     }
 
+    /**
+     * 파일을 포함하고 있는 지 검사
+     *
+     * @param request HTTP Request
+     * @return 포함 여부
+     */
     private boolean verifyMultipartFileIncluded(HttpServletRequest request) {
         if (request.getContentType() != null && request.getContentType().contains("multipart")) {
             request.setAttribute("isMultipartFile", true);
@@ -56,5 +66,18 @@ public class LogFilter extends OncePerRequestFilter {
             request.setAttribute("isMultipartFile", false);
             return false;
         }
+    }
+
+    /**
+     * Swagger 요청인지 검사
+     *
+     * @param request HTTP Request
+     * @return 포함 여부
+     */
+    private boolean verifySwaggerRequest(HttpServletRequest request) {
+        String requestUrl = request.getRequestURI();
+        return Arrays.stream(SWAGGER_REQUEST_URLS).anyMatch(
+                url -> url.equals(requestUrl)
+        );
     }
 }
