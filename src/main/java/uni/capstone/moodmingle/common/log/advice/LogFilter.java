@@ -36,8 +36,8 @@ public class LogFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        // Multipart Type 이면 Skip
-        if (verifyMultipartFileIncluded(request) && verifySwaggerRequest(request)) {
+        // Multipart Type, Swagger API 검사
+        if (verifyMultipartFileIncluded(request) || verifySwaggerRequest(request)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -49,7 +49,6 @@ public class LogFilter extends OncePerRequestFilter {
 
         // Client에 Wrapping된 Response 전달
         wrappingResponse.copyBodyToResponse();
-
     }
 
     /**
