@@ -13,7 +13,7 @@ import uni.capstone.moodmingle.common.log.logger.ResponseLogger;
  */
 @Slf4j
 @Component
-public class DevResponseLogger implements ResponseLogger {
+public class ResponseStatusLogger implements ResponseLogger {
 
     /**
      * Response 를 다른 커스텀 파싱 메서드를 이용하여 로깅
@@ -25,7 +25,7 @@ public class DevResponseLogger implements ResponseLogger {
 
         // Response's Representative Infos 파싱
         logBuffer.append("\n").append("[Title] : Successful Responsing Information").append("\n");
-        logBuffer.append("[Response Status] : ").append(parseResponseStatus(response)).append("\n");
+        logBuffer.append("[Response Status] : ").append(parseResponseStatus(response));
 
         log.info(logBuffer.toString());
     }
