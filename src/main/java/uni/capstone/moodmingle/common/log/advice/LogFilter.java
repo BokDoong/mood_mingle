@@ -44,11 +44,7 @@ public class LogFilter extends OncePerRequestFilter {
 
         // Request&Response Wrapping
         CachingBodyHttpServletWrapper wrappingRequest = new CachingBodyHttpServletWrapper(request);
-        ContentCachingResponseWrapper wrappingResponse = new ContentCachingResponseWrapper(response);
-        filterChain.doFilter(wrappingRequest, wrappingResponse);
-
-        // Client에 Wrapping된 Response 전달
-        wrappingResponse.copyBodyToResponse();
+        filterChain.doFilter(wrappingRequest, response);
     }
 
     /**

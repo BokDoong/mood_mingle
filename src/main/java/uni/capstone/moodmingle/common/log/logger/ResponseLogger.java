@@ -16,16 +16,4 @@ public interface ResponseLogger {
      * @param response HTTP Response
      */
     void logResponse(HttpServletResponse response);
-
-    /**
-     * 응답의 HTTP Status 를 파싱
-     *
-     * @param response HTTP Response
-     * @return 파싱 결과
-     */
-    default String parseResponseStatus(HttpServletResponse response) {
-        HttpStatus responseStatus = HttpStatus.valueOf(response.getStatus());
-        return responseStatus.value() + " - " +
-                responseStatus.getReasonPhrase();
-    }
 }
