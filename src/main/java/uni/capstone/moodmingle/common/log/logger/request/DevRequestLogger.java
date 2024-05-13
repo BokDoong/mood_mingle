@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import uni.capstone.moodmingle.common.log.advice.CachingBodyHttpServletWrapper;
+import uni.capstone.moodmingle.common.log.advice.CachingRequestWrapper;
 import uni.capstone.moodmingle.common.log.logger.RequestLogger;
 import uni.capstone.moodmingle.exception.BusinessException;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
@@ -66,7 +66,7 @@ public class DevRequestLogger implements RequestLogger {
     }
 
     private String parseRequestBody(HttpServletRequest request) {
-        final CachingBodyHttpServletWrapper cachingRequest = (CachingBodyHttpServletWrapper) request;
+        final CachingRequestWrapper cachingRequest = (CachingRequestWrapper) request;
 
         if (request != null) {
             try {

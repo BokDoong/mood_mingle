@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -43,7 +42,7 @@ public class LogFilter extends OncePerRequestFilter {
         }
 
         // Request&Response Wrapping
-        CachingBodyHttpServletWrapper wrappingRequest = new CachingBodyHttpServletWrapper(request);
+        CachingRequestWrapper wrappingRequest = new CachingRequestWrapper(request);
         filterChain.doFilter(wrappingRequest, response);
     }
 

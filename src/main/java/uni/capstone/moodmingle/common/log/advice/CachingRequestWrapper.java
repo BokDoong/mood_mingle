@@ -15,7 +15,7 @@ import java.io.*;
  *
  * @author ijin
  */
-public class CachingBodyHttpServletWrapper extends HttpServletRequestWrapper {
+public class CachingRequestWrapper extends HttpServletRequestWrapper {
 
     /**
      * CachedBodyServletInputStream 생성을 위해 RequestBody 를 담을 변수
@@ -27,7 +27,7 @@ public class CachingBodyHttpServletWrapper extends HttpServletRequestWrapper {
      *
      * @param request HTTP Request Body
      */
-    public CachingBodyHttpServletWrapper(HttpServletRequest request) throws IOException {
+    public CachingRequestWrapper(HttpServletRequest request) throws IOException {
         super(request);
         InputStream requestInputStream = request.getInputStream();
         this.cachedBody = StreamUtils.copyToByteArray(requestInputStream);
@@ -40,7 +40,7 @@ public class CachingBodyHttpServletWrapper extends HttpServletRequestWrapper {
      */
     @Override
     public ServletInputStream getInputStream() throws IOException {
-        return new CachedBodyServletInputStream(this.cachedBody);
+        return new CachedRequestServletInputStream(this.cachedBody);
     }
 
     /**
@@ -57,7 +57,7 @@ public class CachingBodyHttpServletWrapper extends HttpServletRequestWrapper {
     /**
      * RequestBody 를 담아 다른 곳에서 사용할 클래스
      */
-    public class CachedBodyServletInputStream extends ServletInputStream {
+    private class CachedRequestServletInputStream extends ServletInputStream {
 
         /**
          * RequestBody 를 담을 변수
@@ -69,7 +69,7 @@ public class CachingBodyHttpServletWrapper extends HttpServletRequestWrapper {
          *
          * @param cachedBody 상위 클래스에서 받을 RequestBody 가 담긴 변수
          */
-        public CachedBodyServletInputStream(byte[] cachedBody) {
+        public CachedRequestServletInputStream(byte[] cachedBody) {
             this.cachedBodyInputStream = new ByteArrayInputStream(cachedBody);
         }
 
