@@ -1,7 +1,6 @@
 package uni.capstone.moodmingle.exception.advice;
 
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,11 +12,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import uni.capstone.moodmingle.exception.BusinessException;
 import uni.capstone.moodmingle.exception.ErrorResponse;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
 
 import javax.naming.SizeLimitExceededException;
+import java.util.stream.Collectors;
 
 /**
  * Spring 전역에서의 예외처리를 위한 Advice 클래스.
@@ -26,7 +27,6 @@ import javax.naming.SizeLimitExceededException;
  * @author ijin
  */
 @RestControllerAdvice
-@RequiredArgsConstructor
 public class GlobalExceptionAdvice {
 
     // 비즈니스 예외 처리시 발생
@@ -37,8 +37,8 @@ public class GlobalExceptionAdvice {
 
     // javax.validation.Valid or @Validated 으로 binding error 발생시 발생
     // HttpMessageConverter 에서 등록한 HttpMessageConverter binding 못할경우 발생
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<ErrorResponse> methodArgumentValidation(MethodArgumentNotValidException e) {
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    protected ResponseEntity<ErrorResponse> methodArgumentValidation(Exception e) {
         return createErrorResponse(e, ErrorCode.INVALID_REQUEST_PARAMETER);
     }
 
@@ -80,8 +80,14 @@ public class GlobalExceptionAdvice {
 
     // RequestPart 요청에서 빠진 파라미터가 있을 때
     @ExceptionHandler(MissingServletRequestPartException.class)
-    protected ResponseEntity<ErrorResponse> missingServletRequestPartException(Exception e) {
-        return createErrorResponse(e, ErrorCode.MiSSING_REQUESTED_DATA);
+    protected ResponseEntity<ErrorResponse> missingServletRequestPartException(MissingServletRequestPartException e) {
+        return createErrorResponse(e, ErrorCode.MISSING_REQUESTED_DATA);
+    }
+
+    // 설계되지 않은 URI 로 요청한 경우
+    @ExceptionHandler(NoResourceFoundException.class)
+    protected ResponseEntity<ErrorResponse> noResourceFoundException(NoResourceFoundException e) {
+        return createErrorResponse(e, ErrorCode.NONE_REQUESTED_URI);
     }
 
     // 나머지 에러 여기서 핸들링
@@ -90,9 +96,17 @@ public class GlobalExceptionAdvice {
         return createErrorResponse(e, ErrorCode.SERVICE_UNAVAILABLE);
     }
 
+    // Create ExceptionResponse
     private ResponseEntity<ErrorResponse> createErrorResponse(Exception e, ErrorCode errorCode) {
-        // Create ExceptionResponse
-        ResponseEntity<ErrorResponse> response = ErrorResponse.toResponseEntity(errorCode);
+        ResponseEntity<ErrorResponse> response;
+        if (e.getClass().equals(MethodArgumentNotValidException.class)) {
+            // MethodArgumentNotValidException 인 경우, 어떤 파라미터가 유효하지 못한지 ErrorResponse 에 정보 추가
+            response = ErrorResponse.toResponseEntity(ErrorCode.INVALID_REQUEST_PARAMETER,
+                    ((MethodArgumentNotValidException) e).getBindingResult().getFieldErrors().stream()
+                            .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining(" and ")));
+        } else {
+            response = ErrorResponse.toResponseEntity(errorCode);
+        }
 
         // Logging And Return with Exception
         ExceptionResponseLogger.logResponse(response, e);

@@ -2,7 +2,6 @@ package uni.capstone.moodmingle.diary.application.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.lang.Nullable;
 
 import java.time.LocalDate;
 
@@ -21,10 +20,7 @@ public class DiaryDetailInfo {
     private LocalDate date;
     private Emotion emotion;
     private Weather weather;
-    @Nullable
     private String imageUrl;
-    @Nullable
     private String replyContent;
-    @Nullable
     private Type type;
 }

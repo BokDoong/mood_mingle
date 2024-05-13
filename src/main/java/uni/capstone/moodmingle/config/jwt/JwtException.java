@@ -1,13 +1,9 @@
 package uni.capstone.moodmingle.config.jwt;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import net.minidev.json.JSONObject;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import uni.capstone.moodmingle.exception.ErrorResponse;
-
-import java.io.IOException;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -18,7 +14,7 @@ import static org.springframework.http.HttpStatus.*;
  */
 @Getter
 @AllArgsConstructor
-public enum JwtExceptionInfo {
+public enum JwtException {
 
     /**
      * 예외 정보
@@ -37,19 +33,17 @@ public enum JwtExceptionInfo {
     private final String message;
     private final String code;
 
-    public void setResponse(HttpServletResponse response) throws IOException {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(String.valueOf(createJwtExceptionBody(this)));
-    }
-
-    private static ErrorResponse createJwtExceptionBody(JwtExceptionInfo exception) {
-        return ErrorResponse.builder()
-                .status(401)
-                .error(exception.getStatus().name())
-                .code(exception.getCode())
-                .message(exception.getMessage())
-                .build();
+    /**
+     * JWT Exception 발생 시, Response 의 Body 에 담기위한 Json 객체 생성
+     *
+     * @return JSONObject 객체
+     */
+    public JSONObject createResponseInfo() {
+        JSONObject responseJson = new JSONObject();
+        responseJson.put("status", status.value());
+        responseJson.put("error", status.name());
+        responseJson.put("code", code);
+        responseJson.put("message", message);
+        return responseJson;
     }
 }

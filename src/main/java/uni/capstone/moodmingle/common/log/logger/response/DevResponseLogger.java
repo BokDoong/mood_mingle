@@ -53,18 +53,14 @@ public class DevResponseLogger implements ResponseLogger {
     }
 
     private String parseResponseBody(HttpServletResponse response) {
-        final ContentCachingResponseWrapper cachingResponse = new  ContentCachingResponseWrapper(response);
-
-        if (cachingResponse != null) {
-            byte[] buf = cachingResponse.getContentAsByteArray();
-            if (buf.length > 0) {
-                try {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    Object json = objectMapper.readValue(buf, Object.class);
-                    return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
-                } catch (IOException e) {
-                    return "Failed to parse response body";
-                }
+        byte[] buf = ((ContentCachingResponseWrapper) response).getContentAsByteArray();
+        if (buf.length > 0) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                Object json = objectMapper.readValue(buf, Object.class);
+                return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
+            } catch (IOException e) {
+                return "Failed to parse response body";
             }
         }
         return "EMPTY BODY ";

@@ -28,6 +28,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
         // Register Logging Interceptor
         registry.addInterceptor(logInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/vendor/**", "/css/*", "/img/*", "/error");
+                .excludePathPatterns("/vendor/**", "/css/*", "/img/*", "/error", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**");
     }
 }

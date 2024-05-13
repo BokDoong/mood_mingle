@@ -19,7 +19,7 @@ public class MemberController {
     private final MemberQueryService memberQueryService;
 
     @GetMapping("/api/v1/member/{id}")
-    public MemberInfo getMemberInfo(@PathVariable Long id) {
+    public MemberInfo getMemberInfo(@PathVariable(name = "id") Long id) {
         return memberQueryService.findMember(id);
     }
 }
