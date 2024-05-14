@@ -80,6 +80,7 @@ public class ReplyGPTClient implements LLMClient {
         bodyMap.put("model", model);
         bodyMap.put("stream", false);
         bodyMap.put("messages", messages);
+        bodyMap.put("temperature", 1.0);
 
         WebClient webClient =
                 WebClient
