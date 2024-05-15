@@ -28,7 +28,7 @@ public enum ErrorCode {
     SERVICE_UNAVAILABLE(CommonCode.SERVICE_UNAVAILABLE.getCode(), HttpStatus.SERVICE_UNAVAILABLE, "서비스에 문제가 발생한 경우"),
     INVALID_REFRESH_TOKEN(CommonCode.INVALID_REFRESH_TOKEN.getCode(), NOT_FOUND, "유효하지 않은 리프레쉬 토큰일 경우"),
     DATA_IO_UNAVAILABLE(CommonCode.DATA_IO.getCode(), PAYLOAD_TOO_LARGE, "데이터를 읽거나 쓸 수 없는 경우"),
-    MISSING_REQUESTED_DATA(CommonCode.MISSING_REQUEST_DATA.getCode(), BAD_REQUEST, "파일이 포함된 요청에서 빠진 파라미터가 있을 때"),
+    MISSING_REQUESTED_DATA(CommonCode.MISSING_REQUEST_DATA.getCode(), BAD_REQUEST, "요청에서 빠진 파라미터 혹은 데이터가 있을 때"),
     NONE_REQUESTED_URI(CommonCode.NONE_REQUEST_URI.getCode(), BAD_REQUEST, "요청한 URI 가 잘못된 경우"),
 
     // LLM

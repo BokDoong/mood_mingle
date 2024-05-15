@@ -7,6 +7,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -18,6 +19,7 @@ import uni.capstone.moodmingle.exception.ErrorResponse;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
 
 import javax.naming.SizeLimitExceededException;
+import java.time.format.DateTimeParseException;
 import java.util.stream.Collectors;
 
 /**
@@ -35,9 +37,9 @@ public class GlobalExceptionAdvice {
         return createErrorResponse(e, e.getErrorCode());
     }
 
-    // javax.validation.Valid or @Validated 으로 binding error 발생시 발생
-    // HttpMessageConverter 에서 등록한 HttpMessageConverter binding 못할경우 발생
-    @ExceptionHandler({MethodArgumentNotValidException.class})
+    // 1.DateTime 포맷 형식 에러
+    // 2.@Valid or @Validated 으로 binding error 발생시 발생
+    @ExceptionHandler({MethodArgumentNotValidException.class, DateTimeParseException.class})
     protected ResponseEntity<ErrorResponse> methodArgumentValidation(Exception e) {
         return createErrorResponse(e, ErrorCode.INVALID_REQUEST_PARAMETER);
     }
@@ -78,9 +80,9 @@ public class GlobalExceptionAdvice {
         return createErrorResponse(e, ErrorCode.FILE_SIZE);
     }
 
-    // RequestPart 요청에서 빠진 파라미터가 있을 때
-    @ExceptionHandler(MissingServletRequestPartException.class)
-    protected ResponseEntity<ErrorResponse> missingServletRequestPartException(MissingServletRequestPartException e) {
+    // RequestPart&Param 요청에서 빠진 파라미터가 있을 때
+    @ExceptionHandler({MissingServletRequestPartException.class, MissingServletRequestParameterException.class})
+    protected ResponseEntity<ErrorResponse> missingServletRequestPartException(Exception e) {
         return createErrorResponse(e, ErrorCode.MISSING_REQUESTED_DATA);
     }
 
