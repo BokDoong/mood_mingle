@@ -2,8 +2,11 @@ package uni.capstone.moodmingle.config.jwt;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import net.minidev.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
+import uni.capstone.moodmingle.exception.BusinessException;
+import uni.capstone.moodmingle.exception.code.ErrorCode;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -39,11 +42,16 @@ public enum JwtException {
      * @return JSONObject 객체
      */
     public JSONObject createResponseInfo() {
-        JSONObject responseJson = new JSONObject();
-        responseJson.put("status", status.value());
-        responseJson.put("error", status.name());
-        responseJson.put("code", code);
-        responseJson.put("message", message);
-        return responseJson;
+        try {
+            JSONObject responseJson = new JSONObject();
+            responseJson.put("status", status.value());
+            responseJson.put("error", status.name());
+            responseJson.put("code", code);
+            responseJson.put("message", message);
+
+            return responseJson;
+        } catch (JSONException e) {
+            throw new BusinessException(ErrorCode.SERVICE_UNAVAILABLE);
+        }
     }
 }

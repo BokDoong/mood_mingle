@@ -2,7 +2,7 @@ package uni.capstone.moodmingle.exception.advice;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
+import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import uni.capstone.moodmingle.config.jwt.JwtException;
 import uni.capstone.moodmingle.exception.ErrorResponse;
