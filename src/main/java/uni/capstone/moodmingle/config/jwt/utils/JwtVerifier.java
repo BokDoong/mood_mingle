@@ -77,15 +77,6 @@ public class JwtVerifier {
             throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
     }
 
-    /**
-     * Redis 에서 리프레쉬 토큰 삭제
-     *
-     * @param userId 유저 ID
-     */
-    public void expireRefreshToken(long userId) {
-        redisTemplate.delete(String.valueOf(userId));
-    }
-
     private Optional<String> findRefreshToken(long userId) {
         return Optional.ofNullable(redisTemplate.opsForValue().get(String.valueOf(userId)));
     }
