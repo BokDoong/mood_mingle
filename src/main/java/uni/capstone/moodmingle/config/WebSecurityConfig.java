@@ -14,6 +14,7 @@ import uni.capstone.moodmingle.config.jwt.handler.JwtAccessDeniedHandler;
 import uni.capstone.moodmingle.config.jwt.handler.JwtAuthenticationEntryPoint;
 import uni.capstone.moodmingle.config.jwt.utils.JwtExtractor;
 import uni.capstone.moodmingle.config.jwt.utils.JwtVerifier;
+import uni.capstone.moodmingle.config.oidc.OidcAuthFilter;
 
 /**
  * Spring Security 설정하는 Config 클래스
@@ -25,7 +26,7 @@ import uni.capstone.moodmingle.config.jwt.utils.JwtVerifier;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-//    private static final String[] AUTH_BLACKLIST = {"/api/v1/diary", "/api/v1/diary/**", "/api/v1/member", "/api/v1/member/**"};
+//    private static final String[] AUTH_BLACKLIST = {"/api/v1/diary", "/api/v1/diary/*", "/api/v1/member", "/api/v1/member/*"};
     private static final String[] AUTH_BLACKLIST = {};
     private final JwtExtractor jwtExtractor;
     private final JwtVerifier jwtVerifier;
@@ -61,6 +62,7 @@ public class WebSecurityConfig {
 
         // JwtAuthFilter 추가
         http.addFilterBefore(new JwtAuthFilter(jwtExtractor, jwtVerifier), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new OidcAuthFilter(), JwtAuthFilter.class);
         http.exceptionHandling((exceptionHandling) -> exceptionHandling
                 .authenticationEntryPoint(authenticationEntryPoint)
                 .accessDeniedHandler(accessDeniedHandler)
