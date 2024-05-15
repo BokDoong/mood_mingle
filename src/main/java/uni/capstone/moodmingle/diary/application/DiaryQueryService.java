@@ -1,6 +1,5 @@
 package uni.capstone.moodmingle.diary.application;
 
-import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
