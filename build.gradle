@@ -26,10 +26,18 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-	// OAuth
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	// Json Object
+	implementation group: 'org.json', name: 'json', version: '20090211'
+
+	// Test
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	// Feign Client
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	implementation platform("org.springframework.cloud:spring-cloud-dependencies:2023.0.1")
 
 	// RDB
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
