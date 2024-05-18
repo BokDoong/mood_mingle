@@ -28,17 +28,18 @@ public class Member {
     private String name;
     @Column(unique = true, name = "email")
     private String email;
-    @Column(name = "password")
-    private String password;
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Diary> diaries = new ArrayList<>();
 
     @Builder
-    public Member(String name, String email, String password) {
+    public Member(String name, String email, String imageUrl) {
         this.name = name;
         this.email = email;
-        this.password = password;
+        this.imageUrl = imageUrl;
+        this.diaries = new ArrayList<>();
     }
 
     public void addDiary(Diary diary) {
