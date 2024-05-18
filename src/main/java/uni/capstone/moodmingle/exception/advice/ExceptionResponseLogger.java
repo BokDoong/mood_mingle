@@ -2,9 +2,7 @@ package uni.capstone.moodmingle.exception.advice;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
-import uni.capstone.moodmingle.config.jwt.JwtException;
 import uni.capstone.moodmingle.exception.ErrorResponse;
 
 /**
@@ -35,24 +33,6 @@ public class ExceptionResponseLogger {
         log.warn(logBuffer.toString());
     }
 
-    /**
-     * 파싱 메서드를 이용하여 커스텀 JWT 예외 정보를 담은 Response 를 로깅
-     *
-     * @param jwtExceptionInfo JWT Exception 정보를 담은 Json Object
-     * @param ex 예외 정보
-     */
-    public void logResponse(JwtException ex, JSONObject jwtExceptionInfo) {
-        StringBuffer logBuffer = new StringBuffer();
-
-        // Response's JWT Exception Info
-        logBuffer.append(getLoggingStructure());
-        logBuffer.append("[JWT Exception Class] : ").append(JwtException.valueOf(ex.name())).append("\n");
-        logBuffer.append("[Response Body With JWT Exception] : ").append("\n").append(processJwtException(jwtExceptionInfo));
-
-        // Logging & Flush
-        log.warn(logBuffer.toString());
-    }
-
     // Parsing Exception Class Name
     private String parseExceptionName(Exception e) {
         return e.getClass().getSimpleName();
@@ -74,14 +54,5 @@ public class ExceptionResponseLogger {
 
                 [Title] : Handling Exception Information
                 """;
-    }
-
-    // Processing JwtException with Json Format
-    private String processJwtException(JSONObject jwtExceptionInfo) {
-        return jwtExceptionInfo
-                .toString()
-                .replace(",", ",\n    ")
-                .replace("{", "{\n    ")
-                .replace("}", "\n}");
     }
 }
