@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.config.jwt.factory;
+package uni.capstone.moodmingle.config.security.jwt.factory;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -44,12 +44,12 @@ public class JwtFactory {
     /**
      * 액세스 토큰 생성
      *
-     * @param userId 유저 ID
+     * @param memberId 유저 ID
      * @return 생성된 토큰
      */
-    public String createAccessToken(long userId) {
+    public String createAccessToken(long memberId) {
         // Claims 생성
-        Claims claims = createClaims(userId);
+        Claims claims = createClaims(memberId);
         ZonedDateTime now = ZonedDateTime.now();
 
         // 메타 데이터 포함 토큰 생성 및 리턴
@@ -59,24 +59,24 @@ public class JwtFactory {
     /**
      * 리프레쉬 토큰 생성
      *
-     * @param userId 유저 ID
+     * @param memberId 유저 ID
      * @return 생성된 토큰
      */
-    public String createRefreshToken(long userId){
+    public String createRefreshToken(long memberId){
         // Claims 생성
-        Claims claims = createClaims(userId);
+        Claims claims = createClaims(memberId);
         ZonedDateTime now = ZonedDateTime.now();
 
         // 리프레쉬 토큰 생성 및 저장
         String refreshToken = createToken(claims, now, now.plusSeconds(refreshTokenExpTime));
-        saveRefreshToken(userId, refreshToken);
+        saveRefreshToken(memberId, refreshToken);
 
         return refreshToken;
     }
 
-    private static Claims createClaims(long userId) {
+    private static Claims createClaims(long memberId) {
         Claims claims = Jwts.claims();
-        claims.put("userId", userId);
+        claims.put("userId", memberId);
         return claims;
     }
 
@@ -89,9 +89,9 @@ public class JwtFactory {
                 .compact();
     }
 
-    private void saveRefreshToken(long userId, String refreshToken) {
+    private void saveRefreshToken(long memberId, String refreshToken) {
         redisTemplate.opsForValue().set(
-                String.valueOf(userId),
+                String.valueOf(memberId),
                 refreshToken,
                 refreshTokenExpTime,
                 TimeUnit.MILLISECONDS

@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.config.jwt.entity;
+package uni.capstone.moodmingle.config.security.jwt.entity;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- *
+ * 인증된 Jwt User
  *
  * @author ijin
  */

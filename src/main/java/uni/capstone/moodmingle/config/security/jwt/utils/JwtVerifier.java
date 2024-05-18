@@ -1,18 +1,15 @@
-package uni.capstone.moodmingle.config.jwt.utils;
+package uni.capstone.moodmingle.config.security.jwt.utils;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import uni.capstone.moodmingle.config.jwt.JwtException;
+import uni.capstone.moodmingle.config.security.exception.ExpiredTokenException;
+import uni.capstone.moodmingle.config.security.exception.InvalidTokenException;
 import uni.capstone.moodmingle.exception.BusinessException;
 import uni.capstone.moodmingle.exception.NotFoundException;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
@@ -48,19 +45,17 @@ public class JwtVerifier {
      * 토큰 유효성 검사
      *
      * @param token 토큰
-     * @param request HTTP 요청
      * @return 검증 결과
      */
-    public boolean validateToken(String token, HttpServletRequest request) {
+    public boolean verifyTokenInfos(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
-            return true;    // 성공
-        } catch (SecurityException | MalformedJwtException | UnsupportedJwtException | IllegalArgumentException |
-                 SignatureException e) {
-            setAttribute(request, JwtException.WRONG_TOKEN);    // 토큰 인증 실패
         } catch (ExpiredJwtException e) {
-            setAttribute(request, JwtException.EXPIRED_TOKEN);      // 토큰 만료
+            throw new ExpiredTokenException("만료된 토큰인 경우");      // 토큰 만료
+        }catch (Exception e) {
+            throw new InvalidTokenException("유효하지 않은 토큰인 경우");      // 유효하지 않은 토큰
         }
+
         return false;
     }
 
@@ -79,10 +74,5 @@ public class JwtVerifier {
 
     private Optional<String> findRefreshToken(long userId) {
         return Optional.ofNullable(redisTemplate.opsForValue().get(String.valueOf(userId)));
-    }
-
-
-    private void setAttribute(HttpServletRequest request, JwtException exception) {
-        request.setAttribute("exception", exception.name());
     }
 }

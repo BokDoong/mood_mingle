@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.config.jwt.utils;
+package uni.capstone.moodmingle.config.security.jwt.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -38,9 +38,9 @@ public class JwtExtractor {
         return parseClaims(token).get("userId", Long.class);
     }
 
-    private Claims parseClaims(String accessToken) {
+    private Claims parseClaims(String token) {
         try {
-            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }

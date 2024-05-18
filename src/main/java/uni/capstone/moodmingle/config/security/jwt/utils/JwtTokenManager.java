@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.config.jwt.utils;
+package uni.capstone.moodmingle.config.security.jwt.utils;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
