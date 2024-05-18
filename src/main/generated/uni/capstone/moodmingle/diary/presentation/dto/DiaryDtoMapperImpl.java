@@ -11,26 +11,28 @@ import uni.capstone.moodmingle.diary.presentation.dto.request.DiaryCreateDto;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-05-11T09:55:50+0900",
+    date = "2024-05-18T16:26:17+0900",
     comments = "version: 1.4.2.Final, compiler: javac, environment: Java 17.0.5 (JetBrains s.r.o.)"
 )
 @Component
 public class DiaryDtoMapperImpl implements DiaryDtoMapper {
 
     @Override
-    public DiaryCreateCommand toCommand(DiaryCreateDto diaryCreateDto, MultipartFile image) {
-        if ( diaryCreateDto == null && image == null ) {
+    public DiaryCreateCommand toCommand(Long memberId, DiaryCreateDto diaryCreateDto, MultipartFile image) {
+        if ( memberId == null && diaryCreateDto == null && image == null ) {
             return null;
         }
 
-        Long memberId = null;
+        Long memberId1 = null;
+        if ( memberId != null ) {
+            memberId1 = memberId;
+        }
         String title = null;
         String content = null;
         LocalDate date = null;
         Emotion emotion = null;
         Weather weather = null;
         if ( diaryCreateDto != null ) {
-            memberId = diaryCreateDto.getMemberId();
             title = diaryCreateDto.getTitle();
             content = diaryCreateDto.getContent();
             date = diaryCreateDto.getDate();
@@ -42,7 +44,7 @@ public class DiaryDtoMapperImpl implements DiaryDtoMapper {
             image1 = image;
         }
 
-        DiaryCreateCommand diaryCreateCommand = new DiaryCreateCommand( memberId, title, content, date, emotion, weather, image1 );
+        DiaryCreateCommand diaryCreateCommand = new DiaryCreateCommand( memberId1, title, content, date, emotion, weather, image1 );
 
         return diaryCreateCommand;
     }

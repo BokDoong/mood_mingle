@@ -17,8 +17,6 @@ import static uni.capstone.moodmingle.diary.domain.Diary.*;
  */
 @Getter
 public class DiaryCreateDto {
-    @NotNull
-    private Long memberId;
     @NotBlank(message = "title is blank")
     private String title;
     @NotNull(message = "date is null")
