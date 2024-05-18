@@ -25,9 +25,9 @@ public class MemberQueryService {
      * @param memberId
      * @return MemberInfo DTO
      */
-    public MemberInfo findMember(Long memberId) {
+    public MemberInfo findMemberInfo(Long memberId) {
         Member member = findMemberById(memberId);
-        return new MemberInfo(member.getName(), member.getEmail());
+        return new MemberInfo(member.getName(), member.getEmail(), member.getImageUrl());
     }
 
     private Member findMemberById(Long memberId) {

@@ -3,8 +3,11 @@ package uni.capstone.moodmingle.diary.presentation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import uni.capstone.moodmingle.config.security.jwt.entity.JwtUserDetails;
+import uni.capstone.moodmingle.config.security.oidc.clients.OidcKakaoClient;
 import uni.capstone.moodmingle.diary.application.DiaryCommandService;
 import uni.capstone.moodmingle.diary.application.DiaryQueryService;
 import uni.capstone.moodmingle.diary.application.dto.request.DiaryCreateCommand;
@@ -30,39 +33,43 @@ public class DiaryController {
     private final DiaryDtoMapper mapper;
     private final DiaryCommandService diaryCommandService;
     private final DiaryQueryService diaryQueryService;
+    private final OidcKakaoClient oidcKakaoClient;
 
     /**
      * 일기 생성(1) - 위로편지 답장
      */
     @PostMapping("/api/v1/diary/letter")
-    public void replyLetter(@RequestPart("dto") @Valid DiaryCreateDto dto,
+    public void replyLetter(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                             @RequestPart(value = "image", required = false) MultipartFile image) {
-        diaryCommandService.replyDiaryWithLetter(toCreateCommand(dto, image));
+        Long memberId = userDetails.getUserId();
+        diaryCommandService.replyDiaryWithLetter(toCreateCommand(memberId, dto, image));
     }
 
     /**
      * 일기 생성(2) - 공감 답장
      */
     @PostMapping("/api/v1/diary/sympathy")
-    public void replySympathy(@RequestPart("dto") @Valid DiaryCreateDto dto,
+    public void replySympathy(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                               @RequestPart(value = "image", required = false) MultipartFile image) {
-        diaryCommandService.replyDiaryWithSympathy(toCreateCommand(dto, image));
+        Long memberId = userDetails.getUserId();
+        diaryCommandService.replyDiaryWithSympathy(toCreateCommand(memberId, dto, image));
     }
 
     /**
      * 일기 생성(3) - 충고 답장
      */
     @PostMapping("/api/v1/diary/advice")
-    public void replyAdvice(@RequestPart @Valid DiaryCreateDto dto, @RequestPart(required = false) MultipartFile image) {
-
+    public void replyAdvice(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
+                            @RequestPart(value = "image", required = false) MultipartFile image) {
     }
 
     /**
      * 월별 일기 조회
      */
     @GetMapping("/api/v1/diary")
-    public List<DiaryInfo> getMonthlyDiaryInfos(@RequestParam("memberId") Long memberId,
+    public List<DiaryInfo> getMonthlyDiaryInfos(@AuthenticationPrincipal JwtUserDetails userDetails,
                                                 @RequestParam("date") @DateTimeFormat(pattern = "yyyy/MM") String date) {
+        Long memberId = userDetails.getUserId();
         return diaryQueryService.findMonthlyDiaryInfos(memberId, toLocalDate(date));
     }
 
@@ -70,27 +77,20 @@ public class DiaryController {
      * 일기 상세조회
      */
     @GetMapping("/api/v1/diary/detail")
-    public DiaryDetailInfo getDiaryDetailInfo(@RequestParam("memberId") Long memberId,
+    public DiaryDetailInfo getDiaryDetailInfo(@AuthenticationPrincipal JwtUserDetails userDetails,
                                               @RequestParam("diaryId") Long diaryId) {
+        Long memberId = userDetails.getUserId();
         return diaryQueryService.findDiaryDetailInfo(memberId, diaryId);
     }
-
-    /**
-     * 일기 수정
-     */
-
 
     /**
      * 월별 감정통계 조회
      */
     @GetMapping("/api/v1/diary/monthly-emotion")
-    public HashMap<String, Integer> getMonthlyEmotionsInfo(@RequestParam("memberId") Long memberId,
+    public HashMap<String, Integer> getMonthlyEmotionsInfo(@AuthenticationPrincipal JwtUserDetails userDetails,
                                                            @RequestParam("date") @DateTimeFormat(pattern = "yyyy/MM") String date) {
+        Long memberId = userDetails.getUserId();
         return diaryQueryService.MonthlyEmotionsInfo(memberId, toLocalDate(date));
-    }
-
-    private DiaryCreateCommand toCreateCommand(DiaryCreateDto dto, MultipartFile image) {
-        return mapper.toCommand(dto, image);
     }
 
     /**
@@ -100,5 +100,9 @@ public class DiaryController {
      */
     private LocalDate toLocalDate(String date) {
         return LocalDate.parse(date + "/01", DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+    }
+
+    private DiaryCreateCommand toCreateCommand(Long memberId, DiaryCreateDto dto, MultipartFile image) {
+        return mapper.toCommand(memberId, dto, image);
     }
 }

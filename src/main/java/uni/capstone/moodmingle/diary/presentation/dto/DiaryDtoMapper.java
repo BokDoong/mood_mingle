@@ -17,5 +17,5 @@ public interface DiaryDtoMapper {
     DiaryDtoMapper INSTANCE = Mappers.getMapper(DiaryDtoMapper.class);
 
     @Mapping(target = "image", source = "image")
-    DiaryCreateCommand toCommand(DiaryCreateDto diaryCreateDto, MultipartFile image);
+    DiaryCreateCommand toCommand(Long memberId, DiaryCreateDto diaryCreateDto, MultipartFile image);
 }
