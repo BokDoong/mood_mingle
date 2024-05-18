@@ -6,4 +6,4 @@ package uni.capstone.moodmingle.member.application.dto.response;
  * @param name 이름
  * @param email 이메일
  */
-public record MemberInfo(String name, String email) { }
+public record MemberInfo(String name, String email, String imageUrl) { }
