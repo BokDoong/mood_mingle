@@ -65,10 +65,9 @@ public class DevRequestLogger implements RequestLogger {
         return headerMap;
     }
 
-    private String parseRequestBody(HttpServletRequest request) {
-        final CachingRequestWrapper cachingRequest = (CachingRequestWrapper) request;
+    private String parseRequestBody(HttpServletRequest cachingRequest) {
 
-        if (request != null) {
+        if (cachingRequest != null) {
             try {
                 ServletInputStream inputStream = cachingRequest.getInputStream();
                 byte[] bodyBytes = new byte[1024];
@@ -84,6 +83,6 @@ public class DevRequestLogger implements RequestLogger {
             }
         }
 
-        return "EMPTY BODY ";
+        return "EMPTY REQUEST";
     }
 }
