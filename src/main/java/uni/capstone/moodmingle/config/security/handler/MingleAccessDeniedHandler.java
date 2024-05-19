@@ -38,7 +38,7 @@ public class MingleAccessDeniedHandler implements AccessDeniedHandler {
 
         // 응답 & 로깅
         setAccessDeniedInfoToResponse(response, exceptionInfo);
-        AuthExceptionLogger.logResponse(ACCESS_DENIED, exceptionInfo);
+        AuthExceptionLogger.logResponse(request, ACCESS_DENIED, exceptionInfo);
     }
 
     /**

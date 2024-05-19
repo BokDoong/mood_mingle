@@ -33,7 +33,6 @@ public class DiaryController {
     private final DiaryDtoMapper mapper;
     private final DiaryCommandService diaryCommandService;
     private final DiaryQueryService diaryQueryService;
-    private final OidcKakaoClient oidcKakaoClient;
 
     /**
      * 일기 생성(1) - 위로편지 답장

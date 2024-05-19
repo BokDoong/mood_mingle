@@ -1,5 +1,6 @@
 package uni.capstone.moodmingle.config.security.exception.advice;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -20,11 +21,12 @@ public class AuthExceptionLogger {
      * @param authExceptionInfo AUTH Exception 정보를 담은 Json Object
      * @param ex 예외 정보
      */
-    public void logResponse(AuthCode ex, JSONObject authExceptionInfo) {
+    public void logResponse(HttpServletRequest request, AuthCode ex, JSONObject authExceptionInfo) {
         StringBuffer logBuffer = new StringBuffer();
 
         // Response's Auth Exception Info
         logBuffer.append(getLoggingStructure());
+        logBuffer.append("[REQUEST URL] : ").append(request.getRequestURI()).append("\n");
         logBuffer.append("[AUTH Exception Class] : ").append(AuthCode.valueOf(ex.name())).append("\n");
         logBuffer.append("[Response Body With AUTH Exception] : ").append("\n").append(processAuthException(authExceptionInfo));
 

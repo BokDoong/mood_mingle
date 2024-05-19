@@ -39,7 +39,7 @@ public class MingleAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         // 응답에 AuthException 정보 담기 + 로깅
         setAuthExceptionInfoToResponse(response, exceptionInfo);
-        AuthExceptionLogger.logResponse(authCode, exceptionInfo);
+        AuthExceptionLogger.logResponse(request, authCode, exceptionInfo);
     }
 
     /**
