@@ -31,16 +31,18 @@ public class ReplyGPTClient implements LLMClient {
     /**
      * API Key&Url&EndPoint, 각 기능별 Model
      */
-    @Value("${openai.api.key}")
-    private String openAiKey;
     @Value("${openai.api.url}")
     private String openAiRequestUrl;
     @Value("${openai.api.end-point}")
     private String openAiEndPoint;
-    @Value("${openai.api.letter-model}")
-    private String letterAPIModel;
-    @Value("${openai.api.sympathy-model}")
+    @Value("${openai.api.model.letter}")
+    private String letterApiModel;
+    @Value("${openai.api.key.letter}")
+    private String letterApiKey;
+    @Value("${openai.api.model.sympathy}")
     private String sympathyAPIModel;
+    @Value("${openai.api.key.sympathy}")
+    private String sympathyApiKey;
 
     /**
      * 위로 편지 요청
@@ -51,7 +53,7 @@ public class ReplyGPTClient implements LLMClient {
      */
     @Override
     public void requestLetter(List<GptMessage> prompts, Long diaryId) {
-        requestToGptApi(letterAPIModel, prompts, diaryId, Type.LETTER);
+        requestToGptApi(letterApiModel, letterApiKey, prompts, diaryId, Type.LETTER);
     }
 
     /**
@@ -63,7 +65,7 @@ public class ReplyGPTClient implements LLMClient {
      */
     @Override
     public void requestSympathyPhrase(List<GptMessage> prompts, Long diaryId) {
-        requestToGptApi(sympathyAPIModel, prompts, diaryId, Type.SYMPATHY);
+        requestToGptApi(sympathyAPIModel, sympathyApiKey, prompts, diaryId, Type.SYMPATHY);
     }
 
     /**
@@ -74,7 +76,7 @@ public class ReplyGPTClient implements LLMClient {
      * @param type 답장 Type
      * @return GPT 응답
      */
-    private void requestToGptApi(String model, List<GptMessage> messages, Long diaryId, Type type) {
+    private void requestToGptApi(String model, String apiKey, List<GptMessage> messages, Long diaryId, Type type) {
 
         Map<String, Object> bodyMap = new HashMap<>();
         bodyMap.put("model", model);
@@ -91,7 +93,7 @@ public class ReplyGPTClient implements LLMClient {
         webClient
                 .post()
                 .uri(openAiRequestUrl)
-                .header("Authorization", "Bearer " + openAiKey)
+                .header("Authorization", "Bearer " + apiKey)
                 .header("Content-Type", "application/json;charset=utf-8")
                 .bodyValue(bodyMap)
                 .retrieve()
