@@ -44,15 +44,33 @@ public class PromptProcessingFacade {
     public List<GptMessage> processSympathyReplyPrompt(ReplyCreateCommand command) {
         // 일기+답변 -> PromptMessage 가공
         String diaryPrompt = generateDiaryPrompt(command);
-        String replyPrompt = generateSympathyReplyPrompt(command);
+        String replyPrompt = generateSympathyReplyPrompt();
 
         // 최종 LLM Request Message 가공
         return PromptProcessingHelper.processPrompt(diaryPrompt, replyPrompt);
     }
 
+    /**
+     * 공감 답장을 받기 위한 프롬프트 메세지 가공
+     *
+     * @param command Reply 생성 CommandDTO
+     * @return 가공된 Prompt Message
+     */
+    public List<GptMessage> processAdviceReplyPrompt(ReplyCreateCommand command) {
+        // 일기+답변 -> PromptMessage 가공
+        String diaryPrompt = generateDiaryPrompt(command);
+        String replyPrompt = generateAdviceReplyPrompt();
 
-    private String generateSympathyReplyPrompt(ReplyCreateCommand command) {
-        return replyPromptGenerator.generateSympathyReplyPrompt(command.emotion());
+        // 최종 LLM Request Message 가공
+        return PromptProcessingHelper.processPrompt(diaryPrompt, replyPrompt);
+    }
+
+    private String generateAdviceReplyPrompt() {
+        return replyPromptGenerator.processAdviceReplyPrompt();
+    }
+
+    private String generateSympathyReplyPrompt() {
+        return replyPromptGenerator.generateSympathyReplyPrompt();
     }
 
     private String generateLetterPrompt() {
@@ -60,6 +78,6 @@ public class PromptProcessingFacade {
     }
 
     private String generateDiaryPrompt(ReplyCreateCommand command) {
-        return diaryPromptGenerator.generateDiaryPrompt(command.memberName(), command.title(), command.content(), command.date());
+        return diaryPromptGenerator.generateDiaryPrompt(command);
     }
 }

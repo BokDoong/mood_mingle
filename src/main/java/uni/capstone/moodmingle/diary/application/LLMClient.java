@@ -14,17 +14,23 @@ public interface LLMClient {
      * 위로편지 요청
      *
      * @param prompts Request Prompt Messages
-     * @param diaryId
-     * @return LLM Response
+     * @param diaryId Diary's Id
      */
     void requestLetter(List<GptMessage> prompts, Long diaryId);
 
     /**
      * 공감 답변 요청
      *
-     * @param prompts  Request Prompt Messages
-     * @param diaryId
-     * @return LLM Response
+     * @param prompts Request Prompt Messages
+     * @param diaryId Diary's Id
      */
     void requestSympathyPhrase(List<GptMessage> prompts, Long diaryId);
+
+    /**
+     * 충고 답변 요청
+     *
+     * @param prompts Request Prompt Messages
+     * @param diaryId Diary's Id
+     */
+    void requestAdvicePhrase(List<GptMessage> prompts, Long diaryId);
 }

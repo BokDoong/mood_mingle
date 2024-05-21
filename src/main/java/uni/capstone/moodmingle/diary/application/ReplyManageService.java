@@ -23,7 +23,7 @@ public class ReplyManageService {
     private final LLMClient client;
 
     /**
-     * 프롬프트 전달 및 답변 받기
+     * 프롬프트 전달 및 위로편지 답변 받기
      *
      * @param command ReplyCreateCommand - DTO
      * @return LLM 답변
@@ -35,8 +35,9 @@ public class ReplyManageService {
         // LLMClient 에 요청
         client.requestLetter(prompts, diaryId);
     }
+
     /**
-     * 프롬프트 전달 및 답변 받기
+     * 프롬프트 전달 및 공감 답변 받기
      *
      * @param command ReplyCreateCommand - DTO
      * @return LLM 답변
@@ -47,5 +48,19 @@ public class ReplyManageService {
         List<GptMessage> prompts = processingFacade.processSympathyReplyPrompt(command);
         // LLMClient 에 요청
         client.requestSympathyPhrase(prompts, diaryId);
+    }
+
+    /**
+     * 프롬프트 전달 및 충고 답변 받기
+     *
+     * @param command ReplyCreateCommand - DTO
+     * @return LLM 답변
+     */
+    @Async("AsyncExecutor")
+    public void replyByAdvice(ReplyCreateCommand command, Long diaryId) {
+        // LLM Request Message 가공
+        List<GptMessage> prompts = processingFacade.processAdviceReplyPrompt(command);
+        // LLMClient 에 요청
+        client.requestAdvicePhrase(prompts, diaryId);
     }
 }

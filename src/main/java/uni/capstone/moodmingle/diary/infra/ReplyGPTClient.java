@@ -31,25 +31,32 @@ public class ReplyGPTClient implements LLMClient {
     /**
      * API Key&Url&EndPoint, 각 기능별 Model
      */
+    // Open Api
     @Value("${openai.api.url}")
     private String openAiRequestUrl;
     @Value("${openai.api.end-point}")
     private String openAiEndPoint;
+    // Letter
     @Value("${openai.api.model.letter}")
     private String letterApiModel;
     @Value("${openai.api.key.letter}")
     private String letterApiKey;
+    // Sympathy
     @Value("${openai.api.model.sympathy}")
     private String sympathyAPIModel;
     @Value("${openai.api.key.sympathy}")
     private String sympathyApiKey;
+    // Advice
+    @Value("${openai.api.model.advice}")
+    private String adviceAPIModel;
+    @Value("${openai.api.key.advice}")
+    private String adviceApiKey;
 
     /**
      * 위로 편지 요청
      *
      * @param prompts Request Prompt Messages
      * @param diaryId 일기 ID
-     * @return GPT 에서 받은 위로 편지
      */
     @Override
     public void requestLetter(List<GptMessage> prompts, Long diaryId) {
@@ -61,11 +68,21 @@ public class ReplyGPTClient implements LLMClient {
      *
      * @param prompts Request Prompt Messages
      * @param diaryId 일기 ID
-     * @return GPT 에서 받은 공감 답변
      */
     @Override
     public void requestSympathyPhrase(List<GptMessage> prompts, Long diaryId) {
         requestToGptApi(sympathyAPIModel, sympathyApiKey, prompts, diaryId, Type.SYMPATHY);
+    }
+
+    /**
+     * 충고 답변 요청
+     *
+     * @param prompts Request Prompt Messages
+     * @param diaryId 일기 ID
+     */
+    @Override
+    public void requestAdvicePhrase(List<GptMessage> prompts, Long diaryId) {
+        requestToGptApi(adviceAPIModel, adviceApiKey, prompts, diaryId, Type.SYMPATHY);
     }
 
     /**

@@ -60,6 +60,8 @@ public class DiaryController {
     @PostMapping("/api/v1/diary/advice")
     public void replyAdvice(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                             @RequestPart(value = "image", required = false) MultipartFile image) {
+        Long memberId = userDetails.getUserId();
+        diaryCommandService.replyDiaryWithAdvice(toCreateCommand(memberId, dto, image));
     }
 
     /**
