@@ -51,12 +51,18 @@ public class DiaryCommandService {
     /**
      * 충고 답변 생성 및 일기+답변 저장
      */
+    @Transactional
     public void replyDiaryWithAdvice(DiaryCreateCommand command) {
         // 멤버 찾기
-        // 일기 생성(Diary)
-        // 이미지 업로드 및 객체에 추가
-        // 충고 답변 생성(LLM 에 요청) 및 추가
+        Member member = findMember(command.memberId());
+
+        // 일기 생성 및 이미지 업로드 -> 저장
+        Diary diary = createDiary(command, member);
+        uploadImageIfExisted(command, diary);
+        saveDiary(member, diary);
+
         // 일기+답변 저장
+        createAdviceResponse(command, member, diary);
     }
 
     /**
@@ -82,6 +88,10 @@ public class DiaryCommandService {
 
     private void createLetterResponse(DiaryCreateCommand command, Member member, Diary diary) {
         replyManageService.replyByLetter(mapper.toCommand(command, member.getName()), diary.getId());
+    }
+
+    private void createAdviceResponse(DiaryCreateCommand command, Member member, Diary diary) {
+        replyManageService.replyByAdvice(mapper.toCommand(command, member.getName()), diary.getId());
     }
 
     private void uploadImageIfExisted(DiaryCreateCommand diaryCreateCommand, Diary diary) {
