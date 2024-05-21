@@ -3,6 +3,11 @@ package uni.capstone.moodmingle.exception.code;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 전역에서 공통으로 발생할 수 있는 커스텀 Exception 에러 코드
+ *
+ * @author ijin
+ */
 @Getter
 @RequiredArgsConstructor
 public enum CommonCode {
@@ -13,6 +18,11 @@ public enum CommonCode {
     SERVICE_UNAVAILABLE("C-005"),
     DATA_INTEGRITY("C-006"),
     INVALID_REFRESH_TOKEN("C-007"),
+    DATA_IO("C-008"),
+    LLM_NETWORK("C-009"),
+    ASYNC_TASKING("C-010"),
+    MISSING_REQUEST_DATA("C-011"),
+    NONE_REQUEST_URI("C-012"),
     ;
 
     private final String code;

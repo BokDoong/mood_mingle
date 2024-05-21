@@ -25,9 +25,23 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// Json Object
+	implementation group: 'org.json', name: 'json', version: '20090211'
+
+	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	// Feign Client
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	implementation platform("org.springframework.cloud:spring-cloud-dependencies:2023.0.1")
+
+	// RDB
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+	runtimeOnly 'com.mysql:mysql-connector-j'
 
 	// Validation
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -54,6 +68,16 @@ dependencies {
 
 	// AWS CloudWatch appender
 	implementation "ca.pjer:logback-awslogs-appender:1.6.0"
+
+	// AWS S3
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+	// JAVA Casting Warn Solution
+	implementation 'javax.xml.bind:jaxb-api:2.3.0'
+
+	// WebClient
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.1.104.Final:osx-aarch_64'
 }
 
 tasks.named('test') {
