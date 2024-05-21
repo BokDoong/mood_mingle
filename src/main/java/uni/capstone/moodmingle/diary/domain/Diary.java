@@ -27,7 +27,7 @@ public class Diary {
     private String title;
     @Column(name = "date")
     private LocalDate date;
-    @Column(name = "content")
+    @Column(name = "content", length = 1500)
     private String content;
     @Embedded
     private Image image;
