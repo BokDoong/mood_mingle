@@ -34,17 +34,34 @@ public class LoginService {
     private final JwtTokenManager jwtTokenManager;
 
     /**
-     * Email => 회원 존재 유무 검사
+     * Kakao Email => 회원 존재 유무 검사 => 없으면 새로
      *
      * @return 액세스 토큰 + 리프레쉬 토큰
      */
     @Transactional
-    public TokenResponse login(String email) {
+    public TokenResponse kakaoLogin(String email) {
         // 기존 회원 검즘
         Long memberId = findMemberId(email);
         // 토큰 발급
         return toTokenResponse(createAccessToken(memberId), createRefreshToken(memberId));
     }
+
+    /**
+     * Apple Email => 회원 존재 유무 검사 => 없으면 저장
+     *
+     * @return 액세스 토큰 + 리프레쉬 토큰
+     */
+    @Transactional
+    public TokenResponse appleLogin(String email) {
+        // 기존 회원 검즘
+        try {
+            Long memberId = findMemberId(email);
+            return toTokenResponse(createAccessToken(memberId), createRefreshToken(memberId));  // 토큰 발급
+        } catch (NotFoundException exception) {
+            return null;
+        }
+    }
+
 
     /**
      * 토큰 재발급
@@ -83,6 +100,22 @@ public class LoginService {
     public void logout(long memberId) {
         verifyMemberExist(memberId);
         jwtTokenManager.expireRefreshToken(memberId);
+    }
+
+    /**
+     * 회원 탈퇴
+     *
+     * @param memberId 멤버 ID
+     */
+    @Transactional
+    public void withdraw(long memberId) {
+        verifyMemberExist(memberId);
+        jwtTokenManager.expireRefreshToken(memberId);
+        deleteMember(memberId);
+    }
+
+    private void deleteMember(long memberId) {
+        memberRepository.deleteMember(memberId);
     }
 
     private Member createAndSaveMember(MemberCreateCommand command) {

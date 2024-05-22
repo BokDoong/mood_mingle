@@ -57,4 +57,15 @@ public class MemberJpaRepository implements MemberRepository {
                 .getResultList();
         return memberIds.stream().findAny();
     }
+
+    /**
+     * 멤버 ID -> 삭제
+     *
+     * @param memberId
+     */
+    @Override
+    public void deleteMember(long memberId) {
+        Member member = em.find(Member.class, memberId);
+        em.remove(member);
+    }
 }

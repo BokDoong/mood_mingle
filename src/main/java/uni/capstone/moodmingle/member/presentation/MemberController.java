@@ -2,10 +2,7 @@ package uni.capstone.moodmingle.member.presentation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import uni.capstone.moodmingle.config.security.jwt.entity.JwtUserDetails;
 import uni.capstone.moodmingle.config.security.oidc.entity.OidcUserInfo;
 import uni.capstone.moodmingle.member.application.LoginService;
@@ -45,20 +42,31 @@ public class MemberController {
      * @param oidcUserInfo Oidc 인증 엔티티
      * @return 액세스 토큰+리프레쉬 토큰
      */
-    @PostMapping("/api/v1/member/join")
-    public TokenResponse join(@AuthenticationPrincipal OidcUserInfo oidcUserInfo) {
+    @PostMapping("/api/v1/member/join/{authServer}")
+    public TokenResponse join(@PathVariable("authServer") String authServer, @AuthenticationPrincipal OidcUserInfo oidcUserInfo) {
         return loginService.register(mapper.toCommand(oidcUserInfo));
     }
 
     /**
-     * 로그인
+     * 로그인 - 카카오
      *
      * @param oidcUserInfo Oidc 인증 엔티티
      * @return 액세스 토큰+리프레쉬 토큰
      */
-    @PostMapping("/api/v1/member/login")
-    public TokenResponse login(@AuthenticationPrincipal OidcUserInfo oidcUserInfo) {
-        return loginService.login(oidcUserInfo.getEmail());
+    @PostMapping("/api/v1/member/login/kakao")
+    public TokenResponse kakaoLogin(@AuthenticationPrincipal OidcUserInfo oidcUserInfo) {
+        return loginService.kakaoLogin(oidcUserInfo.getEmail());
+    }
+
+    /**
+     * 로그인 - 애플
+     *
+     * @param oidcUserInfo Oidc 인증 엔티티
+     * @return 액세스 토큰+리프레쉬 토큰
+     */
+    @PostMapping("/api/v1/member/login/apple")
+    public TokenResponse appleLogin(@AuthenticationPrincipal OidcUserInfo oidcUserInfo) {
+        return loginService.kakaoLogin(oidcUserInfo.getEmail());
     }
 
     /**
@@ -80,5 +88,15 @@ public class MemberController {
     @PostMapping("/api/v1/member/logout")
     public void logout(@AuthenticationPrincipal JwtUserDetails userDetails) {
         loginService.logout(userDetails.getUserId());
+    }
+
+    /**
+     * 탈퇴
+     *
+     * @param userDetails
+     */
+    @DeleteMapping("/api/v1/member/withdraw")
+    public void withdraw(@AuthenticationPrincipal JwtUserDetails userDetails) {
+        loginService.withdraw(userDetails.getUserId());
     }
 }
