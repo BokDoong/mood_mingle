@@ -27,7 +27,7 @@ public class Diary {
     private String title;
     @Column(name = "date")
     private LocalDate date;
-    @Column(name = "content", length = 1500)
+    @Column(name = "content", length = 5000)
     private String content;
     @Embedded
     private Image image;
@@ -60,7 +60,7 @@ public class Diary {
         this.member = member;
         this.title = title;
         this.date = date;
-        this.content = content;
+        this.content = DiaryReplyCrypto.encrypt(content);
         this.emotion = emotion;
         this.weather = weather;
         this.image = new Image();

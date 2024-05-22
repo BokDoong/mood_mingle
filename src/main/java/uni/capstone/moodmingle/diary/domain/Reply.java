@@ -20,7 +20,7 @@ public class Reply {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
-    @Column(name = "content", length = 50000)
+    @Column(name = "content", length = 5000)
     private String content;
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
@@ -34,7 +34,7 @@ public class Reply {
      */
     @Builder
     public Reply(String content, Type type) {
-        this.content = content;
+        this.content = DiaryReplyCrypto.encrypt(content);
         this.type = type;
     }
 
