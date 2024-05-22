@@ -18,6 +18,7 @@ import uni.capstone.moodmingle.member.presentation.dto.request.TokenReissueDto;
  * @author ijin
  */
 @RestController
+@RequestMapping("/api/v1/member")
 @RequiredArgsConstructor
 public class MemberController {
 
@@ -31,9 +32,19 @@ public class MemberController {
      * @param userDetails Jwt 인증 엔티티
      * @return 회원 정보
      */
-    @GetMapping("/api/v1/member")
+    @GetMapping()
     public MemberInfo getMemberInfo(@AuthenticationPrincipal JwtUserDetails userDetails) {
         return memberQueryService.findMemberInfo(userDetails.getUserId());
+    }
+
+    /**
+     * 탈퇴
+     *
+     * @param userDetails
+     */
+    @DeleteMapping()
+    public void withdraw(@AuthenticationPrincipal JwtUserDetails userDetails) {
+        loginService.withdraw(userDetails.getUserId());
     }
 
     /**
@@ -42,31 +53,32 @@ public class MemberController {
      * @param oidcUserInfo Oidc 인증 엔티티
      * @return 액세스 토큰+리프레쉬 토큰
      */
-    @PostMapping("/api/v1/member/join/{authServer}")
+    @PostMapping("/join/{authServer}")
     public TokenResponse join(@PathVariable("authServer") String authServer, @AuthenticationPrincipal OidcUserInfo oidcUserInfo) {
         return loginService.register(mapper.toCommand(oidcUserInfo));
     }
 
     /**
-     * 로그인 - 카카오
+     * 카카오 로그인
      *
      * @param oidcUserInfo Oidc 인증 엔티티
      * @return 액세스 토큰+리프레쉬 토큰
      */
-    @PostMapping("/api/v1/member/login/kakao")
+    @PostMapping("/login/kakao")
     public TokenResponse kakaoLogin(@AuthenticationPrincipal OidcUserInfo oidcUserInfo) {
         return loginService.kakaoLogin(oidcUserInfo.getEmail());
     }
 
     /**
-     * 로그인 - 애플
+     * 애플 회원가입 및 로그ㅈㅌ
      *
      * @param oidcUserInfo Oidc 인증 엔티티
      * @return 액세스 토큰+리프레쉬 토큰
      */
-    @PostMapping("/api/v1/member/login/apple")
-    public TokenResponse appleLogin(@AuthenticationPrincipal OidcUserInfo oidcUserInfo) {
-        return loginService.kakaoLogin(oidcUserInfo.getEmail());
+    @PostMapping("/login/apple")
+    public TokenResponse appleLogin(@AuthenticationPrincipal OidcUserInfo oidcUserInfo,
+                                    @RequestParam(value = "user", required = false) String name) {
+        return loginService.appleLogin(oidcUserInfo.getEmail(), name);
     }
 
     /**
@@ -75,7 +87,7 @@ public class MemberController {
      * @param dto 액세스 토큰, 리프레쉬 토회
      * @return 액세스 토큰+리프레쉬 토큰
      */
-    @PostMapping("/api/v1/member/reissue")
+    @PostMapping("/reissue")
     public TokenResponse reissue(@RequestBody TokenReissueDto dto) {
         return loginService.reissue(dto.getRefreshToken());
     }
@@ -85,18 +97,8 @@ public class MemberController {
      *
      * @param userDetails
      */
-    @PostMapping("/api/v1/member/logout")
+    @PostMapping("/logout")
     public void logout(@AuthenticationPrincipal JwtUserDetails userDetails) {
         loginService.logout(userDetails.getUserId());
-    }
-
-    /**
-     * 탈퇴
-     *
-     * @param userDetails
-     */
-    @DeleteMapping("/api/v1/member/withdraw")
-    public void withdraw(@AuthenticationPrincipal JwtUserDetails userDetails) {
-        loginService.withdraw(userDetails.getUserId());
     }
 }
