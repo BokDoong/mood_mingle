@@ -82,7 +82,7 @@ public class ReplyGPTClient implements LLMClient {
      */
     @Override
     public void requestAdvicePhrase(List<GptMessage> prompts, Long diaryId) {
-        requestToGptApi(adviceAPIModel, adviceApiKey, prompts, diaryId, Type.SYMPATHY);
+        requestToGptApi(adviceAPIModel, adviceApiKey, prompts, diaryId, Type.ADVICE);
     }
 
     /**
