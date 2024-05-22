@@ -31,4 +31,11 @@ public interface MemberRepository {
      * @return Member
      */
     Optional<Long> findMemberIdByEmail(String email);
+
+    /**
+     * 회원 삭제
+     *
+     * @param memberId
+     */
+    void deleteMember(long memberId);
 }

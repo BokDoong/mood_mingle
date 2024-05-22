@@ -3,6 +3,7 @@ package uni.capstone.moodmingle.config.security.oidc.key;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import uni.capstone.moodmingle.config.security.exception.PublicKeyException;
+import uni.capstone.moodmingle.config.security.oidc.clients.OidcAppleClient;
 import uni.capstone.moodmingle.config.security.oidc.clients.OidcKakaoClient;
 
 import java.math.BigInteger;
@@ -21,9 +22,10 @@ import java.util.Base64;
 public class KeyManager {
 
     /**
-     * 카카오 외부 서버와 연동하여 공개키 목록을 조회하는 Client
+     * 외부 서버와 연동하여 공개키 목록을 조회하는 Clients
      */
     private final OidcKakaoClient kakaoClient;
+    private final OidcAppleClient appleClient;
 
     /**
      * 공개키 얻기
@@ -31,14 +33,17 @@ public class KeyManager {
      * @param kid Kid 값
      * @return 공개키
      */
-    public Key getPublicKey(String kid) {
+    public Key getPublicKey(String authServer, String kid) {
         try {
-            // 카카오에게 공개키 요청 혹은 캐싱된 공개키 조회
-            OidcPublicKeys oidcPublicKeys = kakaoClient.getKakaoOIDCOpenKeys();
-            // kid 가 같은 키 조회
+            // 각 소셜 서버의 공개키 조회
+            OidcPublicKeys oidcPublicKeys = new OidcPublicKeys();
+            switch (authServer) {
+                case "kakao" -> oidcPublicKeys = kakaoClient.getKakaoOIDCOpenKeys();
+                case "apple" -> oidcPublicKeys = appleClient.getAppleOIDCOpenKeys();
+            }
             PublicKeyInfo publicKeyInfo = findPublicKey(kid, oidcPublicKeys);
             // N,E -> 공개키 해시 알고리즘 적용
-            return getRSAPublicKey(publicKeyInfo.getN(), publicKeyInfo.getE());
+            return caculateRSAPublicKey(publicKeyInfo.getN(), publicKeyInfo.getE());
         } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
             throw new PublicKeyException("RSA 공개키 암호화 알고리즘이 실패한 경우");
         }
@@ -47,7 +52,7 @@ public class KeyManager {
     /**
      * RSA Algorithm
      */
-    private Key getRSAPublicKey(String modulus, String exponent)
+    private Key caculateRSAPublicKey(String modulus, String exponent)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         byte[] decodeN = Base64.getUrlDecoder().decode(modulus);

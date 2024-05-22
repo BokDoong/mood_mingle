@@ -5,7 +5,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -28,7 +27,6 @@ import java.security.Key;
  *
  * @author ijin
  */
-@Slf4j
 public class OidcAuthFilter extends OncePerRequestFilter {
 
     /**
@@ -64,16 +62,19 @@ public class OidcAuthFilter extends OncePerRequestFilter {
             try {
                 // 토큰 추출 및 페이로드 검증
                 String token = extractTokenFromHeader(request);
-                tokenVerifier.verifyTokenInfos(token);
+                String authServer = getAuthServer(request);
+
+                // 토큰 검증
+                tokenVerifier.verifyTokenInfos(authServer, token);
 
                 // Kid 값 추출 -> DB 에서 서명 검증에 사용할 공개키 찾는다
                 String kid = oidcTokenExtractor.extractKidValue(token);
-                Key publicKey = keyManager.getPublicKey(kid);
+                Key publicKey = keyManager.getPublicKey(authServer, kid);
                 // 공개키로 Body 추출
                 Claims body = signatureVerifier.verifyAndGetOidcTokenJws(token, publicKey).getBody();
 
                 // UserInfo 추출 -> Security 인증
-                OidcUserInfo oidcUserInfo = oidcTokenExtractor.extractUserInfo(body);
+                OidcUserInfo oidcUserInfo = oidcTokenExtractor.extractUserInfo(authServer, body);
                 setAuthentication(oidcUserInfo);
             } catch (ParsingRequestedTokenException ex) {
                 setOidcExceptionInfoToRequest(request, AuthCode.BAD_REQUEST_TOKEN);
@@ -122,6 +123,10 @@ public class OidcAuthFilter extends OncePerRequestFilter {
     }
 
     private boolean checkUrlWhetherLoginOrJoin(HttpServletRequest request) {
-        return request.getRequestURI().equals("/api/v1/member/login") || request.getRequestURI().equals("/api/v1/member/join");
+        return request.getRequestURI().startsWith("/api/v1/member/login/") || request.getRequestURI().startsWith("/api/v1/member/join/");
+    }
+
+    private String getAuthServer(HttpServletRequest request) {
+        return request.getRequestURI().split("/")[5];
     }
 }

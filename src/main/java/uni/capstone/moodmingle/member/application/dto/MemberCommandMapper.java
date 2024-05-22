@@ -21,4 +21,13 @@ public interface MemberCommandMapper {
      * @return Member
      */
     Member toMember(MemberCreateCommand command);
+
+    /**
+     * Name, Email -> Member
+     *
+     * @param name 이름
+     * @param email 이메일
+     * @return Member
+     */
+    Member toMember(String name, String email);
 }
