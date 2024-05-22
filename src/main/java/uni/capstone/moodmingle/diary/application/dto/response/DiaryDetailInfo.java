@@ -1,7 +1,8 @@
 package uni.capstone.moodmingle.diary.application.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import uni.capstone.moodmingle.diary.domain.DiaryReplyCrypto;
 
 import java.time.LocalDate;
 
@@ -12,7 +13,7 @@ import static uni.capstone.moodmingle.diary.domain.Reply.*;
  * 일기 상세 조회시, 응답 레코드
  */
 @Getter
-@AllArgsConstructor
+@NoArgsConstructor
 public class DiaryDetailInfo {
     private Long diaryId;
     private String title;
@@ -23,4 +24,17 @@ public class DiaryDetailInfo {
     private String imageUrl;
     private String replyContent;
     private Type type;
+
+    public DiaryDetailInfo(Long diaryId, String title, String content, LocalDate date, Emotion emotion,
+                           Weather weather, String imageUrl, String replyContent, Type type) {
+        this.diaryId = diaryId;
+        this.title = title;
+        this.content = DiaryReplyCrypto.decrypt(content);
+        this.date = date;
+        this.emotion = emotion;
+        this.weather = weather;
+        this.imageUrl = imageUrl;
+        this.replyContent = (replyContent == null || replyContent.isEmpty()) ? null : DiaryReplyCrypto.decrypt(replyContent);
+        this.type = type == null ? null : type;
+    }
 }

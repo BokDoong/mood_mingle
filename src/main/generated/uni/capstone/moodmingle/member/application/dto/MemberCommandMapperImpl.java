@@ -8,7 +8,7 @@ import uni.capstone.moodmingle.member.domain.Member.MemberBuilder;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-05-21T16:15:50+0900",
+    date = "2024-05-22T16:53:44+0900",
     comments = "version: 1.4.2.Final, compiler: javac, environment: Java 17.0.5 (JetBrains s.r.o.)"
 )
 @Component
@@ -25,6 +25,24 @@ public class MemberCommandMapperImpl implements MemberCommandMapper {
         member.name( command.name() );
         member.email( command.email() );
         member.imageUrl( command.imageUrl() );
+
+        return member.build();
+    }
+
+    @Override
+    public Member toMember(String name, String email) {
+        if ( name == null && email == null ) {
+            return null;
+        }
+
+        MemberBuilder member = Member.builder();
+
+        if ( name != null ) {
+            member.name( name );
+        }
+        if ( email != null ) {
+            member.email( email );
+        }
 
         return member.build();
     }

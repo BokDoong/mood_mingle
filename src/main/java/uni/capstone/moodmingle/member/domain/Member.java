@@ -38,7 +38,7 @@ public class Member {
     public Member(String name, String email, String imageUrl) {
         this.name = name;
         this.email = email;
-        this.imageUrl = imageUrl;
+        this.imageUrl = (imageUrl == null || imageUrl.isEmpty()) ? null : imageUrl;
         this.diaries = new ArrayList<>();
     }
 
