@@ -12,6 +12,7 @@ import java.time.LocalDate;
  * @author ijin
  */
 @Entity
+@Table(name = "tb_diary")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Diary {

@@ -9,6 +9,7 @@ import lombok.*;
  * @author ijin
  */
 @Entity
+@Table(name = "tb_reply")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Reply {
