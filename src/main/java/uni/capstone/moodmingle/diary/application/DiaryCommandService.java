@@ -8,7 +8,9 @@ import uni.capstone.moodmingle.diary.application.dto.request.DiaryCreateCommand;
 import uni.capstone.moodmingle.diary.domain.Diary;
 import uni.capstone.moodmingle.diary.domain.DiaryRepository;
 import uni.capstone.moodmingle.diary.domain.FileStore;
+import uni.capstone.moodmingle.diary.domain.Reply;
 import uni.capstone.moodmingle.exception.BusinessException;
+import uni.capstone.moodmingle.exception.NotFoundException;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
 import uni.capstone.moodmingle.member.application.MemberQueryService;
 import uni.capstone.moodmingle.member.application.dto.response.SecretInfos;
@@ -57,6 +59,10 @@ public class DiaryCommandService {
         replyDiary(command, type, member, secretInfos, diary);
     }
 
+    private String getEncryptedContent(String content, SecretInfos secretInfos) {
+        return cryptoHelper.encryptContent(secretInfos, content);
+    }
+
     private void replyDiary(DiaryCreateCommand command, Type type, Member member, SecretInfos secretInfos, Diary diary) {
         switch (type) {
             case LETTER -> createLetterResponse(command, member, diary, secretInfos);
@@ -103,11 +109,7 @@ public class DiaryCommandService {
 
     private Diary createDiary(DiaryCreateCommand command, Member member, SecretInfos secretInfos) {
         checkDiaryAlreadyExist(command, member);
-        return mapper.toEntity(command, getEncryptedContent(command, secretInfos), member);
-    }
-
-    private String getEncryptedContent(DiaryCreateCommand command, SecretInfos secretInfos) {
-        return cryptoHelper.encryptContent(secretInfos, command.content());
+        return mapper.toEntity(command, getEncryptedContent(command.content(), secretInfos), member);
     }
 
     private void checkDiaryAlreadyExist(DiaryCreateCommand command, Member member) {

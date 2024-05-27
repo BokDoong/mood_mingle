@@ -10,7 +10,6 @@ import uni.capstone.moodmingle.diary.application.ReplyCommandService;
 import uni.capstone.moodmingle.diary.infra.dto.GptResponseInfo;
 import uni.capstone.moodmingle.diary.infra.dto.GptMessage;
 import uni.capstone.moodmingle.member.application.dto.response.SecretInfos;
-import uni.capstone.moodmingle.member.domain.MemberSecretInfo;
 
 import java.util.HashMap;
 import java.util.List;

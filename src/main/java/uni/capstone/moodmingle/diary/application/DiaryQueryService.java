@@ -10,6 +10,8 @@ import uni.capstone.moodmingle.diary.domain.DiaryRepository;
 import uni.capstone.moodmingle.diary.domain.EmotionCalculator;
 import uni.capstone.moodmingle.exception.NotFoundException;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
+import uni.capstone.moodmingle.member.application.MemberQueryService;
+import uni.capstone.moodmingle.member.application.dto.response.SecretInfos;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -27,7 +29,10 @@ import static uni.capstone.moodmingle.diary.domain.Diary.*;
 @RequiredArgsConstructor
 public class DiaryQueryService {
 
+    private final MemberQueryService memberQueryService;
     private final DiaryRepository diaryRepository;
+
+    private final DiaryCryptoHelper cryptoHelper;
     private final EmotionCalculator emotionCalculator;
 
     /**
@@ -43,7 +48,6 @@ public class DiaryQueryService {
     }
 
     /**
-     * TODO: 일기, 답장 내용을 Sub DB 에서 가져온 시크릿 키로 복호화 후 DiaryDetailInfo 객체 생성
      * 일기 상세 조회
      *
      * @param memberId Member's Id
@@ -52,8 +56,9 @@ public class DiaryQueryService {
      */
     @Transactional(readOnly = true)
     public DiaryDetailInfo findDiaryDetailInfo(Long memberId, Long diaryId) {
-        return diaryRepository.findDiaryDetailInfo(memberId, diaryId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.DIARY_NOT_FOUND, diaryId));
+        DiaryDetailInfo diaryDetailInfo = getDiaryDetailInfo(memberId, diaryId);
+        SecretInfos secretInfos = memberQueryService.findMemberSecretInfos(memberId);
+        return setDecryptedInfos(diaryDetailInfo, secretInfos);
     }
 
     /**
@@ -66,5 +71,22 @@ public class DiaryQueryService {
     public HashMap<String, Integer> MonthlyEmotionsInfo(Long memberId, LocalDate date) {
         List<Emotion> monthlyEmotions = diaryRepository.findMonthlyEmotionsInfo(memberId, date);
         return emotionCalculator.makeStatisticsOfEmotions(monthlyEmotions);
+    }
+
+    private DiaryDetailInfo setDecryptedInfos(DiaryDetailInfo diaryDetailInfo, SecretInfos secretInfos) {
+        diaryDetailInfo.setDecryptedDiaryContent(getDecryptedContent(secretInfos, diaryDetailInfo.getContent()));
+        if (!diaryDetailInfo.verifyReplyContentEmpty()) {
+            diaryDetailInfo.setDecryptedReplyContent(getDecryptedContent(secretInfos, diaryDetailInfo.getReplyContent()));
+        }
+        return diaryDetailInfo;
+    }
+
+    private String getDecryptedContent(SecretInfos secretInfos, String content) {
+        return cryptoHelper.decryptContent(secretInfos, content);
+    }
+
+    private DiaryDetailInfo getDiaryDetailInfo(Long memberId, Long diaryId) {
+        return diaryRepository.findDiaryDetailInfo(memberId, diaryId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.DIARY_NOT_FOUND, diaryId));
     }
 }

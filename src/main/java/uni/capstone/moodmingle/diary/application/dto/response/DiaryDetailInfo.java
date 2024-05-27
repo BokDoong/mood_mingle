@@ -36,4 +36,16 @@ public class DiaryDetailInfo {
         this.replyContent = (replyContent == null || replyContent.isEmpty()) ? null : replyContent;
         this.type = type == null ? null : type;
     }
+
+    public void setDecryptedDiaryContent(String decryptedDiaryContent) {
+        this.content = decryptedDiaryContent;
+    }
+
+    public void setDecryptedReplyContent(String decryptedReplyContent) {
+        this.replyContent = decryptedReplyContent;
+    }
+
+    public boolean verifyReplyContentEmpty() {
+        return replyContent == null || replyContent.isEmpty();
+    }
 }
