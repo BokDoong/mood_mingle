@@ -7,7 +7,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import uni.capstone.moodmingle.config.security.jwt.entity.JwtUserDetails;
-import uni.capstone.moodmingle.config.security.oidc.clients.OidcKakaoClient;
 import uni.capstone.moodmingle.diary.application.DiaryCommandService;
 import uni.capstone.moodmingle.diary.application.DiaryQueryService;
 import uni.capstone.moodmingle.diary.application.dto.request.DiaryCreateCommand;
@@ -20,6 +19,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+
+import static uni.capstone.moodmingle.diary.domain.Reply.*;
 
 /**
  * 일기 도메인 컨트롤러
@@ -41,7 +42,7 @@ public class DiaryController {
     public void replyLetter(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                             @RequestPart(value = "image", required = false) MultipartFile image) {
         Long memberId = userDetails.getUserId();
-        diaryCommandService.replyDiaryWithLetter(toCreateCommand(memberId, dto, image));
+        diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Type.LETTER);
     }
 
     /**
@@ -51,7 +52,7 @@ public class DiaryController {
     public void replySympathy(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                               @RequestPart(value = "image", required = false) MultipartFile image) {
         Long memberId = userDetails.getUserId();
-        diaryCommandService.replyDiaryWithSympathy(toCreateCommand(memberId, dto, image));
+        diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Type.SYMPATHY);
     }
 
     /**
@@ -61,7 +62,7 @@ public class DiaryController {
     public void replyAdvice(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                             @RequestPart(value = "image", required = false) MultipartFile image) {
         Long memberId = userDetails.getUserId();
-        diaryCommandService.replyDiaryWithAdvice(toCreateCommand(memberId, dto, image));
+        diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Type.ADVICE);
     }
 
     /**
