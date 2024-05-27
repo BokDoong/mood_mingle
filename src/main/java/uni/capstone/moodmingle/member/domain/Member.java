@@ -13,6 +13,7 @@ import java.util.List;
  * @author ijin
  */
 @Entity
+@Table(name = "tb_member")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Member {

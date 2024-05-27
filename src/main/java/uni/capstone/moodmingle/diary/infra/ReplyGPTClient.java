@@ -9,6 +9,7 @@ import uni.capstone.moodmingle.diary.application.LLMClient;
 import uni.capstone.moodmingle.diary.application.ReplyCommandService;
 import uni.capstone.moodmingle.diary.infra.dto.GptResponseInfo;
 import uni.capstone.moodmingle.diary.infra.dto.GptMessage;
+import uni.capstone.moodmingle.member.application.dto.response.SecretInfos;
 
 import java.util.HashMap;
 import java.util.List;
@@ -59,8 +60,8 @@ public class ReplyGPTClient implements LLMClient {
      * @param diaryId 일기 ID
      */
     @Override
-    public void requestLetter(List<GptMessage> prompts, Long diaryId) {
-        requestToGptApi(letterApiModel, letterApiKey, prompts, diaryId, Type.LETTER);
+    public void requestLetter(List<GptMessage> prompts, Long diaryId, SecretInfos secretInfos) {
+        requestToGptApi(letterApiModel, letterApiKey, prompts, diaryId, Type.LETTER, secretInfos);
     }
 
     /**
@@ -70,8 +71,8 @@ public class ReplyGPTClient implements LLMClient {
      * @param diaryId 일기 ID
      */
     @Override
-    public void requestSympathyPhrase(List<GptMessage> prompts, Long diaryId) {
-        requestToGptApi(sympathyAPIModel, sympathyApiKey, prompts, diaryId, Type.SYMPATHY);
+    public void requestSympathyPhrase(List<GptMessage> prompts, Long diaryId, SecretInfos secretInfos) {
+        requestToGptApi(sympathyAPIModel, sympathyApiKey, prompts, diaryId, Type.SYMPATHY, secretInfos);
     }
 
     /**
@@ -81,8 +82,8 @@ public class ReplyGPTClient implements LLMClient {
      * @param diaryId 일기 ID
      */
     @Override
-    public void requestAdvicePhrase(List<GptMessage> prompts, Long diaryId) {
-        requestToGptApi(adviceAPIModel, adviceApiKey, prompts, diaryId, Type.ADVICE);
+    public void requestAdvicePhrase(List<GptMessage> prompts, Long diaryId, SecretInfos secretInfos) {
+        requestToGptApi(adviceAPIModel, adviceApiKey, prompts, diaryId, Type.ADVICE, secretInfos);
     }
 
     /**
@@ -93,7 +94,8 @@ public class ReplyGPTClient implements LLMClient {
      * @param type 답장 Type
      * @return GPT 응답
      */
-    private void requestToGptApi(String model, String apiKey, List<GptMessage> messages, Long diaryId, Type type) {
+    private void requestToGptApi(String model, String apiKey, List<GptMessage> messages,
+                                 Long diaryId, Type type, SecretInfos secretInfos) {
 
         Map<String, Object> bodyMap = new HashMap<>();
         bodyMap.put("model", model);
@@ -123,16 +125,16 @@ public class ReplyGPTClient implements LLMClient {
                 })
                 .retry(3)       // 실패해도 3번 시도
                 .subscribe(
-                        gptResponse -> respondGptCallBackSuccessMessage(gptResponse, diaryId, type),
-                        error -> respondGptCallBackFailedMessage(diaryId)
+                        gptResponse -> respondGptCallBackSuccessMessage(gptResponse, diaryId, type, secretInfos),
+                        error -> respondGptCallBackFailedMessage(diaryId, secretInfos)
                 );
     }
 
-    private void respondGptCallBackSuccessMessage(String gptResponse, Long diaryId, Type type) {
-        replyCommandService.createAndSaveReply(diaryId, gptResponse, type);
+    private void respondGptCallBackSuccessMessage(String gptResponse, Long diaryId, Type type, SecretInfos secretInfo) {
+        replyCommandService.createAndSaveReply(diaryId, gptResponse, type, secretInfo);
     }
 
-    private void respondGptCallBackFailedMessage(Long diaryId) {
-        replyCommandService.createAndSaveReply(diaryId, "네트워크 오류 발생..! 개발자에게 문의하세요.🥲🙇", null);
+    private void respondGptCallBackFailedMessage(Long diaryId, SecretInfos secretInfo) {
+        replyCommandService.createAndSaveReply(diaryId, "네트워크 오류 발생..! 개발자에게 문의하세요.🥲🙇", null, secretInfo);
     }
 }
