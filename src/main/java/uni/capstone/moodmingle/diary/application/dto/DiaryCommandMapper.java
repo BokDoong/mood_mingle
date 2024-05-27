@@ -24,11 +24,12 @@ public interface DiaryCommandMapper {
      * DTO & Member -> Diary 매핑
      *
      * @param diaryCreateCommand 일기 생성 Command DTO
+     * @param encryptedContent 암호화된 텍스트
      * @param member Member
      * @return Diary 객체
      */
-    @Mapping(target = "member", source = "member")
-    Diary toEntity(DiaryCreateCommand diaryCreateCommand, Member member);
+    @Mapping(target = "content", source = "encryptedContent")
+    Diary toEntity(DiaryCreateCommand diaryCreateCommand, String encryptedContent, Member member);
 
     /**
      * Content & Type -> Reply 매핑

@@ -1,7 +1,6 @@
 package uni.capstone.moodmingle.diary.application;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uni.capstone.moodmingle.diary.application.dto.DiaryCommandMapper;
@@ -9,11 +8,15 @@ import uni.capstone.moodmingle.diary.application.dto.request.DiaryCreateCommand;
 import uni.capstone.moodmingle.diary.domain.Diary;
 import uni.capstone.moodmingle.diary.domain.DiaryRepository;
 import uni.capstone.moodmingle.diary.domain.FileStore;
+import uni.capstone.moodmingle.diary.domain.Reply;
 import uni.capstone.moodmingle.exception.BusinessException;
 import uni.capstone.moodmingle.exception.NotFoundException;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
+import uni.capstone.moodmingle.member.application.MemberQueryService;
+import uni.capstone.moodmingle.member.application.dto.response.SecretInfos;
 import uni.capstone.moodmingle.member.domain.Member;
-import uni.capstone.moodmingle.member.domain.MemberRepository;
+
+import static uni.capstone.moodmingle.diary.domain.Reply.*;
 
 /**
  * Diary 도메인에서 CRUD 를 진행하는 애플리케이션 서비스
@@ -24,74 +27,64 @@ import uni.capstone.moodmingle.member.domain.MemberRepository;
 @RequiredArgsConstructor
 public class DiaryCommandService {
 
-    private final MemberRepository memberRepository;
     private final DiaryRepository diaryRepository;
+
+    private final MemberQueryService memberQueryService;
     private final ReplyManageService replyManageService;
 
+    private final DiaryCryptoHelper cryptoHelper;
     private final DiaryCommandMapper mapper;
     private final FileStore fileStore;
 
     /**
-     * 위로 답변 생성 및 일기+답변 저장
+     * 일기 저장 및 답변 요청
+     *
+     * @param command DiaryCreateCommand
+     * @param type  답변 형식
      */
     @Transactional
-    public void replyDiaryWithLetter(DiaryCreateCommand command) {
-        // 멤버 찾기
+    public void createAndSaveDiary(DiaryCreateCommand command, Type type) {
+        // 사용자, 사용자의 비밀키, 초기벡터 조회
         Member member = findMember(command.memberId());
+        SecretInfos secretInfos = findSecretInfos(member);
 
-        // 일기 생성 및 이미지 업로드 -> 저장
-        Diary diary = createDiary(command, member);
+        // 암호화 및 Diary 생성
+        Diary diary = createDiary(command, member, secretInfos);
+
+        // 이미지 업로드 -> 저장
         uploadImageIfExisted(command, diary);
         saveDiary(member, diary);
 
         // 답변 요청
-        createLetterResponse(command, member, diary);
+        replyDiary(command, type, member, secretInfos, diary);
     }
 
-    /**
-     * 충고 답변 생성 및 일기+답변 저장
-     */
-    @Transactional
-    public void replyDiaryWithAdvice(DiaryCreateCommand command) {
-        // 멤버 찾기
-        Member member = findMember(command.memberId());
-
-        // 일기 생성 및 이미지 업로드 -> 저장
-        Diary diary = createDiary(command, member);
-        uploadImageIfExisted(command, diary);
-        saveDiary(member, diary);
-
-        // 일기+답변 저장
-        createAdviceResponse(command, member, diary);
+    private String getEncryptedContent(String content, SecretInfos secretInfos) {
+        return cryptoHelper.encryptContent(secretInfos, content);
     }
 
-    /**
-     * 공감 답변 생성 및 일기+답변 저장
-     */
-    @Transactional
-    public void replyDiaryWithSympathy(DiaryCreateCommand command) {
-        // 멤버 찾기
-        Member member = findMember(command.memberId());
-
-        // 일기 생성 및 이미지 업로드 -> 저장
-        Diary diary = createDiary(command, member);
-        uploadImageIfExisted(command, diary);
-        saveDiary(member, diary);
-
-        // 답변 요청
-        createSympathyResponse(command, member, diary);
+    private void replyDiary(DiaryCreateCommand command, Type type, Member member, SecretInfos secretInfos, Diary diary) {
+        switch (type) {
+            case LETTER -> createLetterResponse(command, member, diary, secretInfos);
+            case ADVICE -> createAdviceResponse(command, member, diary, secretInfos);
+            case SYMPATHY -> createSympathyResponse(command, member, diary, secretInfos);
+        }
     }
 
-    private void createSympathyResponse(DiaryCreateCommand command, Member member, Diary diary) {
-        replyManageService.replyBySympathyPhrase(mapper.toCommand(command, member.getName()), diary.getId());
+    private SecretInfos findSecretInfos(Member member) {
+        return memberQueryService.findMemberSecretInfos(member.getId());
     }
 
-    private void createLetterResponse(DiaryCreateCommand command, Member member, Diary diary) {
-        replyManageService.replyByLetter(mapper.toCommand(command, member.getName()), diary.getId());
+    private void createSympathyResponse(DiaryCreateCommand command, Member member, Diary diary, SecretInfos secretInfos) {
+        replyManageService.replyBySympathyPhrase(mapper.toCommand(command, member.getName()), diary.getId(), secretInfos);
     }
 
-    private void createAdviceResponse(DiaryCreateCommand command, Member member, Diary diary) {
-        replyManageService.replyByAdvice(mapper.toCommand(command, member.getName()), diary.getId());
+    private void createLetterResponse(DiaryCreateCommand command, Member member, Diary diary, SecretInfos secretInfos) {
+        replyManageService.replyByLetter(mapper.toCommand(command, member.getName()), diary.getId(), secretInfos);
+    }
+
+    private void createAdviceResponse(DiaryCreateCommand command, Member member, Diary diary, SecretInfos secretInfos) {
+        replyManageService.replyByAdvice(mapper.toCommand(command, member.getName()), diary.getId(), secretInfos);
     }
 
     private void uploadImageIfExisted(DiaryCreateCommand diaryCreateCommand, Diary diary) {
@@ -114,9 +107,9 @@ public class DiaryCommandService {
         diaryRepository.saveDiary(diary);
     }
 
-    private Diary createDiary(DiaryCreateCommand command, Member member) {
+    private Diary createDiary(DiaryCreateCommand command, Member member, SecretInfos secretInfos) {
         checkDiaryAlreadyExist(command, member);
-        return mapper.toEntity(command, member);
+        return mapper.toEntity(command, getEncryptedContent(command.content(), secretInfos), member);
     }
 
     private void checkDiaryAlreadyExist(DiaryCreateCommand command, Member member) {
@@ -126,7 +119,6 @@ public class DiaryCommandService {
     }
 
     private Member findMember(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND, memberId));
+        return memberQueryService.findMember(memberId);
     }
 }

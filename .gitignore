@@ -38,3 +38,4 @@ out/
 
 ### resources ###
 /src/main/resources/
+/src/test/resources/

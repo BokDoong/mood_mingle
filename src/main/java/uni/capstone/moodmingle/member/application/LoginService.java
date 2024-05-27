@@ -4,10 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uni.capstone.moodmingle.config.security.jwt.factory.JwtFactory;
-import uni.capstone.moodmingle.config.security.jwt.utils.JwtExtractor;
-import uni.capstone.moodmingle.config.security.jwt.utils.JwtTokenManager;
-import uni.capstone.moodmingle.config.security.jwt.utils.JwtVerifier;
 import uni.capstone.moodmingle.exception.BusinessException;
 import uni.capstone.moodmingle.exception.NotFoundException;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
@@ -16,9 +12,10 @@ import uni.capstone.moodmingle.member.application.dto.request.MemberCreateComman
 import uni.capstone.moodmingle.member.application.dto.response.TokenResponse;
 import uni.capstone.moodmingle.member.domain.Member;
 import uni.capstone.moodmingle.member.domain.MemberRepository;
+import uni.capstone.moodmingle.member.domain.MemberSecretInfo;
 
 /**
- * 인증 도메인 서비스
+ * 로그인 서비스
  *
  * @author ijin
  */
@@ -26,15 +23,14 @@ import uni.capstone.moodmingle.member.domain.MemberRepository;
 @RequiredArgsConstructor
 public class LoginService {
 
+    private final JwtService jwtService;
+    private final MemberCryptoHelper memberCryptoHelper;
     private final MemberRepository memberRepository;
     private final MemberCommandMapper mapper;
-    private final JwtFactory jwtFactory;
-    private final JwtExtractor jwtExtractor;
-    private final JwtVerifier jwtVerifier;
-    private final JwtTokenManager jwtTokenManager;
 
     /**
      * 회원가입
+     * TODO: Sub DB 에 시크릿 키 저장
      *
      * @param command 멤버 생성 DTO
      * @return 액세스 토큰 + 리프레쉬 토큰
@@ -42,7 +38,8 @@ public class LoginService {
     @Transactional
     public TokenResponse register(MemberCreateCommand command) {
         Member member = createAndSaveMember(command);
-        return toTokenResponse(createAccessToken(member.getId()), createRefreshToken(member.getId()));
+        createAndSaveSecretInfo(member);
+        return toTokenResponse(member.getId());
     }
 
     /**
@@ -55,10 +52,11 @@ public class LoginService {
         // 기존 회원 검즘
         Long memberId = findMemberId(email);
         // 토큰 발급
-        return toTokenResponse(createAccessToken(memberId), createRefreshToken(memberId));
+        return toTokenResponse(memberId);
     }
 
     /**
+     * TODO: 애플 로그인도 회원가입, 로그인 로직 분리
      * 애플 로그인 및 회원가입: Apple Email => 회원 존재 유무 검사 => 없으면 저장
      *
      * @return 액세스 토큰 + 리프레쉬 토큰
@@ -67,11 +65,11 @@ public class LoginService {
     public TokenResponse appleLogin(String email, String name) {
         try {
             Long memberId = findMemberId(email);
-            return toTokenResponse(createAccessToken(memberId), createRefreshToken(memberId));  // 토큰 발급
+            return toTokenResponse(memberId);  // 토큰 발급
         } catch (NotFoundException ex) {
-            Member member = createAppleAccountMember(name, email);
-            saveMember(member);
-            return toTokenResponse(createAccessToken(member.getId()), createRefreshToken(member.getId()));  // 토큰 발급
+            Member member = createAndSaveAppleAccountMember(name, email);
+            createAndSaveSecretInfo(member);
+            return toTokenResponse(member.getId());  // 토큰 발급
         }
     }
 
@@ -83,12 +81,8 @@ public class LoginService {
      */
     @Transactional
     public TokenResponse reissue(String refreshToken) {
-        // 토큰 -> Member Id 추출
-        Long memberId = jwtExtractor.extractUserId(refreshToken);
-        // 리프레쉬 토큰 검증
-        jwtVerifier.verifyRefreshToken(memberId, refreshToken);
-        // 토큰 재발급
-        return toTokenResponse(createAccessToken(memberId), createRefreshToken(memberId));
+        verifyRefreshTokenExist(refreshToken);
+        return toTokenResponse(extractMemberIdFromToken(refreshToken));
     }
 
     /**
@@ -99,7 +93,7 @@ public class LoginService {
     @Transactional
     public void logout(long memberId) {
         verifyMemberExist(memberId);
-        jwtTokenManager.expireRefreshToken(memberId);
+        expireUsedRefreshToken(memberId);
     }
 
     /**
@@ -110,12 +104,32 @@ public class LoginService {
     @Transactional
     public void withdraw(long memberId) {
         verifyMemberExist(memberId);
-        jwtTokenManager.expireRefreshToken(memberId);
+        expireUsedRefreshToken(memberId);
         deleteMember(memberId);
     }
 
-    private Member createAppleAccountMember(String name, String email) {
-        return mapper.toMember(name, email);
+    private void expireUsedRefreshToken(long memberId) {
+        jwtService.expireRefreshToken(memberId);
+    }
+
+    private Long extractMemberIdFromToken(String refreshToken) {
+        return jwtService.extractUserId(refreshToken);
+    }
+
+    private void verifyRefreshTokenExist(String refreshToken) {
+        jwtService.verifyRefreshToken(refreshToken);
+    }
+
+    private MemberSecretInfo createAndSaveSecretInfo(Member member) {
+        MemberSecretInfo secretInfo = memberCryptoHelper.createSecretInfo(member.getId());
+        memberRepository.save(secretInfo);
+        return secretInfo;
+    }
+
+    private Member createAndSaveAppleAccountMember(String name, String email) {
+        Member member = mapper.toMember(name, email);
+        saveMember(member);
+        return member;
     }
 
     private void deleteMember(long memberId) {
@@ -141,18 +155,10 @@ public class LoginService {
                 .orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND, memberId));
     }
 
-    private String createRefreshToken(Long memberId) {
-        return jwtFactory.createRefreshToken(memberId);
-    }
-
-    private String createAccessToken(Long memberId) {
-        return jwtFactory.createAccessToken(memberId);
-    }
-
-    private TokenResponse toTokenResponse(String accessToken, String refreshToken) {
+    private TokenResponse toTokenResponse(long memberId) {
         return TokenResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+                .accessToken(jwtService.createAccessToken(memberId))
+                .refreshToken(jwtService.createRefreshToken(memberId))
                 .build();
     }
 

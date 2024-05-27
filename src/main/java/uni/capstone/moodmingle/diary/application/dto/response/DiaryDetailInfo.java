@@ -2,7 +2,6 @@ package uni.capstone.moodmingle.diary.application.dto.response;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import uni.capstone.moodmingle.diary.domain.DiaryReplyCrypto;
 
 import java.time.LocalDate;
 
@@ -29,12 +28,24 @@ public class DiaryDetailInfo {
                            Weather weather, String imageUrl, String replyContent, Type type) {
         this.diaryId = diaryId;
         this.title = title;
-        this.content = DiaryReplyCrypto.decrypt(content);
+        this.content = content;
         this.date = date;
         this.emotion = emotion;
         this.weather = weather;
         this.imageUrl = imageUrl;
-        this.replyContent = (replyContent == null || replyContent.isEmpty()) ? null : DiaryReplyCrypto.decrypt(replyContent);
+        this.replyContent = (replyContent == null || replyContent.isEmpty()) ? null : replyContent;
         this.type = type == null ? null : type;
+    }
+
+    public void setDecryptedDiaryContent(String decryptedDiaryContent) {
+        this.content = decryptedDiaryContent;
+    }
+
+    public void setDecryptedReplyContent(String decryptedReplyContent) {
+        this.replyContent = decryptedReplyContent;
+    }
+
+    public boolean verifyReplyContentEmpty() {
+        return replyContent == null || replyContent.isEmpty();
     }
 }

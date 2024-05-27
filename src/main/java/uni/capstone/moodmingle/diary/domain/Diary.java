@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import uni.capstone.moodmingle.member.domain.Member;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import java.time.LocalDate;
 
 /**
@@ -12,6 +14,7 @@ import java.time.LocalDate;
  * @author ijin
  */
 @Entity
+@Table(name = "tb_diary")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Diary {
@@ -60,7 +63,7 @@ public class Diary {
         this.member = member;
         this.title = title;
         this.date = date;
-        this.content = DiaryReplyCrypto.encrypt(content);
+        this.content = content;
         this.emotion = emotion;
         this.weather = weather;
         this.image = new Image();

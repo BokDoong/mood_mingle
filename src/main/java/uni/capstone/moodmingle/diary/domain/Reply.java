@@ -3,12 +3,16 @@ package uni.capstone.moodmingle.diary.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+
 /**
  * Reply 엔티티
  *
  * @author ijin
  */
 @Entity
+@Table(name = "tb_reply")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Reply {
@@ -34,7 +38,7 @@ public class Reply {
      */
     @Builder
     public Reply(String content, Type type) {
-        this.content = DiaryReplyCrypto.encrypt(content);
+        this.content = content;
         this.type = type;
     }
 
