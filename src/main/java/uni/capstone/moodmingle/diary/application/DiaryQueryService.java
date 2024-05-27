@@ -43,6 +43,7 @@ public class DiaryQueryService {
     }
 
     /**
+     * TODO: 일기, 답장 내용을 Sub DB 에서 가져온 시크릿 키로 복호화 후 DiaryDetailInfo 객체 생성
      * 일기 상세 조회
      *
      * @param memberId Member's Id

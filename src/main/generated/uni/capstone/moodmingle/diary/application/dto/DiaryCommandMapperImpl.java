@@ -15,15 +15,15 @@ import uni.capstone.moodmingle.member.domain.Member;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2024-05-22T16:53:44+0900",
+    date = "2024-05-27T15:28:57+0900",
     comments = "version: 1.4.2.Final, compiler: javac, environment: Java 17.0.5 (JetBrains s.r.o.)"
 )
 @Component
 public class DiaryCommandMapperImpl implements DiaryCommandMapper {
 
     @Override
-    public Diary toEntity(DiaryCreateCommand diaryCreateCommand, Member member) {
-        if ( diaryCreateCommand == null && member == null ) {
+    public Diary toEntity(DiaryCreateCommand diaryCreateCommand, String encryptedContent, Member member) {
+        if ( diaryCreateCommand == null && encryptedContent == null && member == null ) {
             return null;
         }
 
@@ -32,9 +32,11 @@ public class DiaryCommandMapperImpl implements DiaryCommandMapper {
         if ( diaryCreateCommand != null ) {
             diary.title( diaryCreateCommand.title() );
             diary.date( diaryCreateCommand.date() );
-            diary.content( diaryCreateCommand.content() );
             diary.emotion( diaryCreateCommand.emotion() );
             diary.weather( diaryCreateCommand.weather() );
+        }
+        if ( encryptedContent != null ) {
+            diary.content( encryptedContent );
         }
         if ( member != null ) {
             diary.member( member );

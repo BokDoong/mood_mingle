@@ -17,12 +17,27 @@ public interface MemberRepository {
     void save(Member member);
 
     /**
+     * SecretInfo 저장
+     *
+     * @param secretInfo
+     */
+    void save(MemberSecretInfo secretInfo);
+
+    /**
      * ID 로 검색
      *
      * @param memberId ID
      * @return Member
      */
     Optional<Member> findById(long memberId);
+
+    /**
+     * ID 로 검색
+     *
+     * @param memberId ID
+     * @return  MemberSecretInfo
+     */
+    Optional<MemberSecretInfo> findSecretInfoById(long memberId);
 
     /**
      * Email 로 검색

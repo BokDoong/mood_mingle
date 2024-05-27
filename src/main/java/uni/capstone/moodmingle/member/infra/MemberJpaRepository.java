@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import uni.capstone.moodmingle.member.domain.Member;
 import uni.capstone.moodmingle.member.domain.MemberRepository;
+import uni.capstone.moodmingle.member.domain.MemberSecretInfo;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +32,16 @@ public class MemberJpaRepository implements MemberRepository {
     }
 
     /**
+     * SecretInfo 저장
+     *
+     * @param secretInfo
+     */
+    @Override
+    public void save(MemberSecretInfo secretInfo) {
+        em.persist(secretInfo);
+    }
+
+    /**
      * ID 로 검색
      *
      * @param memberId ID
@@ -42,6 +53,23 @@ public class MemberJpaRepository implements MemberRepository {
     }
 
     /**
+     * ID 로 검색
+     *
+     * @param memberId ID
+     * @return Member
+     */
+    @Override
+    public Optional<MemberSecretInfo> findSecretInfoById(long memberId) {
+        List<MemberSecretInfo> memberSecretInfos = em.createQuery(
+                "select ms" +
+                        " from MemberSecretInfo ms" +
+                        " where ms.memberId = :memberId", MemberSecretInfo.class)
+                .setParameter("memberId", memberId)
+                .getResultList();
+        return memberSecretInfos.stream().findAny();
+    }
+
+    /**
      * Email 로 검색
      *
      * @param email 이메일
@@ -49,7 +77,7 @@ public class MemberJpaRepository implements MemberRepository {
      */
     @Override
     public Optional<Long> findMemberIdByEmail(String email) {
-        List<Long> memberIds =em.createQuery(
+        List<Long> memberIds = em.createQuery(
                 "select m.id" +
                         " from Member m" +
                         " where m.email = :email", Long.class)

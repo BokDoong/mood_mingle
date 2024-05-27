@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import uni.capstone.moodmingle.diary.application.dto.request.ReplyCreateCommand;
 import uni.capstone.moodmingle.diary.application.facade.PromptProcessingFacade;
 import uni.capstone.moodmingle.diary.infra.dto.GptMessage;
+import uni.capstone.moodmingle.member.application.dto.response.SecretInfos;
+import uni.capstone.moodmingle.member.domain.MemberSecretInfo;
 
 import java.util.List;
 
@@ -29,11 +31,11 @@ public class ReplyManageService {
      * @return LLM 답변
      */
     @Async("AsyncExecutor")
-    public void replyByLetter(ReplyCreateCommand command, Long diaryId) {
+    public void replyByLetter(ReplyCreateCommand command, Long diaryId, SecretInfos secretInfos) {
         // LLM Request Message 가공
         List<GptMessage> prompts = processingFacade.processLetterReplyPrompt(command);
         // LLMClient 에 요청
-        client.requestLetter(prompts, diaryId);
+        client.requestLetter(prompts, diaryId, secretInfos);
     }
 
     /**
@@ -43,11 +45,11 @@ public class ReplyManageService {
      * @return LLM 답변
      */
     @Async("AsyncExecutor")
-    public void replyBySympathyPhrase(ReplyCreateCommand command, Long diaryId) {
+    public void replyBySympathyPhrase(ReplyCreateCommand command, Long diaryId, SecretInfos secretInfos) {
         // LLM Request Message 가공
         List<GptMessage> prompts = processingFacade.processSympathyReplyPrompt(command);
         // LLMClient 에 요청
-        client.requestSympathyPhrase(prompts, diaryId);
+        client.requestSympathyPhrase(prompts, diaryId, secretInfos);
     }
 
     /**
@@ -57,10 +59,10 @@ public class ReplyManageService {
      * @return LLM 답변
      */
     @Async("AsyncExecutor")
-    public void replyByAdvice(ReplyCreateCommand command, Long diaryId) {
+    public void replyByAdvice(ReplyCreateCommand command, Long diaryId, SecretInfos secretInfos) {
         // LLM Request Message 가공
         List<GptMessage> prompts = processingFacade.processAdviceReplyPrompt(command);
         // LLMClient 에 요청
-        client.requestAdvicePhrase(prompts, diaryId);
+        client.requestAdvicePhrase(prompts, diaryId, secretInfos);
     }
 }

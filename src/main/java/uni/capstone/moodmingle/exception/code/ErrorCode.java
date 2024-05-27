@@ -45,6 +45,9 @@ public enum ErrorCode {
     // Member
     MEMBER_NOT_FOUND(MemberCode.NOT_FOUND.getCode(), NOT_FOUND, "존재하지 않는 회원"),
     MEMBER_ALREADY_EXISTED(MemberCode.ALREADY_EXISTED.getCode(), CONFLICT, "이미 존재하는 회원인 경우"),
+    FAILED_ENCODING_DATA(MemberCode.ENCODING_DATA.getCode(), NOT_IMPLEMENTED, "CBC 비밀키 혹은 초기 벡터 암호화에 실패한 경우"),
+    FAILED_DECODING_DATA(MemberCode.DECODING_DATA.getCode(), NOT_IMPLEMENTED, "CBC 비밀키 혹은 초기 벡터 복호화에 실패한 경우"),
+    FAILED_MAKING_SECRET_KEY(MemberCode.MAKING_SECRET_KEY.getCode(), NOT_IMPLEMENTED, "CBC 비밀키 생성에 실패한 경우"),
 
     // Diary
     DIARY_NOT_FOUND(DiaryCode.NOT_FOUND.getCode(), NOT_FOUND, "존재하지 않는 일기"),
