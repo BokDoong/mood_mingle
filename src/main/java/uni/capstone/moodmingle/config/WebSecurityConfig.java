@@ -30,7 +30,7 @@ import uni.capstone.moodmingle.config.security.oidc.utils.OidcTokenVerifier;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
-    private static final String[] AUTH_WHITELIST = {"/api/v1/member/reissue"};
+    private static final String[] AUTH_WHITELIST = {"/api/v1/member/reissue", "/test/**"};
     private static final String[] AUTH_BLACKLIST = {"/api/v1/diary", "/api/v1/diary/**", "/api/v1/member", "/api/v1/member/**"};
 
     /**
