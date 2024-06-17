@@ -52,7 +52,7 @@ public class DiaryCrypto {
     }
 
     /**
-     * 복호호화
+     * 복호화
      *
      * @param secretKey  비밀키
      * @param iv         초기 벡터
