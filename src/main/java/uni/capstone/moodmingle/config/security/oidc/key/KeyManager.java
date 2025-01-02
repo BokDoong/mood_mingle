@@ -3,7 +3,6 @@ package uni.capstone.moodmingle.config.security.oidc.key;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import uni.capstone.moodmingle.config.security.exception.PublicKeyException;
-import uni.capstone.moodmingle.config.security.oidc.clients.OidcAppleClient;
 import uni.capstone.moodmingle.config.security.oidc.clients.OidcKakaoClient;
 
 import java.math.BigInteger;
@@ -25,7 +24,6 @@ public class KeyManager {
      * 외부 서버와 연동하여 공개키 목록을 조회하는 Clients
      */
     private final OidcKakaoClient kakaoClient;
-    private final OidcAppleClient appleClient;
 
     /**
      * 공개키 얻기
@@ -39,9 +37,9 @@ public class KeyManager {
             OidcPublicKeys oidcPublicKeys = new OidcPublicKeys();
             switch (authServer) {
                 case "kakao" -> oidcPublicKeys = kakaoClient.getKakaoOIDCOpenKeys();
-                case "apple" -> oidcPublicKeys = appleClient.getAppleOIDCOpenKeys();
             }
             PublicKeyInfo publicKeyInfo = findPublicKey(kid, oidcPublicKeys);
+
             // N,E -> 공개키 해시 알고리즘 적용
             return caculateRSAPublicKey(publicKeyInfo.getN(), publicKeyInfo.getE());
         } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {

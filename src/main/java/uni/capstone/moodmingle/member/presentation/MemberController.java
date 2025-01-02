@@ -70,18 +70,6 @@ public class MemberController {
     }
 
     /**
-     * 애플 회원가입 및 로그ㅈㅌ
-     *
-     * @param oidcUserInfo Oidc 인증 엔티티
-     * @return 액세스 토큰+리프레쉬 토큰
-     */
-    @PostMapping("/login/apple")
-    public TokenResponse appleLogin(@AuthenticationPrincipal OidcUserInfo oidcUserInfo,
-                                    @RequestParam(value = "user", required = false) String name) {
-        return loginService.appleLogin(oidcUserInfo.getEmail(), name);
-    }
-
-    /**
      * 토큰 재발급
      *
      * @param dto 액세스 토큰, 리프레쉬 토회

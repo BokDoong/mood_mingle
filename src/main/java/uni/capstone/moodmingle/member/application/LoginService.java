@@ -56,24 +56,6 @@ public class LoginService {
     }
 
     /**
-     * TODO: 애플 로그인도 회원가입, 로그인 로직 분리
-     * 애플 로그인 및 회원가입: Apple Email => 회원 존재 유무 검사 => 없으면 저장
-     *
-     * @return 액세스 토큰 + 리프레쉬 토큰
-     */
-    @Transactional
-    public TokenResponse appleLogin(String email, String name) {
-        try {
-            Long memberId = findMemberId(email);
-            return toTokenResponse(memberId);  // 토큰 발급
-        } catch (NotFoundException ex) {
-            Member member = createAndSaveAppleAccountMember(name, email);
-            createAndSaveSecretInfo(member);
-            return toTokenResponse(member.getId());  // 토큰 발급
-        }
-    }
-
-    /**
      * 토큰 재발급
      *
      * @param refreshToken 리프레쉬 토큰
@@ -124,12 +106,6 @@ public class LoginService {
         MemberSecretInfo secretInfo = memberCryptoHelper.createSecretInfo(member.getId());
         memberRepository.save(secretInfo);
         return secretInfo;
-    }
-
-    private Member createAndSaveAppleAccountMember(String name, String email) {
-        Member member = mapper.toMember(name, email);
-        saveMember(member);
-        return member;
     }
 
     private void deleteMember(long memberId) {

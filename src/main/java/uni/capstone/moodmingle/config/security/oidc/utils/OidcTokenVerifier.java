@@ -1,7 +1,7 @@
 package uni.capstone.moodmingle.config.security.oidc.utils;
 
-import io.jsonwebtoken.*;
-import jakarta.servlet.http.HttpServletRequest;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uni.capstone.moodmingle.config.security.exception.ExpiredTokenException;
@@ -20,10 +20,6 @@ public class OidcTokenVerifier {
     private String kakaoAud;
     @Value("${social-server.kakao.iss}")
     private String kakaoIss;
-    @Value("${social-server.apple.aud}")
-    private String appleAud;
-    @Value("${social-server.apple.iss}")
-    private String appleIss;
 
     /**
      * ID_Token 검증
@@ -36,7 +32,6 @@ public class OidcTokenVerifier {
             String payload = parsePayloadFromToken(token);
             switch (authServer) {
                 case "kakao" -> parseAndVerifyToken(kakaoAud, kakaoIss, payload);
-                case "apple" -> parseAndVerifyToken(appleAud, appleIss, payload);
             }
         } catch (ExpiredJwtException ex) {
             throw new ExpiredTokenException("만료된 토큰인 경우");     // 토큰 만료

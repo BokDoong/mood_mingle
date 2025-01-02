@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import uni.capstone.moodmingle.config.security.oidc.entity.OidcUserInfo;
 
@@ -37,16 +36,8 @@ public class OidcTokenExtractor {
             case "kakao" -> {
                 return getKakaoOidcUserInfo(body);
             }
-            case "apple" -> {
-                return getAppleOidcUserInfo(body);
-            }
             default -> throw new IllegalStateException("Unexpected value: " + authServer);
         }
-    }
-
-    private OidcUserInfo getAppleOidcUserInfo(Claims body) {
-        String email = body.get("email", String.class);
-        return new OidcUserInfo(null, email, null);
     }
 
     private OidcUserInfo getKakaoOidcUserInfo(Claims body) {
