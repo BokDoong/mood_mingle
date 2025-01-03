@@ -48,7 +48,7 @@ public class LoginService {
      * @return 액세스 토큰 + 리프레쉬 토큰
      */
     @Transactional
-    public TokenResponse kakaoLogin(String email) {
+    public TokenResponse login(String email) {
         // 기존 회원 검즘
         Long memberId = findMemberId(email);
         // 토큰 발급

@@ -4,7 +4,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -107,6 +106,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private boolean checkUrlWhetherLoginOrJoin(HttpServletRequest request) {
-        return request.getRequestURI().startsWith("/api/v1/member/login/") || request.getRequestURI().startsWith("/api/v1/member/join/");
+        return request.getRequestURI().startsWith("/api/v1/member/login") || request.getRequestURI().startsWith("/api/v1/member/join") ||
+                request.getRequestURI().startsWith("/api/v1/member/basic-join") || request.getRequestURI().startsWith("/api/v1/member/basic-login");
     }
 }

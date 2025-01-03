@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import uni.capstone.moodmingle.config.security.oidc.entity.OidcUserInfo;
 import uni.capstone.moodmingle.member.application.dto.request.MemberCreateCommand;
+import uni.capstone.moodmingle.member.presentation.dto.request.MemberCreateDto;
 
 /**
  * Client 로부터 받은 Presentation 계층의 DTO -> Application 계층의 DTO 로 바꿔주는 Mapper
@@ -24,4 +25,10 @@ public interface MemberDtoMapper {
     @Mapping(target = "name", source = "nickname")
     @Mapping(target = "imageUrl", source = "picture")
     MemberCreateCommand toCommand(OidcUserInfo oidcUserInfo);
+
+    /**
+     * MemberCreateDto -> MemberCreateCommand 로 매핑
+     */
+    @Mapping(target = "email", source = "email")
+    MemberCreateCommand toCommand(MemberCreateDto memberCreateDto);
 }

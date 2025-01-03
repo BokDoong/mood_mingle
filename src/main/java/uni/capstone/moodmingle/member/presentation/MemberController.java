@@ -10,6 +10,7 @@ import uni.capstone.moodmingle.member.application.MemberQueryService;
 import uni.capstone.moodmingle.member.application.dto.response.MemberInfo;
 import uni.capstone.moodmingle.member.application.dto.response.TokenResponse;
 import uni.capstone.moodmingle.member.presentation.dto.MemberDtoMapper;
+import uni.capstone.moodmingle.member.presentation.dto.request.MemberCreateDto;
 import uni.capstone.moodmingle.member.presentation.dto.request.TokenReissueDto;
 
 /**
@@ -48,13 +49,13 @@ public class MemberController {
     }
 
     /**
-     * 회원가입
+     * 소셜 회원가입
      *
      * @param oidcUserInfo Oidc 인증 엔티티
      * @return 액세스 토큰+리프레쉬 토큰
      */
     @PostMapping("/join/{authServer}")
-    public TokenResponse join(@PathVariable("authServer") String authServer, @AuthenticationPrincipal OidcUserInfo oidcUserInfo) {
+    public TokenResponse socialJoin(@PathVariable("authServer") String authServer, @AuthenticationPrincipal OidcUserInfo oidcUserInfo) {
         return loginService.register(mapper.toCommand(oidcUserInfo));
     }
 
@@ -66,7 +67,24 @@ public class MemberController {
      */
     @PostMapping("/login/kakao")
     public TokenResponse kakaoLogin(@AuthenticationPrincipal OidcUserInfo oidcUserInfo) {
-        return loginService.kakaoLogin(oidcUserInfo.getEmail());
+        return loginService.login(oidcUserInfo.getEmail());
+    }
+
+    /**
+     * 기본 회원가입
+     */
+    @PostMapping("/basic-join")
+    public TokenResponse join(@RequestBody MemberCreateDto dto) {
+        return loginService.register(mapper.toCommand(dto));
+    }
+
+    /**
+     * 로그인
+     *
+     */
+    @PostMapping("/basic-login")
+    public TokenResponse login(@RequestParam("email") String email) {
+        return loginService.login(email);
     }
 
     /**

@@ -57,7 +57,7 @@ public class OidcAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        // 로그인 요청이면 무시
+        // 소셜 서버 회원가입, 로그인 요청이면 실행
         if (checkUrlWhetherLoginOrJoin(request)) {
             try {
                 // 토큰 추출 및 페이로드 검증
