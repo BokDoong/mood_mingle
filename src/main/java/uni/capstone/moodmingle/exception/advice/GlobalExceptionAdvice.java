@@ -110,8 +110,6 @@ public class GlobalExceptionAdvice {
             response = ErrorResponse.toResponseEntity(errorCode);
         }
 
-        // Logging And Return with Exception
-        ExceptionResponseLogger.logResponse(response, e);
         return response;
     }
 }
