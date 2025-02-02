@@ -40,6 +40,10 @@ public class Diary {
     @Enumerated(EnumType.STRING)
     @Column(name = "weather")
     private Weather weather;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "replied_status")
+    private RepliedStatus repliedStatus;
+
 
     /**
      * JPA 연관관계 엔티티
@@ -122,5 +126,14 @@ public class Diary {
         ;
 
         private final String value;
+    }
+
+    /**
+     * GPT 응답 상태정보 Enum
+     */
+    @Getter
+    @RequiredArgsConstructor
+    public enum RepliedStatus {
+        COMPLETED, ONGOING, FAILED
     }
 }
