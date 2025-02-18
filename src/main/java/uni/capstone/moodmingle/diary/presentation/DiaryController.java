@@ -42,7 +42,7 @@ public class DiaryController {
     public void replyLetter(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                             @RequestPart(value = "image", required = false) MultipartFile image) {
         Long memberId = userDetails.getUserId();
-        diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Type.LETTER);
+//        diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Type.LETTER);
     }
 
     /**
