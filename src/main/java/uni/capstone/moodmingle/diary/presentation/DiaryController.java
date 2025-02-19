@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import uni.capstone.moodmingle.common.ratelimit.RateLimited;
 import uni.capstone.moodmingle.config.security.jwt.entity.JwtUserDetails;
 import uni.capstone.moodmingle.diary.application.DiaryCommandService;
 import uni.capstone.moodmingle.diary.application.DiaryQueryService;
@@ -38,16 +39,18 @@ public class DiaryController {
     /**
      * 일기 생성(1) - 위로편지 답장
      */
+    @RateLimited
     @PostMapping("/api/v1/diary/letter")
     public void replyLetter(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                             @RequestPart(value = "image", required = false) MultipartFile image) {
         Long memberId = userDetails.getUserId();
-        diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Type.LETTER);
+//        diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Type.LETTER);
     }
 
     /**
      * 일기 생성(2) - 공감 답장
      */
+    @RateLimited
     @PostMapping("/api/v1/diary/sympathy")
     public void replySympathy(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                               @RequestPart(value = "image", required = false) MultipartFile image) {
@@ -58,6 +61,7 @@ public class DiaryController {
     /**
      * 일기 생성(3) - 충고 답장
      */
+    @RateLimited
     @PostMapping("/api/v1/diary/advice")
     public void replyAdvice(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                             @RequestPart(value = "image", required = false) MultipartFile image) {

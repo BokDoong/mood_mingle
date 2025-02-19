@@ -8,7 +8,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import uni.capstone.moodmingle.config.security.exception.code.AuthCode;
-import uni.capstone.moodmingle.config.security.exception.advice.AuthExceptionLogger;
 import uni.capstone.moodmingle.exception.BusinessException;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
 
@@ -39,7 +38,6 @@ public class MingleAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         // 응답에 AuthException 정보 담기 + 로깅
         setAuthExceptionInfoToResponse(response, exceptionInfo);
-        AuthExceptionLogger.logResponse(request, authCode, exceptionInfo);
     }
 
     /**

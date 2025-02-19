@@ -23,6 +23,7 @@ public enum CommonCode {
     ASYNC_TASKING("C-010"),
     MISSING_REQUEST_DATA("C-011"),
     NONE_REQUEST_URI("C-012"),
+    TOO_MANY_REQUESTS("C-013"),
     ;
 
     private final String code;
