@@ -7,7 +7,6 @@ import org.json.JSONObject;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
-import uni.capstone.moodmingle.config.security.exception.advice.AuthExceptionLogger;
 import uni.capstone.moodmingle.exception.BusinessException;
 import uni.capstone.moodmingle.exception.code.ErrorCode;
 
@@ -38,7 +37,6 @@ public class MingleAccessDeniedHandler implements AccessDeniedHandler {
 
         // 응답 & 로깅
         setAccessDeniedInfoToResponse(response, exceptionInfo);
-        AuthExceptionLogger.logResponse(request, ACCESS_DENIED, exceptionInfo);
     }
 
     /**
