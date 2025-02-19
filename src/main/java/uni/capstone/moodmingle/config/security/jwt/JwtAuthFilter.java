@@ -52,7 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (!checkUrlWhetherLoginOrJoin(request)) {
             try {
                 // 헤더에서 토큰 추출하여 검증
-                String token = extractTokenFromHeader(request);
+                String token = jwtExtractor.extractTokenFromHeader(request);
                 jwtVerifier.verifyTokenInfos(token);
 
                 // 토큰 해독 -> Id 값으로 JwtUserDetails 생성
@@ -73,21 +73,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    /**
-     * HTTP Request 의 헤더에 담겨있는 토큰값 추출
-     *
-     * @param request HTTP Request
-     * @return JWT 토큰
-     */
-    private String extractTokenFromHeader(HttpServletRequest request) {
-        String authorizationHeader = request.getHeader("Authorization");
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            return authorizationHeader.substring(7);
-        } else {
-            throw new ParsingRequestedTokenException("Http 요청 Access Token 이 비어 있거나 Bearer 형식 토큰이 아닌 경우");
-        }
     }
 
     /**

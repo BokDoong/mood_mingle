@@ -5,8 +5,10 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import uni.capstone.moodmingle.config.security.exception.ParsingRequestedTokenException;
 
 import java.security.Key;
 
@@ -28,14 +30,25 @@ public class JwtExtractor {
         key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /**
-     * JWT Token -> 유저 ID 추출
-     *
-     * @param token Client 로부터 받는 토큰
-     * @return UserID
-     */
+    // JWT Token -> 유저 ID
     public Long extractUserId(String token) {
         return parseClaims(token).get("userId", Long.class);
+    }
+
+    // HTTP Request -> 유저 ID
+    public Long extractUserId(HttpServletRequest request) {
+        String token = extractTokenFromHeader(request);
+        return parseClaims(token).get("userId", Long.class);
+    }
+
+    // HTTP Request -> JWT 토큰
+    public String extractTokenFromHeader(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7);
+        } else {
+            throw new ParsingRequestedTokenException("Http 요청 Access Token 이 비어 있거나 Bearer 형식 토큰이 아닌 경우");
+        }
     }
 
     private Claims parseClaims(String token) {
