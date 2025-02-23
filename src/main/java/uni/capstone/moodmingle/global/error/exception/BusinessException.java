@@ -1,7 +1,7 @@
-package uni.capstone.moodmingle.exception;
+package uni.capstone.moodmingle.global.error.exception;
 
 import lombok.Getter;
-import uni.capstone.moodmingle.exception.code.ErrorCode;
+import uni.capstone.moodmingle.global.error.ErrorCode;
 
 /**
  * RuntimeException 을 상속하여 커스텀 ErrorCode 를 포함하여 던져지는 커스텀 예외 클래스
