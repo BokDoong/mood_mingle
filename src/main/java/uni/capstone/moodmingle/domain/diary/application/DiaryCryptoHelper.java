@@ -1,0 +1,40 @@
+package uni.capstone.moodmingle.domain.diary.application;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import uni.capstone.moodmingle.domain.diary.domain.DiaryCrypto;
+import uni.capstone.moodmingle.domain.member.application.dto.response.SecretInfos;
+
+/**
+ * 일기, 답장 암호화 헬 클래스
+ *
+ * @author ijin
+ */
+@Component
+@RequiredArgsConstructor
+public class DiaryCryptoHelper {
+
+    private final DiaryCrypto crypto;
+
+    /**
+     * 일기, 답장 암호화
+     *
+     * @param secretInfos 사용자 비밀키, 초기 벡터
+     * @param content   내용
+     * @return          암호화된 데이터
+     */
+    public String encryptContent(SecretInfos secretInfos, String content) {
+        return crypto.encrypt(secretInfos.secretKey(), secretInfos.iv(), content);
+    }
+
+    /**
+     * 일기, 답장 복호화
+     *
+     * @param secretInfos 사용자 비밀키, 초기 벡터
+     * @param content   내용
+     * @return          암호화된 데이터
+     */
+    public String decryptContent(SecretInfos secretInfos, String content) {
+        return crypto.decrypt(secretInfos.secretKey(), secretInfos.iv(), content);
+    }
+}
