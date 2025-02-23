@@ -1,19 +1,19 @@
-package uni.capstone.moodmingle.exception;
+package uni.capstone.moodmingle.global.error.exception;
 
-import uni.capstone.moodmingle.exception.code.ErrorCode;
+import uni.capstone.moodmingle.global.error.ErrorCode;
 
 /**
  * BusinessException 를 상속하고, 엔티티를 찾지 못했을 때 던져지는 커스텀 예외 클래스
  *
  * @author ijin
  */
-public class NotFoundException extends BusinessException {
+public class EntityNotFoundException extends BusinessException {
     /**
      * 기본 생성자
      *
      * @param errorCode 커스텀 ErrorCode
      */
-    public NotFoundException(ErrorCode errorCode) {
+    public EntityNotFoundException(ErrorCode errorCode) {
         super(errorCode);
     }
 
@@ -24,7 +24,7 @@ public class NotFoundException extends BusinessException {
      * @param errorCode 커스텀 ErrorCode
      * @param id 찾지 못한 엔티티의 id 값
      */
-    public NotFoundException(ErrorCode errorCode, long id) {
+    public EntityNotFoundException(ErrorCode errorCode, long id) {
         super(errorCode, "id " + id + " is not found");
     }
 }

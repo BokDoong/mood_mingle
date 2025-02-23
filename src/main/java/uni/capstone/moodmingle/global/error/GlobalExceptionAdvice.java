@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.exception.advice;
+package uni.capstone.moodmingle.global.error;
 
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -14,9 +14,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-import uni.capstone.moodmingle.exception.BusinessException;
-import uni.capstone.moodmingle.exception.ErrorResponse;
-import uni.capstone.moodmingle.exception.code.ErrorCode;
+import uni.capstone.moodmingle.global.error.exception.BusinessException;
 
 import javax.naming.SizeLimitExceededException;
 import java.time.format.DateTimeParseException;
@@ -101,12 +99,13 @@ public class GlobalExceptionAdvice {
     // Create ExceptionResponse
     private ResponseEntity<ErrorResponse> createErrorResponse(Exception e, ErrorCode errorCode) {
         ResponseEntity<ErrorResponse> response;
-        if (e.getClass().equals(MethodArgumentNotValidException.class)) {
-            // MethodArgumentNotValidException 인 경우, 어떤 파라미터가 유효하지 못한지 ErrorResponse 에 정보 추가
+        if (e.getClass().equals(MethodArgumentNotValidException.class)) {       // MethodArgumentNotValidException 인 경우, 어떤 파라미터가 유효하지 못한지 ErrorResponse 에 정보 추가
             response = ErrorResponse.toResponseEntity(ErrorCode.INVALID_REQUEST_PARAMETER,
                     ((MethodArgumentNotValidException) e).getBindingResult().getFieldErrors().stream()
                             .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining(" and ")));
-        } else {
+        } else if (!e.getMessage().isEmpty()) {                                 // 예외 메세지가 있는 경우 표시
+            response = ErrorResponse.toResponseEntity(errorCode, e.getMessage());
+        }else {
             response = ErrorResponse.toResponseEntity(errorCode);
         }
 
