@@ -4,11 +4,11 @@ import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 import uni.capstone.moodmingle.domain.member.application.dto.request.MemberCreateCommand;
 import uni.capstone.moodmingle.domain.member.presentation.dto.request.MemberCreateDto;
-import uni.capstone.moodmingle.global.config.security.oidc.entity.OidcUserInfo;
+import uni.capstone.moodmingle.global.security.oidc.entity.OidcUserInfo;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-23T16:41:27+0900",
+    date = "2025-02-23T20:59:16+0900",
     comments = "version: 1.4.2.Final, compiler: javac, environment: Java 17.0.11 (Amazon.com Inc.)"
 )
 @Component

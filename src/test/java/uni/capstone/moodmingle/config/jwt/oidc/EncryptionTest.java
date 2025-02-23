@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import uni.capstone.moodmingle.diary.domain.DiaryCrypto;
-import uni.capstone.moodmingle.member.domain.SecretInfoCrypto;
-import uni.capstone.moodmingle.member.domain.SecretInfoFactory;
+import uni.capstone.moodmingle.domain.diary.domain.DiaryCrypto;
+import uni.capstone.moodmingle.domain.member.domain.SecretInfoCrypto;
+import uni.capstone.moodmingle.domain.member.domain.SecretInfoFactory;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;

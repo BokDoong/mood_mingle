@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uni.capstone.moodmingle.config.security.oidc.clients.OidcKakaoClient;
-import uni.capstone.moodmingle.config.security.oidc.key.OidcPublicKeys;
+import uni.capstone.moodmingle.global.security.oidc.clients.OidcKakaoClient;
+import uni.capstone.moodmingle.global.security.oidc.key.OidcPublicKeys;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
