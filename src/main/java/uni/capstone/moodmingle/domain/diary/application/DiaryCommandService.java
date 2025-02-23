@@ -1,22 +1,20 @@
-package uni.capstone.moodmingle.diary.application;
+package uni.capstone.moodmingle.domain.diary.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uni.capstone.moodmingle.diary.application.dto.DiaryCommandMapper;
-import uni.capstone.moodmingle.diary.application.dto.request.DiaryCreateCommand;
-import uni.capstone.moodmingle.diary.domain.Diary;
-import uni.capstone.moodmingle.diary.domain.DiaryRepository;
-import uni.capstone.moodmingle.diary.domain.FileStore;
-import uni.capstone.moodmingle.diary.domain.Reply;
-import uni.capstone.moodmingle.exception.BusinessException;
-import uni.capstone.moodmingle.exception.NotFoundException;
-import uni.capstone.moodmingle.exception.code.ErrorCode;
-import uni.capstone.moodmingle.member.application.MemberQueryService;
-import uni.capstone.moodmingle.member.application.dto.response.SecretInfos;
-import uni.capstone.moodmingle.member.domain.Member;
-
-import static uni.capstone.moodmingle.diary.domain.Reply.*;
+import uni.capstone.moodmingle.clients.llm.LLMClient;
+import uni.capstone.moodmingle.domain.diary.application.dto.DiaryCommandMapper;
+import uni.capstone.moodmingle.domain.diary.application.dto.request.DiaryCreateCommand;
+import uni.capstone.moodmingle.domain.diary.domain.Diary;
+import uni.capstone.moodmingle.domain.diary.domain.DiaryRepository;
+import uni.capstone.moodmingle.clients.s3.FileStore;
+import uni.capstone.moodmingle.domain.diary.domain.Reply;
+import uni.capstone.moodmingle.domain.diary.exception.DiaryAlreadyExistException;
+import uni.capstone.moodmingle.domain.member.application.MemberQueryService;
+import uni.capstone.moodmingle.domain.member.application.dto.response.SecretInfos;
+import uni.capstone.moodmingle.domain.member.domain.Member;
+import uni.capstone.moodmingle.global.error.ErrorCode;
 
 /**
  * Diary 도메인에서 CRUD 를 진행하는 애플리케이션 서비스
@@ -28,13 +26,12 @@ import static uni.capstone.moodmingle.diary.domain.Reply.*;
 public class DiaryCommandService {
 
     private final DiaryRepository diaryRepository;
-
     private final MemberQueryService memberQueryService;
-    private final ReplyManageService replyManageService;
 
     private final DiaryCryptoHelper cryptoHelper;
     private final DiaryCommandMapper mapper;
     private final FileStore fileStore;
+    private final LLMClient client;
 
     /**
      * 일기 저장 및 답변 요청
@@ -43,7 +40,7 @@ public class DiaryCommandService {
      * @param type  답변 형식
      */
     @Transactional
-    public void createAndSaveDiary(DiaryCreateCommand command, Type type) {
+    public void createAndSaveDiary(DiaryCreateCommand command, Reply.Type type) {
         // 사용자, 사용자의 비밀키, 초기벡터 조회
         Member member = findMember(command.memberId());
         SecretInfos secretInfos = findSecretInfos(member);
@@ -63,28 +60,16 @@ public class DiaryCommandService {
         return cryptoHelper.encryptContent(secretInfos, content);
     }
 
-    private void replyDiary(DiaryCreateCommand command, Type type, Member member, SecretInfos secretInfos, Diary diary) {
+    private void replyDiary(DiaryCreateCommand command, Reply.Type type, Member member, SecretInfos secretInfos, Diary diary) {
         switch (type) {
-            case LETTER -> createLetterResponse(command, member, diary, secretInfos);
-            case ADVICE -> createAdviceResponse(command, member, diary, secretInfos);
-            case SYMPATHY -> createSympathyResponse(command, member, diary, secretInfos);
+            case LETTER -> client.requestConsoleLetter(mapper.toCommand(command, member.getName()), diary.getId(), secretInfos);
+            case ADVICE -> client.requestAdvicePhrase(mapper.toCommand(command, member.getName()), diary.getId(), secretInfos);
+            case SYMPATHY -> client.requestSympathyPhrase(mapper.toCommand(command, member.getName()), diary.getId(), secretInfos);
         }
     }
 
     private SecretInfos findSecretInfos(Member member) {
         return memberQueryService.findMemberSecretInfos(member.getId());
-    }
-
-    private void createSympathyResponse(DiaryCreateCommand command, Member member, Diary diary, SecretInfos secretInfos) {
-        replyManageService.replyBySympathyPhrase(mapper.toCommand(command, member.getName()), diary.getId(), secretInfos);
-    }
-
-    private void createLetterResponse(DiaryCreateCommand command, Member member, Diary diary, SecretInfos secretInfos) {
-        replyManageService.replyByLetter(mapper.toCommand(command, member.getName()), diary.getId(), secretInfos);
-    }
-
-    private void createAdviceResponse(DiaryCreateCommand command, Member member, Diary diary, SecretInfos secretInfos) {
-        replyManageService.replyByAdvice(mapper.toCommand(command, member.getName()), diary.getId(), secretInfos);
     }
 
     private void uploadImageIfExisted(DiaryCreateCommand diaryCreateCommand, Diary diary) {
@@ -114,7 +99,7 @@ public class DiaryCommandService {
 
     private void checkDiaryAlreadyExist(DiaryCreateCommand command, Member member) {
         if (diaryRepository.checkDiaryAlreadyExist(member.getId(), command.date())) {
-            throw new BusinessException(ErrorCode.DIARY_ALREADY_EXIST);
+            throw new DiaryAlreadyExistException(ErrorCode.DIARY_ALREADY_EXIST);
         }
     }
 
