@@ -42,7 +42,8 @@ public class DiaryCrypto {
         try {
             // Encoding Cipher 객체 생성
             Cipher cipher = Cipher.getInstance(encryptAlgorithm);
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
+            System.out.println(cipher.toString());
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);        // 문제 코드
             // 인코딩
             byte[] encrypted = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
             return new String(Base64.getEncoder().encode(encrypted));

@@ -53,8 +53,8 @@ public enum ErrorCode {
     // Diary
     DIARY_NOT_FOUND("D-001", NOT_FOUND, "존재하지 않는 일기"),
     DIARY_ALREADY_EXIST("D-002", CONFLICT, "이미 해당 날짜에 일기가 존재하는 경우"),
-    FAILED_ENCODING_DIARY("D-003", NOT_IMPLEMENTED, "알기 및 답변의 인코딩이 실패한 경우"),
-    FAILED_DECODING_DIARY("D-004", NOT_IMPLEMENTED, "알기 및 답변의 디코딩이 실패한 경우")
+    FAILED_ENCODING_DIARY("D-003", NOT_IMPLEMENTED, "일기 및 답변의 인코딩이 실패한 경우"),
+    FAILED_DECODING_DIARY("D-004", NOT_IMPLEMENTED, "일기 및 답변의 디코딩이 실패한 경우")
     ;
 
     /**
