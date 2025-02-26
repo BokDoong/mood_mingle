@@ -18,6 +18,7 @@ import uni.capstone.moodmingle.global.error.exception.BusinessException;
 
 import javax.naming.SizeLimitExceededException;
 import java.time.format.DateTimeParseException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -103,7 +104,7 @@ public class GlobalExceptionAdvice {
             response = ErrorResponse.toResponseEntity(ErrorCode.INVALID_REQUEST_PARAMETER,
                     ((MethodArgumentNotValidException) e).getBindingResult().getFieldErrors().stream()
                             .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining(" and ")));
-        } else if (!e.getMessage().isEmpty()) {                                 // 예외 메세지가 있는 경우 표시
+        } else if (Optional.ofNullable(e.getMessage()).orElse("").isEmpty()) {                                // 예외 메세지가 있는 경우 표시
             response = ErrorResponse.toResponseEntity(errorCode, e.getMessage());
         }else {
             response = ErrorResponse.toResponseEntity(errorCode);
