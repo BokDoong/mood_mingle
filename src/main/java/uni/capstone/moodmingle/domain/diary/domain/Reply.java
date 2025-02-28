@@ -3,9 +3,6 @@ package uni.capstone.moodmingle.domain.diary.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-
 /**
  * Reply 엔티티
  *

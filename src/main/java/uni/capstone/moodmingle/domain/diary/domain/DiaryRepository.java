@@ -27,7 +27,7 @@ public interface DiaryRepository {
      * @param diaryId Diary's Id
      * @return Diary 객체
      */
-    Optional<Diary> findById(long diaryId);
+    Optional<Diary> findDiaryById(long diaryId);
 
     /**
      * 해당 날짜에 일기가 이미 있는지 조회

@@ -10,8 +10,6 @@ import uni.capstone.moodmingle.domain.diary.domain.DiaryRepository;
 import uni.capstone.moodmingle.domain.diary.domain.Reply;
 import uni.capstone.moodmingle.domain.member.application.MemberQueryService;
 import uni.capstone.moodmingle.domain.member.domain.Member;
-import uni.capstone.moodmingle.domain.member.exception.MemberNotFoundException;
-import uni.capstone.moodmingle.global.error.ErrorCode;
 
 /**
  * Reply 도메인에서 CRUD 를 진행하는 애플리케이션 서비스
@@ -23,6 +21,7 @@ import uni.capstone.moodmingle.global.error.ErrorCode;
 public class ReplyCommandService {
 
     private final MemberQueryService memberQueryService;
+    private final DiaryQueryService diaryQueryService;
     private final DiaryRepository diaryRepository;
     private final DiaryCrypto diaryCrypto;
     private final DiaryCommandMapper mapper;
@@ -52,8 +51,7 @@ public class ReplyCommandService {
     }
 
     private Diary findDiary(Long diaryId) {
-        return diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND, diaryId));
+        return diaryQueryService.getDiaryById(diaryId);
     }
 
     private Reply createReply(String replyContent, Reply.Type type, byte[] privateKey) {

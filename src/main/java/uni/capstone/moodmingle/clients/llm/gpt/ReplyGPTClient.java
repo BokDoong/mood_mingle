@@ -9,6 +9,7 @@ import uni.capstone.moodmingle.clients.llm.LLMClient;
 import uni.capstone.moodmingle.clients.llm.gpt.dto.GptMessage;
 import uni.capstone.moodmingle.clients.llm.gpt.dto.GptResponseInfo;
 import uni.capstone.moodmingle.clients.llm.gpt.facade.PromptProcessingFacade;
+import uni.capstone.moodmingle.domain.diary.application.DiaryCommandService;
 import uni.capstone.moodmingle.domain.diary.application.ReplyCommandService;
 import uni.capstone.moodmingle.domain.diary.application.dto.request.ReplyCreateCommand;
 import uni.capstone.moodmingle.domain.diary.domain.Reply;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 public class ReplyGPTClient implements LLMClient {
 
     private final ReplyCommandService replyCommandService;
+    private final DiaryCommandService diaryCommandService;
     private final PromptProcessingFacade processingFacade;
 
     // OpenAI API 설정값
@@ -113,6 +115,6 @@ public class ReplyGPTClient implements LLMClient {
 
     private void respondGptCallBackFailedMessage(Throwable error, Long diaryId) {
         System.out.println(error.getMessage());
-        replyCommandService.createAndSaveReply(diaryId, "네트워크 오류 발생..! 개발자에게 문의하세요.🥲🙇", null);
+        diaryCommandService.treatFailedReplyDiary(diaryId);
     }
 }

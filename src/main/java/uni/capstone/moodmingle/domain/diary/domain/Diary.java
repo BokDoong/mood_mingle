@@ -69,6 +69,7 @@ public class Diary {
         this.emotion = emotion;
         this.weather = weather;
         this.image = new Image();
+        this.repliedStatus = RepliedStatus.PENDING;
     }
 
     /**
@@ -77,6 +78,7 @@ public class Diary {
      * @param reply LLM 으로부터 받은 답장
      */
     public void putReply(Reply reply) {
+        this.repliedStatus = RepliedStatus.COMPLETED;
         this.reply = reply;
     }
 
@@ -89,6 +91,13 @@ public class Diary {
         this.image = Image.builder()
                 .imageUrl(imageUrl)
                 .build();
+    }
+
+    /**
+     * LLM 에게 요청 실패한 경우
+     */
+    public void failRepliedStatus() {
+        this.repliedStatus = RepliedStatus.FAILED;
     }
 
     /**
@@ -132,6 +141,6 @@ public class Diary {
     @Getter
     @RequiredArgsConstructor
     public enum RepliedStatus {
-        COMPLETED, ONGOING, FAILED
+        COMPLETED, PENDING, FAILED
     }
 }

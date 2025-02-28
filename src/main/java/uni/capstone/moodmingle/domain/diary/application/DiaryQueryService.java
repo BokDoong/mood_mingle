@@ -70,9 +70,15 @@ public class DiaryQueryService {
      * @param date 날짜
      * @return 월별 감정 통계 조회 DTO
      */
+    @Transactional(readOnly = true)
     public HashMap<String, Integer> MonthlyEmotionsInfo(Long memberId, LocalDate date) {
         List<Diary.Emotion> monthlyEmotions = diaryRepository.findMonthlyEmotionsInfo(memberId, date);
         return emotionCalculator.makeStatisticsOfEmotions(monthlyEmotions);
+    }
+
+    public Diary getDiaryById(Long diaryId) {
+        return diaryRepository.findDiaryById(diaryId)
+                .orElseThrow(() -> new DiaryNotFoundException(ErrorCode.DIARY_NOT_FOUND));
     }
 
     private DiaryDetailInfo setDecryptedInfos(DiaryDetailInfo diaryDetailInfo, byte[] privateKey) {

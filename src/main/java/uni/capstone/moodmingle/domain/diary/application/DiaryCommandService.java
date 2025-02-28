@@ -27,6 +27,7 @@ public class DiaryCommandService {
 
     private final DiaryCrypto diaryCrypto;
     private final MemberQueryService memberQueryService;
+    private final DiaryQueryService diaryQueryService;
     private final DiaryRepository diaryRepository;
     private final DiaryCommandMapper mapper;
     private final FileStore fileStore;
@@ -50,6 +51,17 @@ public class DiaryCommandService {
         saveDiary(member, diary);
         // 답변 요청
         replyDiary(command, type, member, diary);
+    }
+
+    /**
+     * LLM 에 요청 실패한 일기 상태 수정
+     *
+     * @param diaryId 일기 ID
+     */
+    @Transactional
+    public void treatFailedReplyDiary(Long diaryId) {
+        Diary diary = diaryQueryService.getDiaryById(diaryId);
+        diary.failRepliedStatus();
     }
 
     private void replyDiary(DiaryCreateCommand command, Reply.Type type, Member member, Diary diary) {
