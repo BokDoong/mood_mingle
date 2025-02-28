@@ -6,13 +6,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import uni.capstone.moodmingle.clients.llm.LLMClient;
+import uni.capstone.moodmingle.clients.llm.gpt.dto.GptMessage;
+import uni.capstone.moodmingle.clients.llm.gpt.dto.GptResponseInfo;
 import uni.capstone.moodmingle.clients.llm.gpt.facade.PromptProcessingFacade;
 import uni.capstone.moodmingle.domain.diary.application.ReplyCommandService;
-import uni.capstone.moodmingle.clients.llm.gpt.dto.GptResponseInfo;
-import uni.capstone.moodmingle.clients.llm.gpt.dto.GptMessage;
 import uni.capstone.moodmingle.domain.diary.application.dto.request.ReplyCreateCommand;
 import uni.capstone.moodmingle.domain.diary.domain.Reply;
-import uni.capstone.moodmingle.domain.member.application.dto.response.SecretInfos;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,25 +42,25 @@ public class ReplyGPTClient implements LLMClient {
 
     // 위로 요청
     @Override
-    public void requestConsoleLetter(ReplyCreateCommand command, Long diaryId, SecretInfos secretInfos) {
+    public void requestConsoleLetter(ReplyCreateCommand command, Long diaryId) {
         // LLM Request Message 가공
         List<GptMessage> prompts = processingFacade.processLetterReplyPrompt(command);
-        requestToGptApi(openAiApiModel, openAiApiKey, prompts, diaryId, Reply.Type.LETTER, secretInfos);
+        requestToGptApi(openAiApiModel, openAiApiKey, prompts, diaryId, Reply.Type.LETTER);
     }
 
     // 공감 요청
     @Override
-    public void requestSympathyPhrase(ReplyCreateCommand command, Long diaryId, SecretInfos secretInfos) {
+    public void requestSympathyPhrase(ReplyCreateCommand command, Long diaryId) {
         // LLM Request Message 가공
         List<GptMessage> prompts = processingFacade.processSympathyReplyPrompt(command);
-        requestToGptApi(openAiApiModel, openAiApiKey, prompts, diaryId, Reply.Type.SYMPATHY, secretInfos);
+        requestToGptApi(openAiApiModel, openAiApiKey, prompts, diaryId, Reply.Type.SYMPATHY);
     }
 
     // 충고 요청
     @Override
-    public void requestAdvicePhrase(ReplyCreateCommand command, Long diaryId, SecretInfos secretInfos) {
+    public void requestAdvicePhrase(ReplyCreateCommand command, Long diaryId) {
         List<GptMessage> prompts = processingFacade.processAdviceReplyPrompt(command);
-        requestToGptApi(openAiApiModel, openAiApiKey, prompts, diaryId, Reply.Type.ADVICE, secretInfos);
+        requestToGptApi(openAiApiModel, openAiApiKey, prompts, diaryId, Reply.Type.ADVICE);
     }
 
     /**
@@ -73,7 +72,7 @@ public class ReplyGPTClient implements LLMClient {
      * @return GPT 응답
      */
     private void requestToGptApi(String model, String apiKey, List<GptMessage> messages,
-                                 Long diaryId, Reply.Type type, SecretInfos secretInfos) {
+                                 Long diaryId, Reply.Type type) {
 
         Map<String, Object> bodyMap = new HashMap<>();
         bodyMap.put("model", model);
@@ -103,16 +102,17 @@ public class ReplyGPTClient implements LLMClient {
                 })
                 .retry(3)       // 실패해도 3번 시도
                 .subscribe(
-                        gptResponse -> respondGptCallBackSuccessMessage(gptResponse, diaryId, type, secretInfos),
-                        error -> respondGptCallBackFailedMessage(diaryId, secretInfos)
+                        gptResponse -> respondGptCallBackSuccessMessage(gptResponse, diaryId, type),
+                        error -> respondGptCallBackFailedMessage(error, diaryId)
                 );
     }
 
-    private void respondGptCallBackSuccessMessage(String gptResponse, Long diaryId, Reply.Type type, SecretInfos secretInfo) {
-        replyCommandService.createAndSaveReply(diaryId, gptResponse, type, secretInfo);
+    private void respondGptCallBackSuccessMessage(String gptResponse, Long diaryId, Reply.Type type) {
+        replyCommandService.createAndSaveReply(diaryId, gptResponse, type);
     }
 
-    private void respondGptCallBackFailedMessage(Long diaryId, SecretInfos secretInfo) {
-        replyCommandService.createAndSaveReply(diaryId, "네트워크 오류 발생..! 개발자에게 문의하세요.🥲🙇", null, secretInfo);
+    private void respondGptCallBackFailedMessage(Throwable error, Long diaryId) {
+        System.out.println(error.getMessage());
+        replyCommandService.createAndSaveReply(diaryId, "네트워크 오류 발생..! 개발자에게 문의하세요.🥲🙇", null);
     }
 }

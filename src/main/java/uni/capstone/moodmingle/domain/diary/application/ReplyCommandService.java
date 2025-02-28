@@ -5,9 +5,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uni.capstone.moodmingle.domain.diary.application.dto.DiaryCommandMapper;
 import uni.capstone.moodmingle.domain.diary.domain.Diary;
+import uni.capstone.moodmingle.domain.diary.domain.DiaryCrypto;
 import uni.capstone.moodmingle.domain.diary.domain.DiaryRepository;
 import uni.capstone.moodmingle.domain.diary.domain.Reply;
-import uni.capstone.moodmingle.domain.member.application.dto.response.SecretInfos;
+import uni.capstone.moodmingle.domain.member.domain.Member;
 import uni.capstone.moodmingle.domain.member.exception.MemberNotFoundException;
 import uni.capstone.moodmingle.global.error.ErrorCode;
 
@@ -21,8 +22,7 @@ import uni.capstone.moodmingle.global.error.ErrorCode;
 public class ReplyCommandService {
 
     private final DiaryRepository diaryRepository;
-
-    private final DiaryCryptoHelper cryptoHelper;
+    private final DiaryCrypto diaryCrypto;
     private final DiaryCommandMapper mapper;
 
     /**
@@ -33,12 +33,13 @@ public class ReplyCommandService {
      * @param type 답장 Type
      */
     @Transactional
-    public void createAndSaveReply(Long diaryId, String replyContent, Reply.Type type, SecretInfos secretInfo) {
-        // Diary 찾기
+    public void createAndSaveReply(Long diaryId, String replyContent, Reply.Type type) {
+        // Diary, Member 찾기
         Diary diary = findDiary(diaryId);
+        Member member = diary.getMember();
 
         // Reply 생성 및 저장
-        Reply reply = createReply(replyContent, type, secretInfo);
+        Reply reply = createReply(replyContent, type, member.getSecretKey());
         saveReply(diary, reply);
     }
 
@@ -52,11 +53,11 @@ public class ReplyCommandService {
                 .orElseThrow(() -> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND, diaryId));
     }
 
-    private Reply createReply(String replyContent, Reply.Type type, SecretInfos secretInfos) {
-        return mapper.toEntity(getEncryptedContent(replyContent, secretInfos), type);
+    private Reply createReply(String replyContent, Reply.Type type, String privateKey) {
+        return mapper.toEntity(getEncryptedContent(replyContent, privateKey), type);
     }
 
-    private String getEncryptedContent(String replyContent, SecretInfos secretInfos) {
-        return cryptoHelper.encryptContent(secretInfos, replyContent);
+    private String getEncryptedContent(String replyContent, String privateKey) {
+        return diaryCrypto.encrypt(privateKey, replyContent);
     }
 }
