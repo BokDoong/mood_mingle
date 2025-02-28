@@ -8,6 +8,7 @@ import uni.capstone.moodmingle.domain.diary.domain.Diary;
 import uni.capstone.moodmingle.domain.diary.domain.DiaryCrypto;
 import uni.capstone.moodmingle.domain.diary.domain.DiaryRepository;
 import uni.capstone.moodmingle.domain.diary.domain.Reply;
+import uni.capstone.moodmingle.domain.member.application.MemberQueryService;
 import uni.capstone.moodmingle.domain.member.domain.Member;
 import uni.capstone.moodmingle.domain.member.exception.MemberNotFoundException;
 import uni.capstone.moodmingle.global.error.ErrorCode;
@@ -21,6 +22,7 @@ import uni.capstone.moodmingle.global.error.ErrorCode;
 @RequiredArgsConstructor
 public class ReplyCommandService {
 
+    private final MemberQueryService memberQueryService;
     private final DiaryRepository diaryRepository;
     private final DiaryCrypto diaryCrypto;
     private final DiaryCommandMapper mapper;
@@ -37,9 +39,10 @@ public class ReplyCommandService {
         // Diary, Member 찾기
         Diary diary = findDiary(diaryId);
         Member member = diary.getMember();
+        byte[] privateKey = memberQueryService.getDecryptedPrivateKey(member.getPrivateKey());
 
         // Reply 생성 및 저장
-        Reply reply = createReply(replyContent, type, member.getSecretKey());
+        Reply reply = createReply(replyContent, type, privateKey);
         saveReply(diary, reply);
     }
 
@@ -53,11 +56,7 @@ public class ReplyCommandService {
                 .orElseThrow(() -> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND, diaryId));
     }
 
-    private Reply createReply(String replyContent, Reply.Type type, String privateKey) {
-        return mapper.toEntity(getEncryptedContent(replyContent, privateKey), type);
-    }
-
-    private String getEncryptedContent(String replyContent, String privateKey) {
-        return diaryCrypto.encrypt(privateKey, replyContent);
+    private Reply createReply(String replyContent, Reply.Type type, byte[] privateKey) {
+        return mapper.toEntity(diaryCrypto.encrypt(privateKey, replyContent), type);
     }
 }
