@@ -3,15 +3,10 @@ package uni.capstone.moodmingle.domain.member.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uni.capstone.moodmingle.domain.member.application.dto.response.MemberInfo;
-import uni.capstone.moodmingle.domain.member.application.dto.response.SecretInfos;
 import uni.capstone.moodmingle.domain.member.domain.Member;
 import uni.capstone.moodmingle.domain.member.domain.MemberRepository;
-import uni.capstone.moodmingle.domain.member.domain.MemberSecretInfo;
 import uni.capstone.moodmingle.domain.member.exception.MemberNotFoundException;
 import uni.capstone.moodmingle.global.error.ErrorCode;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
 
 /**
  * Member 도메인 조회 응용 서비스
@@ -22,7 +17,6 @@ import javax.crypto.spec.IvParameterSpec;
 @RequiredArgsConstructor
 public class MemberQueryService {
 
-    private final MemberCryptoHelper memberCryptoHelper;
     private final MemberRepository memberRepository;
 
     /**
@@ -45,30 +39,6 @@ public class MemberQueryService {
     public MemberInfo findMemberInfo(Long memberId) {
         Member member = findMemberById(memberId);
         return toMemberInfo(member);
-    }
-
-    /**
-     * 비밀키, 초기 벡터 조회
-     *
-     * @param memberId 멤버 ID
-     * @return SecretInfos DTO
-     */
-    public SecretInfos findMemberSecretInfos(Long memberId) {
-        MemberSecretInfo memberSecretInfo = memberRepository.findSecretInfoById(memberId)
-                .orElseThrow(() -> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
-        return toSecretInfos(memberSecretInfo);
-    }
-
-    private SecretInfos toSecretInfos(MemberSecretInfo memberSecretInfo) {
-        return new SecretInfos(getDecryptedSecretKey(memberSecretInfo), getDecryptedIv(memberSecretInfo));
-    }
-
-    private IvParameterSpec getDecryptedIv(MemberSecretInfo memberSecretInfo) {
-        return memberCryptoHelper.decryptIv(memberSecretInfo.getIv());
-    }
-
-    private SecretKey getDecryptedSecretKey(MemberSecretInfo memberSecretInfo) {
-        return memberCryptoHelper.decryptSecretKey(memberSecretInfo.getSecretKey());
     }
 
     private MemberInfo toMemberInfo(Member member) {

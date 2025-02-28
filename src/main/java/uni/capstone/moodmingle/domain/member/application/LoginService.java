@@ -9,7 +9,6 @@ import uni.capstone.moodmingle.domain.member.application.dto.request.MemberCreat
 import uni.capstone.moodmingle.domain.member.application.dto.response.TokenResponse;
 import uni.capstone.moodmingle.domain.member.domain.Member;
 import uni.capstone.moodmingle.domain.member.domain.MemberRepository;
-import uni.capstone.moodmingle.domain.member.domain.MemberSecretInfo;
 import uni.capstone.moodmingle.domain.member.exception.MemberAlreadyExistException;
 import uni.capstone.moodmingle.domain.member.exception.MemberNotFoundException;
 import uni.capstone.moodmingle.global.error.ErrorCode;
@@ -24,7 +23,6 @@ import uni.capstone.moodmingle.global.error.ErrorCode;
 public class LoginService {
 
     private final JwtService jwtService;
-    private final MemberCryptoHelper memberCryptoHelper;
     private final MemberRepository memberRepository;
     private final MemberCommandMapper mapper;
 
@@ -38,7 +36,6 @@ public class LoginService {
     @Transactional
     public TokenResponse register(MemberCreateCommand command) {
         Member member = createAndSaveMember(command);
-        createAndSaveSecretInfo(member);
         return toTokenResponse(member.getId());
     }
 
@@ -100,12 +97,6 @@ public class LoginService {
 
     private void verifyRefreshTokenExist(String refreshToken) {
         jwtService.verifyRefreshToken(refreshToken);
-    }
-
-    private MemberSecretInfo createAndSaveSecretInfo(Member member) {
-        MemberSecretInfo secretInfo = memberCryptoHelper.createSecretInfo(member.getId());
-        memberRepository.save(secretInfo);
-        return secretInfo;
     }
 
     private void deleteMember(long memberId) {
