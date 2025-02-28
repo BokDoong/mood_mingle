@@ -1,7 +1,6 @@
-package uni.capstone.moodmingle.global.config.redis;
+package uni.capstone.moodmingle.global.redis;
 
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;

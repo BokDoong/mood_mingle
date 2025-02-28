@@ -18,6 +18,7 @@ import uni.capstone.moodmingle.global.error.exception.BusinessException;
 
 import javax.naming.SizeLimitExceededException;
 import java.time.format.DateTimeParseException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -75,7 +76,7 @@ public class GlobalExceptionAdvice {
     // 이미지 크기 초과시 발생
     @ExceptionHandler({MaxUploadSizeExceededException.class, SizeLimitExceededException.class, MultipartException.class})
     protected ResponseEntity<ErrorResponse> imageFileSizeExceedException(Exception e) {
-        return createErrorResponse(e, ErrorCode.FILE_SIZE);
+        return createErrorResponse(e, ErrorCode.EXCEED_FILE_SIZE);
     }
 
     // RequestPart&Param 요청에서 빠진 파라미터가 있을 때
@@ -103,7 +104,7 @@ public class GlobalExceptionAdvice {
             response = ErrorResponse.toResponseEntity(ErrorCode.INVALID_REQUEST_PARAMETER,
                     ((MethodArgumentNotValidException) e).getBindingResult().getFieldErrors().stream()
                             .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining(" and ")));
-        } else if (!e.getMessage().isEmpty()) {                                 // 예외 메세지가 있는 경우 표시
+        } else if (Optional.ofNullable(e.getMessage()).orElse("").isEmpty()) {                                // 예외 메세지가 있는 경우 표시
             response = ErrorResponse.toResponseEntity(errorCode, e.getMessage());
         }else {
             response = ErrorResponse.toResponseEntity(errorCode);

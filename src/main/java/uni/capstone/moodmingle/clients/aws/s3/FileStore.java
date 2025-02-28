@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.clients.s3;
+package uni.capstone.moodmingle.clients.aws.s3;
 
 import org.springframework.web.multipart.MultipartFile;
 

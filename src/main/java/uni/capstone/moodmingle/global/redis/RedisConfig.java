@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.global.config.redis;
+package uni.capstone.moodmingle.global.redis;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;

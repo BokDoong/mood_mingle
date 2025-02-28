@@ -1,17 +1,14 @@
 package uni.capstone.moodmingle.domain.member.application.dto;
 
-import java.util.Arrays;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 import uni.capstone.moodmingle.domain.member.application.dto.request.MemberCreateCommand;
 import uni.capstone.moodmingle.domain.member.domain.Member;
 import uni.capstone.moodmingle.domain.member.domain.Member.MemberBuilder;
-import uni.capstone.moodmingle.domain.member.domain.MemberSecretInfo;
-import uni.capstone.moodmingle.domain.member.domain.MemberSecretInfo.MemberSecretInfoBuilder;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-23T16:41:27+0900",
+    date = "2025-02-28T15:15:18+0900",
     comments = "version: 1.4.2.Final, compiler: javac, environment: Java 17.0.11 (Amazon.com Inc.)"
 )
 @Component
@@ -48,32 +45,5 @@ public class MemberCommandMapperImpl implements MemberCommandMapper {
         }
 
         return member.build();
-    }
-
-    @Override
-    public MemberSecretInfo toSecretInfo(Long memberId, byte[] secretKey, byte[] iv) {
-        if ( memberId == null && secretKey == null && iv == null ) {
-            return null;
-        }
-
-        MemberSecretInfoBuilder memberSecretInfo = MemberSecretInfo.builder();
-
-        if ( memberId != null ) {
-            memberSecretInfo.memberId( memberId );
-        }
-        if ( secretKey != null ) {
-            byte[] secretKey1 = secretKey;
-            if ( secretKey1 != null ) {
-                memberSecretInfo.secretKey( Arrays.copyOf( secretKey1, secretKey1.length ) );
-            }
-        }
-        if ( iv != null ) {
-            byte[] iv1 = iv;
-            if ( iv1 != null ) {
-                memberSecretInfo.iv( Arrays.copyOf( iv1, iv1.length ) );
-            }
-        }
-
-        return memberSecretInfo.build();
     }
 }

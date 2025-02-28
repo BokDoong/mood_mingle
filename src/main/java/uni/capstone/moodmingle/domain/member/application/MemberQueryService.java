@@ -2,16 +2,13 @@ package uni.capstone.moodmingle.domain.member.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import uni.capstone.moodmingle.clients.aws.kms.KmsCrypto;
 import uni.capstone.moodmingle.domain.member.application.dto.response.MemberInfo;
-import uni.capstone.moodmingle.domain.member.application.dto.response.SecretInfos;
 import uni.capstone.moodmingle.domain.member.domain.Member;
 import uni.capstone.moodmingle.domain.member.domain.MemberRepository;
-import uni.capstone.moodmingle.domain.member.domain.MemberSecretInfo;
 import uni.capstone.moodmingle.domain.member.exception.MemberNotFoundException;
 import uni.capstone.moodmingle.global.error.ErrorCode;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
 
 /**
  * Member 도메인 조회 응용 서비스
@@ -22,7 +19,7 @@ import javax.crypto.spec.IvParameterSpec;
 @RequiredArgsConstructor
 public class MemberQueryService {
 
-    private final MemberCryptoHelper memberCryptoHelper;
+    private final KmsCrypto kmsCrypto;
     private final MemberRepository memberRepository;
 
     /**
@@ -31,6 +28,7 @@ public class MemberQueryService {
      * @param memberId 멤버 ID
      * @return  Member
      */
+    @Transactional(readOnly = true)
     public Member findMember(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND, memberId));
@@ -42,33 +40,20 @@ public class MemberQueryService {
      * @param memberId 멤버 ID
      * @return MemberInfo DTO
      */
+    @Transactional(readOnly = true)
     public MemberInfo findMemberInfo(Long memberId) {
         Member member = findMemberById(memberId);
         return toMemberInfo(member);
     }
 
     /**
-     * 비밀키, 초기 벡터 조회
+     * 개인키 복호화
      *
-     * @param memberId 멤버 ID
-     * @return SecretInfos DTO
+     * @param encryptedPrivateKey 개인키
+     * @return 복호화된 키
      */
-    public SecretInfos findMemberSecretInfos(Long memberId) {
-        MemberSecretInfo memberSecretInfo = memberRepository.findSecretInfoById(memberId)
-                .orElseThrow(() -> new MemberNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
-        return toSecretInfos(memberSecretInfo);
-    }
-
-    private SecretInfos toSecretInfos(MemberSecretInfo memberSecretInfo) {
-        return new SecretInfos(getDecryptedSecretKey(memberSecretInfo), getDecryptedIv(memberSecretInfo));
-    }
-
-    private IvParameterSpec getDecryptedIv(MemberSecretInfo memberSecretInfo) {
-        return memberCryptoHelper.decryptIv(memberSecretInfo.getIv());
-    }
-
-    private SecretKey getDecryptedSecretKey(MemberSecretInfo memberSecretInfo) {
-        return memberCryptoHelper.decryptSecretKey(memberSecretInfo.getSecretKey());
+    public byte[] getDecryptedPrivateKey(String encryptedPrivateKey) {
+        return kmsCrypto.decrypt(encryptedPrivateKey);
     }
 
     private MemberInfo toMemberInfo(Member member) {

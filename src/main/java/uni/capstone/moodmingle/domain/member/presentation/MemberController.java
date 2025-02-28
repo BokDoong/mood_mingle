@@ -3,7 +3,7 @@ package uni.capstone.moodmingle.domain.member.presentation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import uni.capstone.moodmingle.domain.member.application.LoginService;
+import uni.capstone.moodmingle.domain.member.application.MemberCommandService;
 import uni.capstone.moodmingle.domain.member.application.MemberQueryService;
 import uni.capstone.moodmingle.domain.member.application.dto.response.MemberInfo;
 import uni.capstone.moodmingle.domain.member.application.dto.response.TokenResponse;
@@ -24,7 +24,7 @@ import uni.capstone.moodmingle.domain.member.presentation.dto.request.TokenReiss
 public class MemberController {
 
     private final MemberQueryService memberQueryService;
-    private final LoginService loginService;
+    private final MemberCommandService memberCommandService;
     private final MemberDtoMapper mapper;
 
     /**
@@ -45,7 +45,7 @@ public class MemberController {
      */
     @DeleteMapping()
     public void withdraw(@AuthenticationPrincipal JwtUserDetails userDetails) {
-        loginService.withdraw(userDetails.getUserId());
+        memberCommandService.withdraw(userDetails.getUserId());
     }
 
     /**
@@ -56,7 +56,7 @@ public class MemberController {
      */
     @PostMapping("/join/{authServer}")
     public TokenResponse socialJoin(@PathVariable("authServer") String authServer, @AuthenticationPrincipal OidcUserInfo oidcUserInfo) {
-        return loginService.register(mapper.toCommand(oidcUserInfo));
+        return memberCommandService.register(mapper.toCommand(oidcUserInfo));
     }
 
     /**
@@ -67,7 +67,7 @@ public class MemberController {
      */
     @PostMapping("/login/kakao")
     public TokenResponse kakaoLogin(@AuthenticationPrincipal OidcUserInfo oidcUserInfo) {
-        return loginService.login(oidcUserInfo.getEmail());
+        return memberCommandService.login(oidcUserInfo.getEmail());
     }
 
     /**
@@ -75,7 +75,7 @@ public class MemberController {
      */
     @PostMapping("/basic-join")
     public TokenResponse join(@RequestBody MemberCreateDto dto) {
-        return loginService.register(mapper.toCommand(dto));
+        return memberCommandService.register(mapper.toCommand(dto));
     }
 
     /**
@@ -84,7 +84,7 @@ public class MemberController {
      */
     @PostMapping("/basic-login")
     public TokenResponse login(@RequestParam("email") String email) {
-        return loginService.login(email);
+        return memberCommandService.login(email);
     }
 
     /**
@@ -95,7 +95,7 @@ public class MemberController {
      */
     @PostMapping("/reissue")
     public TokenResponse reissue(@RequestBody TokenReissueDto dto) {
-        return loginService.reissue(dto.getRefreshToken());
+        return memberCommandService.reissue(dto.getRefreshToken());
     }
 
     /**
@@ -105,6 +105,6 @@ public class MemberController {
      */
     @PostMapping("/logout")
     public void logout(@AuthenticationPrincipal JwtUserDetails userDetails) {
-        loginService.logout(userDetails.getUserId());
+        memberCommandService.logout(userDetails.getUserId());
     }
 }

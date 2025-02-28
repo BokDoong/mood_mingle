@@ -15,7 +15,7 @@ import uni.capstone.moodmingle.domain.member.domain.Member;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-02-23T16:41:27+0900",
+    date = "2025-02-28T15:15:18+0900",
     comments = "version: 1.4.2.Final, compiler: javac, environment: Java 17.0.11 (Amazon.com Inc.)"
 )
 @Component

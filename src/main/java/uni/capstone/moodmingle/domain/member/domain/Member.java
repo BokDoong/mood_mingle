@@ -1,9 +1,13 @@
 package uni.capstone.moodmingle.domain.member.domain;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import uni.capstone.moodmingle.domain.diary.domain.Diary;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +35,8 @@ public class Member {
     private String email;
     @Column(name = "image_url")
     private String imageUrl;
+    @Column(name = "private_key")
+    private String privateKey;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Diary> diaries = new ArrayList<>();
@@ -43,7 +49,21 @@ public class Member {
         this.diaries = new ArrayList<>();
     }
 
+    // 일기 추가
     public void addDiary(Diary diary) {
         diaries.add(diary);
+    }
+
+    // 개인키 생성
+    public byte[] generateUserPrivateKey() {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] keyBytes = new byte[32];
+        secureRandom.nextBytes(keyBytes);
+        return keyBytes;
+    }
+
+    // 암호화한 개인키 설정
+    public void setEncryptedPrivateKey(String encryptedPrivateKey) {
+        this.privateKey = encryptedPrivateKey;
     }
 }
