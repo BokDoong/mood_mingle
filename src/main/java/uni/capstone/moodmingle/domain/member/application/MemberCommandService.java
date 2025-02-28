@@ -12,6 +12,8 @@ import uni.capstone.moodmingle.domain.member.domain.MemberRepository;
 import uni.capstone.moodmingle.domain.member.exception.MemberAlreadyExistException;
 import uni.capstone.moodmingle.domain.member.exception.MemberNotFoundException;
 import uni.capstone.moodmingle.global.error.ErrorCode;
+import uni.capstone.moodmingle.global.security.jwt.JwtTokenService;
+import uni.capstone.moodmingle.global.security.jwt.JwtVerificationService;
 
 /**
  * 로그인 서비스
@@ -20,9 +22,10 @@ import uni.capstone.moodmingle.global.error.ErrorCode;
  */
 @Service
 @RequiredArgsConstructor
-public class LoginService {
+public class MemberCommandService {
 
-    private final JwtService jwtService;
+    private final JwtVerificationService jwtVerificationService;
+    private final JwtTokenService jwtTokenService;
     private final MemberRepository memberRepository;
     private final MemberCommandMapper mapper;
 
@@ -88,15 +91,15 @@ public class LoginService {
     }
 
     private void expireUsedRefreshToken(long memberId) {
-        jwtService.expireRefreshToken(memberId);
+        jwtVerificationService.expireRefreshToken(memberId);
     }
 
     private Long extractMemberIdFromToken(String refreshToken) {
-        return jwtService.extractUserId(refreshToken);
+        return jwtVerificationService.extractUserId(refreshToken);
     }
 
     private void verifyRefreshTokenExist(String refreshToken) {
-        jwtService.verifyRefreshToken(refreshToken);
+        jwtVerificationService.verifyRefreshToken(refreshToken);
     }
 
     private void deleteMember(long memberId) {
@@ -124,8 +127,8 @@ public class LoginService {
 
     private TokenResponse toTokenResponse(long memberId) {
         return TokenResponse.builder()
-                .accessToken(jwtService.createAccessToken(memberId))
-                .refreshToken(jwtService.createRefreshToken(memberId))
+                .accessToken(jwtTokenService.createAccessToken(memberId))
+                .refreshToken(jwtTokenService.createRefreshToken(memberId))
                 .build();
     }
 

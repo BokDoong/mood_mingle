@@ -11,7 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import uni.capstone.moodmingle.global.security.handler.MingleAccessDeniedHandler;
 import uni.capstone.moodmingle.global.security.handler.MingleAuthenticationEntryPoint;
-import uni.capstone.moodmingle.global.security.jwt.JwtAuthFilter;
+import uni.capstone.moodmingle.global.security.jwt.filter.JwtAuthFilter;
 import uni.capstone.moodmingle.global.security.jwt.utils.JwtExtractor;
 import uni.capstone.moodmingle.global.security.jwt.utils.JwtVerifier;
 import uni.capstone.moodmingle.global.security.oidc.OidcAuthFilter;

@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.global.security.jwt;
+package uni.capstone.moodmingle.global.security.jwt.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
