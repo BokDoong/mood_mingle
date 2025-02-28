@@ -1,12 +1,14 @@
 package uni.capstone.moodmingle.domain.member.domain;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import uni.capstone.moodmingle.domain.diary.domain.Diary;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 /**
@@ -33,8 +35,8 @@ public class Member {
     private String email;
     @Column(name = "image_url")
     private String imageUrl;
-    @Column(name = "secret_key")
-    private String secretKey;
+    @Column(name = "private_key")
+    private String privateKey;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<Diary> diaries = new ArrayList<>();
@@ -44,7 +46,6 @@ public class Member {
         this.name = name;
         this.email = email;
         this.imageUrl = (imageUrl == null || imageUrl.isEmpty()) ? null : imageUrl;
-        this.secretKey = generateUserPrivateKey();
         this.diaries = new ArrayList<>();
     }
 
@@ -54,11 +55,15 @@ public class Member {
     }
 
     // 개인키 생성
-    private String generateUserPrivateKey() {
+    public byte[] generateUserPrivateKey() {
         SecureRandom secureRandom = new SecureRandom();
         byte[] keyBytes = new byte[32];
         secureRandom.nextBytes(keyBytes);
+        return keyBytes;
+    }
 
-        return Base64.getEncoder().encodeToString(keyBytes);
+    // 암호화한 개인키 설정
+    public void setEncryptedPrivateKey(String encryptedPrivateKey) {
+        this.privateKey = encryptedPrivateKey;
     }
 }
