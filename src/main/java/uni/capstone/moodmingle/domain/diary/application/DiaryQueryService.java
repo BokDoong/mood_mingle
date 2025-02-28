@@ -7,11 +7,12 @@ import org.springframework.transaction.annotation.Transactional;
 import uni.capstone.moodmingle.domain.diary.application.dto.response.DiaryDetailInfo;
 import uni.capstone.moodmingle.domain.diary.application.dto.response.DiaryInfo;
 import uni.capstone.moodmingle.domain.diary.domain.Diary;
+import uni.capstone.moodmingle.domain.diary.domain.DiaryCrypto;
 import uni.capstone.moodmingle.domain.diary.domain.DiaryRepository;
 import uni.capstone.moodmingle.domain.diary.domain.EmotionCalculator;
 import uni.capstone.moodmingle.domain.diary.exception.DiaryNotFoundException;
 import uni.capstone.moodmingle.domain.member.application.MemberQueryService;
-import uni.capstone.moodmingle.domain.member.application.dto.response.SecretInfos;
+import uni.capstone.moodmingle.domain.member.domain.Member;
 import uni.capstone.moodmingle.global.error.ErrorCode;
 
 import java.time.LocalDate;
@@ -31,7 +32,7 @@ public class DiaryQueryService {
     private final MemberQueryService memberQueryService;
     private final DiaryRepository diaryRepository;
 
-    private final DiaryCryptoHelper cryptoHelper;
+    private final DiaryCrypto diaryCrypto;
     private final EmotionCalculator emotionCalculator;
 
     // 월별 일기 조회
@@ -43,9 +44,9 @@ public class DiaryQueryService {
     // 일기 상세 조회
     @Transactional(readOnly = true)
     public DiaryDetailInfo findDiaryDetailInfo(Long memberId, Long diaryId) {
+        Member member = memberQueryService.findMember(memberId);
         DiaryDetailInfo diaryDetailInfo = getDiaryDetailInfo(memberId, diaryId);
-        SecretInfos secretInfos = memberQueryService.findMemberSecretInfos(memberId);
-        return setDecryptedInfos(diaryDetailInfo, secretInfos);
+        return setDecryptedInfos(diaryDetailInfo, member);
     }
 
     // 월별 감정 통계 조회
@@ -54,16 +55,21 @@ public class DiaryQueryService {
         return emotionCalculator.makeStatisticsOfEmotions(monthlyEmotions);
     }
 
-    private DiaryDetailInfo setDecryptedInfos(DiaryDetailInfo diaryDetailInfo, SecretInfos secretInfos) {
-        diaryDetailInfo.setDecryptedDiaryContent(getDecryptedContent(secretInfos, diaryDetailInfo.getContent()));
+    // DTO 에 복호화한 일기 내용 저장
+    private DiaryDetailInfo setDecryptedInfos(DiaryDetailInfo diaryDetailInfo, Member member) {
+        // 개인키
+        String privateKey = member.getSecretKey();
+        // 일기 복호화
+        diaryDetailInfo.setDecryptedDiaryContent(getDecryptedContent(privateKey, diaryDetailInfo.getContent()));
+        // 답장 복호화
         if (!diaryDetailInfo.verifyReplyContentEmpty()) {
-            diaryDetailInfo.setDecryptedReplyContent(getDecryptedContent(secretInfos, diaryDetailInfo.getReplyContent()));
+            diaryDetailInfo.setDecryptedReplyContent(getDecryptedContent(privateKey, diaryDetailInfo.getReplyContent()));
         }
         return diaryDetailInfo;
     }
 
-    private String getDecryptedContent(SecretInfos secretInfos, String content) {
-        return cryptoHelper.decryptContent(secretInfos, content);
+    private String getDecryptedContent(String privateKey, String content) {
+        return diaryCrypto.decrypt(privateKey, content);
     }
 
     private DiaryDetailInfo getDiaryDetailInfo(Long memberId, Long diaryId) {

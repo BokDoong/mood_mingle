@@ -42,7 +42,13 @@ public class DiaryJpaRepository implements DiaryRepository {
      */
     @Override
     public Optional<Diary> findById(long diaryId) {
-        return Optional.ofNullable(em.find(Diary.class, diaryId));
+        return Optional.ofNullable(em.createQuery(
+                        "select d" +
+                                " from Diary d" +
+                                " join fetch d.member m" +
+                                " where d.id = :diaryId", Diary.class)
+                .setParameter("diaryId", diaryId)
+                .getSingleResult());
     }
 
     /**
@@ -88,7 +94,7 @@ public class DiaryJpaRepository implements DiaryRepository {
         LocalDate endDate = date.withDayOfMonth(date.lengthOfMonth()); // 해당 월의 마지막 날
 
         return em.createQuery(
-                        "select new uni.capstone.moodmingle.diary.application.dto.response.DiaryInfo(d.id, d.date, d.emotion)" +
+                        "select new uni.capstone.moodmingle.domain.diary.application.dto.response.DiaryInfo(d.id, d.date, d.emotion)" +
                                 " from Diary d" +
                                 " join d.member m" +
                                 " where m.id = :memberId" +
@@ -110,7 +116,7 @@ public class DiaryJpaRepository implements DiaryRepository {
     @Override
     public Optional<DiaryDetailInfo> findDiaryDetailInfo(Long memberId, Long diaryId) {
         List<DiaryDetailInfo> detailInfos = em.createQuery(
-                        "select new uni.capstone.moodmingle.diary.application.dto.response.DiaryDetailInfo" +
+                        "select new uni.capstone.moodmingle.domain.diary.application.dto.response.DiaryDetailInfo" +
                                 "(d.id, d.title, d.content, d.date, d.emotion, d.weather, d.image.imageUrl, r.content, r.type)" +
                                 " from Diary d" +
                                 " join d.member m" +
