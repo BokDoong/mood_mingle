@@ -3,8 +3,8 @@ package uni.capstone.moodmingle.domain.diary.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uni.capstone.moodmingle.clients.aws.s3.FileStore;
 import uni.capstone.moodmingle.clients.llm.LLMClient;
-import uni.capstone.moodmingle.clients.s3.FileStore;
 import uni.capstone.moodmingle.domain.diary.application.dto.DiaryCommandMapper;
 import uni.capstone.moodmingle.domain.diary.application.dto.request.DiaryCreateCommand;
 import uni.capstone.moodmingle.domain.diary.domain.Diary;
@@ -33,19 +33,21 @@ public class DiaryCommandService {
     private final LLMClient client;
 
 
-    // 일기 생성
+    /**
+     * 일기 작성
+     *
+     * @param command 일기 생성 DTO
+     * @param type 일기 타입
+     */
     @Transactional
     public void createAndSaveDiary(DiaryCreateCommand command, Reply.Type type) {
         // 사용자, 사용자의 비밀키, 초기벡터 조회
         Member member = findMember(command.memberId());
-
         // 암호화 및 Diary 생성
         Diary diary = createDiary(command, member);
-
         // 이미지 업로드 -> 저장
         uploadImageIfExisted(command, diary);
         saveDiary(member, diary);
-
         // 답변 요청
         replyDiary(command, type, member, diary);
     }
@@ -78,14 +80,10 @@ public class DiaryCommandService {
         diaryRepository.saveDiary(diary);
     }
 
-
-    private String getEncryptedContent(String privateKey, String content) {
-        return diaryCrypto.encrypt(privateKey, content);
-    }
-
     private Diary createDiary(DiaryCreateCommand command, Member member) {
         checkDiaryAlreadyExist(command, member);
-        return mapper.toEntity(command, getEncryptedContent(member.getSecretKey(), command.content()), member);
+        byte[] privateKey = memberQueryService.getDecryptedPrivateKey(member.getPrivateKey());
+        return mapper.toEntity(command, diaryCrypto.encrypt(privateKey, command.content()), member);
     }
 
     private void checkDiaryAlreadyExist(DiaryCreateCommand command, Member member) {

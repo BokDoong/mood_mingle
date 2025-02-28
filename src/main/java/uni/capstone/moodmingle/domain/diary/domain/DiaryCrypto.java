@@ -10,7 +10,6 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.SecureRandom;
-import java.util.Base64;
 
 /**
  * 일기, 답장 암호화하는 인크립터
@@ -33,17 +32,15 @@ public class DiaryCrypto {
     }
 
     // 암호화
-    public String encrypt(String privateKey, String diary) {
+    public String encrypt(byte[] privateKey, String diary) {
         try {
-            // Base64로 인코딩된 개인키를 디코딩하여 바이트 배열로 변환
-            byte[] decodedPrivateKey = Base64.getDecoder().decode(privateKey);
             // 16 바이트의 초기벡터 랜덤 생성
             SecureRandom random = new SecureRandom();
             byte[] iv = new byte[16];
             random.nextBytes(iv);
 
             // 암호화시 사용할 키, 초기벡터, 알고리즘 설정
-            SecretKeySpec secretKey = new SecretKeySpec(decodedPrivateKey, keyEncryptAlgorithm);
+            SecretKeySpec secretKey = new SecretKeySpec(privateKey, keyEncryptAlgorithm);
             IvParameterSpec IV = new IvParameterSpec(iv);
             Cipher c = Cipher.getInstance(encryptAlgorithm);
 
@@ -59,16 +56,14 @@ public class DiaryCrypto {
     }
 
     // 복호화
-    public String decrypt(String privateKey, String encryptedDiary) {
+    public String decrypt(byte[] privateKey, String encryptedDiary) {
         try {
-            // Base64로 인코딩된 개인키를 디코딩하여 바이트 배열로 변환
-            byte[] decodedPrivateKey = Base64.getDecoder().decode(privateKey);
             // 데이터에서 초기벡터, 암호화된 텍스트 떼기
             byte[] iv = Hex.decodeHex(encryptedDiary.substring(0, 32).toCharArray());
             byte[] cipherText = Hex.decodeHex(encryptedDiary.substring(32).toCharArray());
 
             // 개인키, 초기벡터
-            SecretKeySpec secretKey = new SecretKeySpec(decodedPrivateKey, keyEncryptAlgorithm);
+            SecretKeySpec secretKey = new SecretKeySpec(privateKey, keyEncryptAlgorithm);
             IvParameterSpec IV = new IvParameterSpec(iv);
 
             // 복호화 알고리즘 및 환경설정
