@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.clients.llm.gpt;
+package uni.capstone.moodmingle.clients.llm.prompt;
 
 import org.springframework.stereotype.Component;
 import uni.capstone.moodmingle.clients.llm.gpt.dto.GptMessage;

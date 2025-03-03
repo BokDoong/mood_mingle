@@ -41,7 +41,7 @@ public class DiaryJpaRepository implements DiaryRepository {
      * @return 찾은 Diary 객체
      */
     @Override
-    public Optional<Diary> findById(long diaryId) {
+    public Optional<Diary> findDiaryById(long diaryId) {
         return Optional.ofNullable(em.createQuery(
                         "select d" +
                                 " from Diary d" +
