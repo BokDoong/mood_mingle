@@ -1,5 +1,6 @@
 package uni.capstone.moodmingle.global.error;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
  *
  * @author ijin
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionAdvice {
 
@@ -94,6 +96,7 @@ public class GlobalExceptionAdvice {
     // 나머지 에러 여기서 핸들링
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ErrorResponse> handleException(Exception e) {
+        log.error(e.getMessage(), e);
         return createErrorResponse(e, ErrorCode.SERVICE_UNAVAILABLE);
     }
 

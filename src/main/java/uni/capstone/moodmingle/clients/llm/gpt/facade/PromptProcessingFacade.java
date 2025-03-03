@@ -2,7 +2,7 @@ package uni.capstone.moodmingle.clients.llm.gpt.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import uni.capstone.moodmingle.clients.llm.gpt.GptPromptProcessingHelper;
+import uni.capstone.moodmingle.clients.llm.prompt.GptPromptProcessingHelper;
 import uni.capstone.moodmingle.domain.diary.application.dto.request.ReplyCreateCommand;
 import uni.capstone.moodmingle.clients.llm.prompt.DiaryPromptGenerator;
 import uni.capstone.moodmingle.clients.llm.prompt.ReplyPromptGenerator;

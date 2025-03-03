@@ -18,7 +18,7 @@ import uni.capstone.moodmingle.domain.member.domain.Member;
  */
 @Service
 @RequiredArgsConstructor
-public class ReplyCommandService {
+public class ReplyHandlerService {
 
     private final MemberQueryService memberQueryService;
     private final DiaryQueryService diaryQueryService;
@@ -43,6 +43,17 @@ public class ReplyCommandService {
         // Reply 생성 및 저장
         Reply reply = createReply(replyContent, type, privateKey);
         saveReply(diary, reply);
+    }
+
+    /**
+     * LLM 에 요청 실패한 일기 상태 수정
+     *
+     * @param diaryId 일기 ID
+     */
+    @Transactional
+    public void treatFailedReplyDiary(Long diaryId) {
+        Diary diary = findDiary(diaryId);
+        diary.failRepliedStatus();
     }
 
     private void saveReply(Diary diary, Reply reply) {

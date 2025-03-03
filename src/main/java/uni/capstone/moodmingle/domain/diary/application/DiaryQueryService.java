@@ -76,6 +76,7 @@ public class DiaryQueryService {
         return emotionCalculator.makeStatisticsOfEmotions(monthlyEmotions);
     }
 
+    @Transactional
     public Diary getDiaryById(Long diaryId) {
         return diaryRepository.findDiaryById(diaryId)
                 .orElseThrow(() -> new DiaryNotFoundException(ErrorCode.DIARY_NOT_FOUND));

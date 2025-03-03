@@ -31,6 +31,7 @@ public enum ErrorCode {
     NONE_REQUESTED_URI("C-009", BAD_REQUEST, "요청한 URI 가 잘못된 경우"),
     TOO_MANY_REQUESTS("C-010", HttpStatus.TOO_MANY_REQUESTS, "요청 횟수가 초과된 경우"),
     FAILED_IO_OPERATION("C-011", NOT_IMPLEMENTED, "외부 I/O 작업 중 문제가 생긴 경우"),
+    CIRCUIT_BREAKER_OPENED("C-012", NOT_IMPLEMENTED, "외부 API 서버 장애로 인해 서킷브레이커가 오픈된 경우"),
 
     // KMS
     FAILED_ENCODE_DATA("K-001", NOT_IMPLEMENTED, "KMS Key로 데이터 인코딩을 실패한 경우"),

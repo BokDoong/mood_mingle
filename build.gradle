@@ -86,6 +86,9 @@ dependencies {
 	// AWS KMS
 	implementation 'com.amazonaws:aws-java-sdk-kms:1.12.711'
 	implementation 'com.amazonaws:aws-java-sdk-core:1.12.711'
+
+	// CircuitBreaker
+	implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.0.2'
 }
 
 tasks.named('test') {

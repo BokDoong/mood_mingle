@@ -25,14 +25,13 @@ import uni.capstone.moodmingle.global.error.ErrorCode;
 @RequiredArgsConstructor
 public class DiaryCommandService {
 
-    private final DiaryCrypto diaryCrypto;
     private final MemberQueryService memberQueryService;
-    private final DiaryQueryService diaryQueryService;
     private final DiaryRepository diaryRepository;
     private final DiaryCommandMapper mapper;
+
+    private final DiaryCrypto diaryCrypto;
     private final FileStore fileStore;
     private final LLMClient client;
-
 
     /**
      * 일기 작성
@@ -53,23 +52,8 @@ public class DiaryCommandService {
         replyDiary(command, type, member, diary);
     }
 
-    /**
-     * LLM 에 요청 실패한 일기 상태 수정
-     *
-     * @param diaryId 일기 ID
-     */
-    @Transactional
-    public void treatFailedReplyDiary(Long diaryId) {
-        Diary diary = diaryQueryService.getDiaryById(diaryId);
-        diary.failRepliedStatus();
-    }
-
     private void replyDiary(DiaryCreateCommand command, Reply.Type type, Member member, Diary diary) {
-        switch (type) {
-            case LETTER -> client.requestConsoleLetter(mapper.toCommand(command, member.getName()), diary.getId());
-            case ADVICE -> client.requestAdvicePhrase(mapper.toCommand(command, member.getName()), diary.getId());
-            case SYMPATHY -> client.requestSympathyPhrase(mapper.toCommand(command, member.getName()), diary.getId());
-        }
+        client.requestToLLMApi(mapper.toCommand(command, member.getName()), type, diary.getId());
     }
 
     private void uploadImageIfExisted(DiaryCreateCommand diaryCreateCommand, Diary diary) {
