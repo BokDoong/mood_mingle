@@ -50,7 +50,7 @@ public class RateLimitingAspect {
     // 10분에 4개의 토큰이 채워지는 버킷 생성
     private Bucket createNewBucket() {
         return Bucket.builder()
-                .addLimit(Bandwidth.classic(4, Refill.intervally(4, Duration.ofMinutes(10))))
+                .addLimit(Bandwidth.classic(5, Refill.intervally(5, Duration.ofMinutes(1))))
                 .build();
     }
 }
