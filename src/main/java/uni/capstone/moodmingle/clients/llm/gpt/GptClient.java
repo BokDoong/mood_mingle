@@ -1,6 +1,5 @@
 package uni.capstone.moodmingle.clients.llm.gpt;
 
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.logging.MDC;
@@ -8,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.util.retry.Retry;
+import uni.capstone.moodmingle.clients.llm.gpt.circuitbreaker.GptCircuitBreaker;
 import uni.capstone.moodmingle.clients.llm.gpt.dto.GptMessage;
 import uni.capstone.moodmingle.clients.llm.gpt.dto.GptResponseInfo;
 import uni.capstone.moodmingle.clients.llm.gpt.facade.PromptProcessingFacade;
@@ -42,6 +42,7 @@ public class GptClient {
     private String gptApiModel;
 
     private final WebClient gptWebClient;
+    private final GptCircuitBreaker gptCircuitBreaker;
     private final FailedLogRepository failedLogRepository;
     private final ReplyHandlerService handler;
     private final PromptProcessingFacade processingFacade;
@@ -71,15 +72,17 @@ public class GptClient {
      * @param messages Prompt Messages
      * @param type 답장 Type
      */
-    @CircuitBreaker(name = "openai-api", fallbackMethod = "logAndSaveCircuitBreakerErrorMessages")
-    private void requestToGptApi(String model,List<GptMessage> messages, Long diaryId, Reply.Type type) {
-        // OpenAI API 요청하기 위한 HTTP Body
-        Map<String, Object> bodyMap = processOpenAIRequestBody(model, messages);
+    public void requestToGptApi(String model, List<GptMessage> messages, Long diaryId, Reply.Type type) {
+        // 서킷 브레이커 상태 확인
+        if (gptCircuitBreaker.checkCircuitBreakerOpened()) {
+            throw new ExternalApiException(ErrorCode.CIRCUIT_BREAKER_OPENED);
+        }
+
         // OpenAI API 요청
         gptWebClient
                 .post()
                 .uri(gptRequestUrl)
-                .bodyValue(bodyMap)
+                .bodyValue(processOpenAIRequestBody(model, messages))
                 .retrieve()
                 .bodyToMono(GptResponseInfo.class)
                 .doOnEach(signal -> {
@@ -97,7 +100,10 @@ public class GptClient {
                 .doFinally(signal -> MDC.clear())              // 식별자 메모리에서 비우기
                 .subscribe(
                         gptResponse -> handler.createAndSaveReply(diaryId, gptResponse, type),
-                        error -> handler.treatFailedReplyDiary(diaryId)
+                        error -> {
+                            handler.treatFailedReplyDiary(diaryId);
+                            gptCircuitBreaker.addFailureCount();        // 실패 횟수 추가
+                        }
                 );
     }
 
@@ -105,17 +111,6 @@ public class GptClient {
     private void putRequestId() {
         String requestId = UUID.randomUUID().toString().substring(0, 8);
         MDC.put("requestId", requestId);
-    }
-
-    // 서킷브레이커 오픈됐을 때
-    private void logAndSaveCircuitBreakerErrorMessages(Throwable error, Long diaryId) {
-        // 로그 및 저장
-        String circuitBreakerLog = "🔴 OpenAI API 장애 지속: 서킷 브레이커 OPEN 상태. 요청 차단됨.";
-        log.error(circuitBreakerLog);
-        createAndSaveFailedLog(circuitBreakerLog, diaryId);
-
-        // 예외
-        throw new ExternalApiException(ErrorCode.CIRCUIT_BREAKER_OPENED);
     }
 
     // OpenAI API 통신 실패했을 때
