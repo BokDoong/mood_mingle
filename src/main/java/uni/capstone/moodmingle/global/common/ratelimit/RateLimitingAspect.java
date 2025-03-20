@@ -4,15 +4,14 @@ import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
 import jakarta.servlet.http.HttpServletRequest;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import uni.capstone.moodmingle.global.security.jwt.utils.JwtExtractor;
-import uni.capstone.moodmingle.global.error.exception.BusinessException;
 import uni.capstone.moodmingle.global.error.ErrorCode;
+import uni.capstone.moodmingle.global.error.exception.BusinessException;
+import uni.capstone.moodmingle.global.security.jwt.utils.JwtExtractor;
 
 import java.time.Duration;
 import java.util.Map;
@@ -30,8 +29,8 @@ public class RateLimitingAspect {
         this.jwtExtractor = jwtExtractor;
     }
 
-    @Around("@annotation(uni.capstone.moodmingle.global.common.ratelimit.RateLimited)")
-    public Object rateLimit(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Before("@annotation(uni.capstone.moodmingle.global.common.ratelimit.RateLimited)")
+    public Object rateLimit() {
         // JWT 에서 userID 추출
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         Long userId = jwtExtractor.extractUserId(request);
@@ -41,7 +40,7 @@ public class RateLimitingAspect {
 
         // 토큰 소비
         if (bucket.tryConsume(1)) {
-            return joinPoint.proceed();
+            return true;
         } else {
             throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS);
         }
