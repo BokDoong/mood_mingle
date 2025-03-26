@@ -11,8 +11,7 @@ import uni.capstone.moodmingle.clients.llm.gpt.circuitbreaker.GptCircuitBreaker;
 import uni.capstone.moodmingle.clients.llm.gpt.dto.GptMessage;
 import uni.capstone.moodmingle.clients.llm.gpt.dto.GptResponseInfo;
 import uni.capstone.moodmingle.clients.llm.gpt.facade.PromptProcessingFacade;
-import uni.capstone.moodmingle.clients.llm.gpt.log.FailedLog;
-import uni.capstone.moodmingle.clients.llm.gpt.log.FailedLogRepository;
+import uni.capstone.moodmingle.clients.llm.gpt.log.LogHandlerService;
 import uni.capstone.moodmingle.domain.diary.application.ReplyHandlerService;
 import uni.capstone.moodmingle.domain.diary.application.dto.request.ReplyCreateCommand;
 import uni.capstone.moodmingle.domain.diary.domain.Reply;
@@ -20,10 +19,7 @@ import uni.capstone.moodmingle.global.error.ErrorCode;
 import uni.capstone.moodmingle.global.error.exception.ExternalApiException;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * 비동기 작업을 위해 WebClient 를 이용해서 GPT 와 통신하는 컴포넌트
@@ -43,8 +39,8 @@ public class GptClient {
 
     private final WebClient gptWebClient;
     private final GptCircuitBreaker gptCircuitBreaker;
-    private final FailedLogRepository failedLogRepository;
-    private final ReplyHandlerService handler;
+    private final LogHandlerService logHandler;
+    private final ReplyHandlerService replyHandler;
     private final PromptProcessingFacade processingFacade;
 
     // 위로 요청
@@ -82,60 +78,53 @@ public class GptClient {
         gptWebClient
                 .post()
                 .uri(gptRequestUrl)
-                .bodyValue(processOpenAIRequestBody(model, messages))
+                .bodyValue(processGptRequestMessages(model, messages))
                 .retrieve()
                 .bodyToMono(GptResponseInfo.class)
-                .doOnEach(signal -> {
-                    putRequestId();                             // OpenAi API 응답 처리하는 스레드에 식별자값 부여
+                .doOnSubscribe(subscription -> {
+                    putThreadId();
+                    logHandler.logRequestMessages(messages);
                 })
                 .doOnError(error -> {
-                    logAndSaveErrorMessages(diaryId, error);    // 에러메세지 로그 및 저장
+                    logHandler.logAndSaveErrorMessages(diaryId, error);
                 })
-                .map(gptResponse -> gptResponse.getChoices().stream()
-                        .map(choice -> choice.getMessage().getContent())
-                        .toList()
-                        .get(0))                                // OpenAi API 응답 가공
+                .map(this::processGptResponseMessages)
                 .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))
-                        .jitter(0.5))                // 랜덤 백오프 3회 재시도 정책
-                .doFinally(signal -> MDC.clear())              // 식별자 메모리에서 비우기
+                        .jitter(0.5))
+                .doFinally(signal -> MDC.clear())
                 .subscribe(
-                        gptResponse -> handler.createAndSaveReply(diaryId, gptResponse, type),
+                        gptResponse -> {
+                            logHandler.logSuccessMessages(gptResponse);
+                            replyHandler.createAndSaveReply(diaryId, gptResponse, type);
+                        },
                         error -> {
-                            handler.treatFailedReplyDiary(diaryId);
-                            gptCircuitBreaker.addFailureCount();        // 실패 횟수 추가
+                            replyHandler.treatFailedReplyDiary(diaryId);
+                            gptCircuitBreaker.addFailureCount();
                         }
                 );
     }
 
     // 스레드에 식별자값 부여
-    private void putRequestId() {
+    private void putThreadId() {
         String requestId = UUID.randomUUID().toString().substring(0, 8);
         MDC.put("requestId", requestId);
     }
 
-    // OpenAI API 통신 실패했을 때
-    private void logAndSaveErrorMessages(Long diaryId, Throwable error) {
-        log.error("❌ OpenAI API 오류 응답: " + error.getMessage());
-        createAndSaveFailedLog(error.getMessage(), diaryId);
-    }
-
-    // 실패 로그 생성 및 저장
-    private void createAndSaveFailedLog(String log, Long diaryId) {
-        FailedLog failedLog = FailedLog.builder()
-                .threadId((String) MDC.get("requestId"))
-                .errorLog(log)
-                .diaryId(diaryId)
-                .build();
-        failedLogRepository.save(failedLog);
-    }
-
-    // OpenAI API 요청 데이터 가공
-    private Map<String, Object> processOpenAIRequestBody(String model, List<GptMessage> messages) {
+    // 요청 메세지 가공
+    private Map<String, Object> processGptRequestMessages(String model, List<GptMessage> messages) {
         Map<String, Object> bodyMap = new HashMap<>();
         bodyMap.put("model", model);
         bodyMap.put("stream", false);
         bodyMap.put("messages", messages);
         bodyMap.put("temperature", 1.0);
         return bodyMap;
+    }
+
+    // 응답 메세지 가공
+    private String processGptResponseMessages(GptResponseInfo gptResponse) {
+        return gptResponse.getChoices().stream()
+                .map(choice -> choice.getMessage().getContent())
+                .toList()
+                .get(0);
     }
 }
