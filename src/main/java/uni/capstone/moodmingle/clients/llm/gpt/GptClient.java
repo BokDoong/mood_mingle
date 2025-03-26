@@ -10,7 +10,7 @@ import reactor.util.retry.Retry;
 import uni.capstone.moodmingle.clients.llm.gpt.circuitbreaker.GptCircuitBreaker;
 import uni.capstone.moodmingle.clients.llm.gpt.dto.GptMessage;
 import uni.capstone.moodmingle.clients.llm.gpt.dto.GptResponseInfo;
-import uni.capstone.moodmingle.clients.llm.gpt.facade.PromptProcessingFacade;
+import uni.capstone.moodmingle.clients.llm.prompt.facade.PromptProcessingFacade;
 import uni.capstone.moodmingle.clients.llm.gpt.log.LogHandlerService;
 import uni.capstone.moodmingle.domain.diary.application.ReplyHandlerService;
 import uni.capstone.moodmingle.domain.diary.application.dto.request.ReplyCreateCommand;

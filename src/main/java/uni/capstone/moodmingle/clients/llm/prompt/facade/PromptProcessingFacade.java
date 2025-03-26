@@ -1,4 +1,4 @@
-package uni.capstone.moodmingle.clients.llm.gpt.facade;
+package uni.capstone.moodmingle.clients.llm.prompt.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
