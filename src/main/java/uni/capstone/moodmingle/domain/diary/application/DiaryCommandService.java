@@ -40,7 +40,7 @@ public class DiaryCommandService {
      * @param type 일기 타입
      */
     @Transactional
-    public void createAndSaveDiary(DiaryCreateCommand command, Reply.Type type) {
+    public Long createAndSaveDiary(DiaryCreateCommand command, Reply.Type type) {
         // 사용자, 사용자의 비밀키, 초기벡터 조회
         Member member = findMember(command.memberId());
         // 암호화 및 Diary 생성
@@ -50,6 +50,7 @@ public class DiaryCommandService {
         saveDiary(member, diary);
         // 답변 요청
         replyDiary(command, type, member, diary);
+        return diary.getId();
     }
 
     private void replyDiary(DiaryCreateCommand command, Reply.Type type, Member member, Diary diary) {

@@ -40,10 +40,10 @@ public class DiaryController {
      */
     @RateLimited
     @PostMapping("/api/v1/diary/letter")
-    public void replyLetter(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
+    public Long replyLetter(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                             @RequestPart(value = "image", required = false) MultipartFile image) {
         Long memberId = userDetails.getUserId();
-        diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Reply.Type.LETTER);
+        return diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Reply.Type.LETTER);
     }
 
     /**
@@ -51,10 +51,10 @@ public class DiaryController {
      */
     @RateLimited
     @PostMapping("/api/v1/diary/sympathy")
-    public void replySympathy(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
+    public Long replySympathy(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                               @RequestPart(value = "image", required = false) MultipartFile image) {
         Long memberId = userDetails.getUserId();
-        diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Reply.Type.SYMPATHY);
+        return diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Reply.Type.SYMPATHY);
     }
 
     /**
@@ -62,10 +62,10 @@ public class DiaryController {
      */
     @RateLimited
     @PostMapping("/api/v1/diary/advice")
-    public void replyAdvice(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
+    public Long replyAdvice(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                             @RequestPart(value = "image", required = false) MultipartFile image) {
         Long memberId = userDetails.getUserId();
-        diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Reply.Type.ADVICE);
+        return diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Reply.Type.ADVICE);
     }
 
     /**
