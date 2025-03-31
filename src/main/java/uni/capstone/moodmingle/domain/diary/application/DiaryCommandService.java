@@ -41,14 +41,12 @@ public class DiaryCommandService {
      */
     @Transactional
     public Long createAndSaveDiary(DiaryCreateCommand command, Reply.Type type) {
-        // 사용자, 사용자의 비밀키, 초기벡터 조회
         Member member = findMember(command.memberId());
-        // 암호화 및 Diary 생성
+
         Diary diary = createDiary(command, member);
-        // 이미지 업로드 -> 저장
-        uploadImageIfExisted(command, diary);
         saveDiary(member, diary);
-        // 답변 요청
+        uploadDiaryImage(command, diary);
+
         replyDiary(command, type, member, diary);
         return diary.getId();
     }
@@ -57,8 +55,13 @@ public class DiaryCommandService {
         client.requestToLLMApi(mapper.toCommand(command, member.getName()), type, diary.getId());
     }
 
-    private void uploadImageIfExisted(DiaryCreateCommand diaryCreateCommand, Diary diary) {
-        if (!validateImageIncluded(diaryCreateCommand)) {
+    private void saveDiary(Member member, Diary diary) {
+        member.addDiary(diary);
+        diaryRepository.saveDiary(diary);
+    }
+
+    private void uploadDiaryImage(DiaryCreateCommand diaryCreateCommand, Diary diary) {
+        if (!diaryCreateCommand.image().isEmpty()) {
             String imageUrl = uploadImageToDB(diaryCreateCommand);
             diary.putImage(imageUrl);
         }
@@ -66,15 +69,6 @@ public class DiaryCommandService {
 
     private String uploadImageToDB(DiaryCreateCommand diaryCreateCommand) {
         return fileStore.upload(diaryCreateCommand.image());
-    }
-
-    private boolean validateImageIncluded(DiaryCreateCommand diaryCreateCommand) {
-        return diaryCreateCommand.image().isEmpty();
-    }
-
-    private void saveDiary(Member member, Diary diary) {
-        member.addDiary(diary);
-        diaryRepository.saveDiary(diary);
     }
 
     private Diary createDiary(DiaryCreateCommand command, Member member) {

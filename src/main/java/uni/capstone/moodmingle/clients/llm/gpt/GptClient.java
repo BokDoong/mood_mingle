@@ -10,7 +10,7 @@ import reactor.util.retry.Retry;
 import uni.capstone.moodmingle.clients.llm.gpt.circuitbreaker.GptCircuitBreaker;
 import uni.capstone.moodmingle.clients.llm.gpt.dto.GptMessage;
 import uni.capstone.moodmingle.clients.llm.gpt.dto.GptResponseInfo;
-import uni.capstone.moodmingle.clients.llm.prompt.facade.PromptProcessingFacade;
+import uni.capstone.moodmingle.clients.llm.prompt.PromptProcessor;
 import uni.capstone.moodmingle.clients.llm.gpt.log.LogHandlerService;
 import uni.capstone.moodmingle.domain.diary.application.ReplyHandlerService;
 import uni.capstone.moodmingle.domain.diary.application.dto.request.ReplyCreateCommand;
@@ -41,23 +41,22 @@ public class GptClient {
     private final GptCircuitBreaker gptCircuitBreaker;
     private final LogHandlerService logHandler;
     private final ReplyHandlerService replyHandler;
-    private final PromptProcessingFacade processingFacade;
 
     // 위로 요청
     public void requestConsoleLetter(ReplyCreateCommand command, Long diaryId) {
-        List<GptMessage> prompts = processingFacade.processLetterReplyPrompt(command);
+        List<GptMessage> prompts = PromptProcessor.processLetterReplyPrompt(command);
         requestToGptApi(gptApiModel, prompts, diaryId, Reply.Type.LETTER);
     }
 
     // 공감 요청
     public void requestSympathyPhrase(ReplyCreateCommand command, Long diaryId) {
-        List<GptMessage> prompts = processingFacade.processSympathyReplyPrompt(command);
+        List<GptMessage> prompts = PromptProcessor.processSympathyReplyPrompt(command);
         requestToGptApi(gptApiModel, prompts, diaryId, Reply.Type.SYMPATHY);
     }
 
     // 충고 요청
     public void requestAdvicePhrase(ReplyCreateCommand command, Long diaryId) {
-        List<GptMessage> prompts = processingFacade.processAdviceReplyPrompt(command);
+        List<GptMessage> prompts = PromptProcessor.processAdviceReplyPrompt(command);
         requestToGptApi(gptApiModel, prompts, diaryId, Reply.Type.ADVICE);
     }
 

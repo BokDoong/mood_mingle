@@ -29,6 +29,7 @@ public interface DiaryCommandMapper {
     @Mapping(target = "content", source = "encryptedContent")
     Diary toEntity(DiaryCreateCommand diaryCreateCommand, String encryptedContent, Member member);
 
+
     /**
      * Content & Type -> Reply 매핑
      *
