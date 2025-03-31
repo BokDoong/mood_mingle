@@ -40,7 +40,7 @@ public class DiaryCommandService {
      * @param type 일기 타입
      */
     @Transactional
-    public Long createAndSaveDiary(DiaryCreateCommand command, Reply.Type type) {
+    public Long saveDiary(DiaryCreateCommand command, Reply.Type type) {
         Member member = findMember(command.memberId());
 
         Diary diary = createDiary(command, member);

@@ -43,7 +43,7 @@ public class DiaryController {
     public Long replyLetter(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                             @RequestPart(value = "image", required = false) MultipartFile image) {
         Long memberId = userDetails.getUserId();
-        return diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Reply.Type.LETTER);
+        return diaryCommandService.saveDiary(toCreateCommand(memberId, dto, image), Reply.Type.LETTER);
     }
 
     /**
@@ -54,7 +54,7 @@ public class DiaryController {
     public Long replySympathy(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                               @RequestPart(value = "image", required = false) MultipartFile image) {
         Long memberId = userDetails.getUserId();
-        return diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Reply.Type.SYMPATHY);
+        return diaryCommandService.saveDiary(toCreateCommand(memberId, dto, image), Reply.Type.SYMPATHY);
     }
 
     /**
@@ -65,7 +65,7 @@ public class DiaryController {
     public Long replyAdvice(@AuthenticationPrincipal JwtUserDetails userDetails, @RequestPart("dto") @Valid DiaryCreateDto dto,
                             @RequestPart(value = "image", required = false) MultipartFile image) {
         Long memberId = userDetails.getUserId();
-        return diaryCommandService.createAndSaveDiary(toCreateCommand(memberId, dto, image), Reply.Type.ADVICE);
+        return diaryCommandService.saveDiary(toCreateCommand(memberId, dto, image), Reply.Type.ADVICE);
     }
 
     /**
