@@ -19,19 +19,18 @@ public class FailedLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @Column(name = "thread_id")
-    private String threadId;         // 요청 스레드 식별자 값
+    @Column(name = "requested_thread_id")
+    private String requestedThreadId;         // 요청 스레드 식별자 값
     @Column(name = "diary_id")
     private Long diaryId;
-    @Lob
     @Column(name = "error_log")
     private String errorLog;         // 로그
     @CreationTimestamp
     private LocalDateTime time;
 
     @Builder
-    public FailedLog(String threadId, String errorLog, Long diaryId) {
-        this.threadId = threadId;
+    public FailedLog(String requestedThreadId, String errorLog, Long diaryId) {
+        this.requestedThreadId = requestedThreadId;
         this.diaryId = diaryId;
         this.errorLog = errorLog;
     }

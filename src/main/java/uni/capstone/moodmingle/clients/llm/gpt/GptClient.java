@@ -73,6 +73,8 @@ public class GptClient {
             throw new ExternalApiException(ErrorCode.CIRCUIT_BREAKER_OPENED);
         }
 
+        // 요청된 스레드 ID
+        String threadId = (String) MDC.get("requestId");
         // OpenAI API 요청
         gptWebClient
                 .post()
@@ -81,11 +83,10 @@ public class GptClient {
                 .retrieve()
                 .bodyToMono(GptResponseInfo.class)
                 .doOnSubscribe(subscription -> {
-                    putThreadId();
                     logHandler.logRequestMessages(messages);
                 })
                 .doOnError(error -> {
-                    logHandler.logAndSaveErrorMessages(diaryId, error);
+                    logHandler.logAndSaveErrorMessages(threadId, diaryId, error);
                 })
                 .map(this::processGptResponseMessages)
                 .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))
@@ -101,12 +102,6 @@ public class GptClient {
                             gptCircuitBreaker.addFailureCount();
                         }
                 );
-    }
-
-    // 스레드에 식별자값 부여
-    private void putThreadId() {
-        String requestId = UUID.randomUUID().toString().substring(0, 8);
-        MDC.put("requestId", requestId);
     }
 
     // 요청 메세지 가공

@@ -2,7 +2,6 @@ package uni.capstone.moodmingle.clients.llm.gpt.log;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jboss.logging.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uni.capstone.moodmingle.clients.llm.gpt.dto.GptMessage;
@@ -34,14 +33,14 @@ public class LogHandlerService {
 
     // 실패 메세지 로깅, 저장
     @Transactional
-    public void logAndSaveErrorMessages(Long diaryId, Throwable error) {
+    public void logAndSaveErrorMessages(String requestedThreadId, Long diaryId, Throwable error) {
         log.error("\n❌ OpenAI API 오류 응답: " + error.getMessage());
-        createAndSaveFailedLog(error.getMessage(), diaryId);
+        createAndSaveFailedLog(requestedThreadId, error.getMessage(), diaryId);
     }
 
-    private void createAndSaveFailedLog(String log, Long diaryId) {
+    private void createAndSaveFailedLog(String requestThreadId, String log, Long diaryId) {
         FailedLog failedLog = FailedLog.builder()
-                .threadId((String) MDC.get("requestId"))
+                .requestedThreadId(requestThreadId)
                 .errorLog(log)
                 .diaryId(diaryId)
                 .build();
