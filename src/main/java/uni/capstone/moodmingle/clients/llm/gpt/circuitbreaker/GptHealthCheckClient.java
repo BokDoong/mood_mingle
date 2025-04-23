@@ -14,7 +14,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class GptStatusTestClient {
+public class GptHealthCheckClient {
 
     // OpenAI API 설정값
     @Value("${openai.api.url}")
