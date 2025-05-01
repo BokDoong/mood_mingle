@@ -3,6 +3,7 @@ package uni.capstone.moodmingle.clients.llm.prompt;
 import lombok.experimental.UtilityClass;
 import uni.capstone.moodmingle.clients.llm.gpt.dto.GptMessage;
 import uni.capstone.moodmingle.domain.diary.application.dto.request.ReplyCreateCommand;
+import uni.capstone.moodmingle.domain.diary.domain.ReplyPrompt;
 
 import java.util.ArrayList;
 import java.util.List;
